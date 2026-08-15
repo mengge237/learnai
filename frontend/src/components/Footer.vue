@@ -3,14 +3,14 @@
     <div class="footer-inner">
       <div class="footer-col">
         <h4>AI智学 · 校园学习平台</h4>
-        <p class="text-muted">面向 3D 建模与图形开发学习者的在线学习平台，提供系统化课程、学习路径、AI 答疑与 3D 模型资源。</p>
+        <p class="text-muted">面向 3D 建模与图形开发学习者的在线学习平台，提供系统化课程、学习路径、在线答疑与 3D 模型资源。</p>
       </div>
       <div class="footer-col">
         <h4>快速链接</h4>
         <router-link to="/resources">学习资源</router-link>
         <router-link to="/paths">学习路径</router-link>
         <router-link to="/market">模型资源库</router-link>
-        <router-link to="/ai/chat">AI 答疑</router-link>
+        <router-link to="/ai/chat">在线答疑</router-link>
       </div>
       <div class="footer-col">
         <h4>关于本站</h4>

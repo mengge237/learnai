@@ -47,8 +47,12 @@ async function changePassword() {
     <el-card class="block">
       <div class="section-label">🎨 界面外观</div>
       <div class="pref-row">
-        <span>暗色模式</span>
-        <el-switch :model-value="prefs.prefs.darkMode" @change="(v) => prefs.update({ darkMode: v })" />
+        <span>外观模式</span>
+        <el-radio-group :model-value="prefs.prefs.themeMode || 'auto'" @change="(v) => prefs.update({ themeMode: v })">
+          <el-radio-button value="auto">跟随系统</el-radio-button>
+          <el-radio-button value="light">浅色</el-radio-button>
+          <el-radio-button value="dark">深色</el-radio-button>
+        </el-radio-group>
       </div>
       <div class="pref-row">
         <span>主题色</span>

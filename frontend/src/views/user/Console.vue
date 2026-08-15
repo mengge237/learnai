@@ -1,13 +1,15 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { aiApi } from '@/api/ai'
+import { studyApi } from '@/api/study'
 import { useAuthStore } from '@/stores/auth'
 import { LEARNING_STATUS, formatDate } from '@/utils/format'
 
 const router = useRouter()
 const auth = useAuthStore()
 const data = ref(null)
+const study = ref(null)
 const loading = ref(true)
 
 const quickEntries = [
@@ -15,7 +17,7 @@ const quickEntries = [
   { icon: '🗺️', label: '学习路径', path: '/paths' },
   { icon: '📊', label: '学习分析', path: '/ai/analytics' },
   { icon: '🧭', label: '智能推荐', path: '/ai/recommend' },
-  { icon: '💬', label: 'AI 答疑', path: '/ai/chat' },
+  { icon: '💬', label: '在线答疑', path: '/ai/chat' },
   { icon: '⭐', label: '我的收藏', path: '/user/favorites' },
   { icon: '⬇️', label: '下载历史', path: '/user/downloads' },
   { icon: '📦', label: '我的订单', path: '/market/orders' },
@@ -27,14 +29,18 @@ const stats = [
   { key: 'totalLearningResources', label: '学习资源', suffix: '个' },
   { key: 'totalCompleted', label: '已完成', suffix: '个' },
   { key: 'totalInProgress', label: '进行中', suffix: '个' },
-  { key: 'totalAIInteractions', label: 'AI 交互', suffix: '次' },
+  { key: 'totalInteractions', label: '答疑互动', suffix: '次' },
   { key: 'averageProgress', label: '平均进度', suffix: '%', precision: 1 },
   { key: 'totalLearningMinutes', label: '累计时长', suffix: '分钟' },
 ]
 
+const weekMax = computed(() => Math.max(1, ...(study.value?.week || []).map((d) => d.minutes)))
+
 onMounted(async () => {
   try {
-    data.value = await aiApi.analytics()
+    ;[data.value, study.value] = await Promise.all([aiApi.analytics(), studyApi.stats()])
+  } catch {
+    // 部分接口失败不影响控制台展示
   } finally {
     loading.value = false
   }
@@ -51,6 +57,43 @@ onMounted(async () => {
         · {{ auth.user?.roleName || '普通用户' }} · 欢迎回来，今天也要好好学习
       </div>
     </div>
+
+    <!-- ============ 学习激励 ============ -->
+    <template v-if="study">
+      <div class="study-grid">
+        <div class="study-card">
+          <div class="sc-label">今日学习</div>
+          <div class="sc-value">{{ study.todayMinutes }}<span class="sc-unit">分钟</span></div>
+          <div class="sc-sub text-muted">累计 {{ study.totalMinutes }} 分钟</div>
+        </div>
+        <div class="study-card">
+          <div class="sc-label">连续学习</div>
+          <div class="sc-value flame">🔥 {{ study.streakDays }}<span class="sc-unit">天</span></div>
+          <div class="sc-sub text-muted">坚持就是胜利</div>
+        </div>
+        <div class="study-card" :class="{ online: study.isStudying }">
+          <div class="sc-label">学习状态</div>
+          <div class="sc-value sc-state">
+            {{ study.isStudying ? '● 正在学习' : '○ 空闲' }}
+          </div>
+          <div class="sc-sub text-muted">
+            {{ study.isStudying && study.currentResourceTitle ? `《${study.currentResourceTitle}》` : '去学习页开始计时吧' }}
+          </div>
+        </div>
+        <div class="study-card week-card">
+          <div class="sc-label">本周学习（分钟）</div>
+          <div class="week-bars">
+            <div v-for="d in study.week" :key="d.date" class="week-col">
+              <div class="week-bar-wrap">
+                <div class="week-bar" :style="{ height: `${Math.max(4, (d.minutes / weekMax) * 100)}%` }" />
+              </div>
+              <span class="week-day">{{ d.label.slice(1) }}</span>
+              <span class="week-min">{{ d.minutes }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
 
     <template v-if="data">
       <div class="stat-grid">
@@ -117,6 +160,101 @@ onMounted(async () => {
   margin-bottom: 20px;
   letter-spacing: 1px;
 }
+/* ================= 学习激励卡片 ================= */
+.study-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.study-card {
+  border: 1px solid var(--border-color);
+  border-top: 3px solid var(--line-color);
+  border-radius: 2px;
+  background: var(--el-bg-color);
+  padding: 14px 16px;
+}
+.study-card.online {
+  border-top-color: #67c23a;
+}
+.sc-label {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--el-text-color-secondary);
+  margin-bottom: 6px;
+}
+.sc-value {
+  font-size: 26px;
+  font-weight: 800;
+  font-family: 'Consolas', 'Courier New', monospace;
+}
+.sc-unit {
+  font-size: 13px;
+  font-weight: 400;
+  margin-left: 4px;
+}
+.flame {
+  color: #e8590c;
+}
+.sc-state {
+  font-size: 20px;
+  letter-spacing: 1px;
+}
+.study-card.online .sc-state {
+  color: #67c23a;
+}
+.sc-sub {
+  font-size: 12px;
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* 周柱状图 */
+.week-card {
+  grid-column: span 1;
+}
+.week-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 84px;
+}
+.week-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  height: 100%;
+}
+.week-bar-wrap {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.week-bar {
+  width: 60%;
+  max-width: 26px;
+  min-height: 4px;
+  background: var(--line-soft);
+  transition: background 0.2s;
+}
+.week-col:hover .week-bar {
+  background: var(--theme-color);
+}
+.week-day {
+  font-size: 11px;
+  color: var(--el-text-color-secondary);
+}
+.week-min {
+  font-size: 10px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  color: var(--el-text-color-secondary);
+}
+
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
@@ -173,5 +311,10 @@ onMounted(async () => {
 .quick-label {
   font-size: 13px;
   letter-spacing: 1px;
+}
+@media (max-width: 900px) {
+  .study-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 </style>

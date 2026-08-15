@@ -1,13 +1,11 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import ResourceCard from '@/components/ResourceCard.vue'
-import PathCard from '@/components/PathCard.vue'
-import ModelCard from '@/components/ModelCard.vue'
 import { resourceApi } from '@/api/resources'
 import { pathApi } from '@/api/paths'
 import { marketApi } from '@/api/market'
 import { groupCategories } from '@/utils/categories'
+import { formatCount, formatPrice } from '@/utils/format'
 import http from '@/api/http'
 
 const router = useRouter()
@@ -22,7 +20,7 @@ onMounted(async () => {
   const [res, pathList, modelList, cats] = await Promise.all([
     resourceApi.list({ page: 1, size: 6, sort: 'popular' }),
     pathApi.list({ page: 1, size: 4 }),
-    marketApi.listModels({ page: 1, size: 6, sort: 'newest' }),
+    marketApi.listModels({ page: 1, size: 3, sort: 'newest' }),
     http.get('/categories'),
   ])
   resources.value = res.content
@@ -42,17 +40,48 @@ function onSearch() {
 </script>
 
 <template>
-  <div>
-    <!-- ============ HERO：工程图纸区（线稿风） ============ -->
-    <section class="hero blueprint-grid">
-      <div class="hero-frame tech-frame">
-        <span class="hero-annotation ann-tl">FIG.01 — WIREFRAME / 线稿</span>
-        <span class="hero-annotation ann-tr">SCALE 1:1</span>
-        <span class="hero-annotation ann-bl">X:1200 · Y:600 · Z:∞</span>
-        <span class="hero-annotation ann-br">DWG-2026-A</span>
+  <div class="home">
+    <!-- ============ HERO：深色对撞区 ============ -->
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-top">
+          <span class="hero-en">AIZHIXUE · CAMPUS LEARNING PLATFORM</span>
+          <span class="hero-en">EST. 2026</span>
+        </div>
 
-        <div class="hero-inner">
-          <div class="hero-left">
+        <div class="hero-body">
+          <div class="hero-text">
+            <h1 class="hero-title">
+              从一条线开始<br />
+              <span class="hero-title-2">构建一方世界</span>
+            </h1>
+            <p class="hero-slogan">
+              面向三维建模与图形开发学习者的校园学习平台。系统化教程逐章可读，
+              学习路径规划成长路线，模型资源库让灵感落地。
+            </p>
+
+            <div class="hero-search">
+              <el-input
+                v-model="searchText"
+                size="large"
+                placeholder="搜索课程、路径或 3D 模型…"
+                clearable
+                @keyup.enter="onSearch"
+              >
+                <template #append>
+                  <el-button class="search-btn" @click="onSearch">搜索</el-button>
+                </template>
+              </el-input>
+            </div>
+
+            <div class="hero-actions">
+              <button class="hero-btn hero-btn-primary" @click="router.push('/resources')">开始学习</button>
+              <button class="hero-btn" @click="router.push('/paths')">学习路径</button>
+              <button class="hero-btn" @click="router.push('/market')">模型资源库</button>
+            </div>
+          </div>
+
+          <div class="hero-cube">
             <div class="cube-stage">
               <div class="cube">
                 <div class="face front" /><div class="face back" />
@@ -62,201 +91,245 @@ function onSearch() {
               </div>
               <span class="crosshair ch-1" /><span class="crosshair ch-2" />
               <span class="crosshair ch-3" /><span class="crosshair ch-4" />
-              <span class="cube-label">3D 线框立方体 · 学习从这里开始</span>
             </div>
-          </div>
-
-          <div class="hero-right">
-            <div class="dim-strip hero-kicker">AIZHIXUE · CAMPUS EDITION · 2026</div>
-            <h1 class="hero-title">
-              从一根线开始<br />
-              构建你的<span class="hero-accent">三维世界</span>
-            </h1>
-            <div class="hero-line" />
-            <p class="hero-slogan">
-              AI智学 · 校园学习平台 —— 系统化教程可在线阅读，学习路径规划成长路线，
-              AI 答疑随时守候，模型资源库让灵感落地。从线稿到作品，每一步都有迹可循。
-            </p>
-
-            <div class="hero-search">
-              <el-input
-                v-model="searchText"
-                size="large"
-                placeholder="搜索学习资源，例如：Blender、Maya、图形学…"
-                clearable
-                @keyup.enter="onSearch"
-              >
-                <template #append>
-                  <el-button class="search-btn" @click="onSearch">搜 索</el-button>
-                </template>
-              </el-input>
-            </div>
-
-            <div class="hero-actions">
-              <el-button type="primary" size="large" @click="router.push('/resources')">▶ 开始学习</el-button>
-              <el-button size="large" class="ghost" @click="router.push('/paths')">学习路径</el-button>
-              <el-button size="large" class="ghost" @click="router.push('/market')">模型资源库</el-button>
-            </div>
+            <span class="cube-label">WIREFRAME · 线框是世界的起点</span>
           </div>
         </div>
 
         <div class="hero-stats">
-          <div class="stat"><span class="num">{{ stats.resources }}</span><span class="label">学习资源</span></div>
-          <div class="stat-divider" />
-          <div class="stat"><span class="num">{{ stats.paths }}</span><span class="label">学习路径</span></div>
-          <div class="stat-divider" />
-          <div class="stat"><span class="num">{{ stats.models }}</span><span class="label">3D 模型</span></div>
-          <div class="stat-divider" />
-          <div class="stat"><span class="num">AI</span><span class="label">智能答疑</span></div>
+          <div class="hstat"><span class="hnum">{{ stats.resources }}</span><span class="hlabel">门课程</span></div>
+          <div class="hstat-line" />
+          <div class="hstat"><span class="hnum">{{ stats.paths }}</span><span class="hlabel">条路径</span></div>
+          <div class="hstat-line" />
+          <div class="hstat"><span class="hnum">{{ stats.models }}</span><span class="hlabel">个模型</span></div>
+          <div class="hstat-line" />
+          <div class="hstat"><span class="hnum">3</span><span class="hlabel">步进阶法</span></div>
         </div>
       </div>
     </section>
 
+    <!-- ============ 理念三行 ============ -->
+    <section class="manifesto">
+      <div class="mani-row" @click="router.push('/resources')">
+        <span class="mani-en">LEARN</span>
+        <h2 class="mani-title">学</h2>
+        <p class="mani-desc">系统化教程逐章可读，像翻阅图纸一样学习，随时答疑解惑。</p>
+        <span class="mani-arrow">→</span>
+      </div>
+      <div class="mani-row" @click="router.push('/resources/my')">
+        <span class="mani-en">PRACTICE</span>
+        <h2 class="mani-title">练</h2>
+        <p class="mani-desc">步骤打卡、学习计时与连续记录，每一步进步都有迹可循。</p>
+        <span class="mani-arrow">→</span>
+      </div>
+      <div class="mani-row" @click="router.push('/market')">
+        <span class="mani-en">CREATE</span>
+        <h2 class="mani-title">创</h2>
+        <p class="mani-desc">模型资源库在线预览 3D 作品，让灵感直接落地。</p>
+        <span class="mani-arrow">→</span>
+      </div>
+    </section>
+
     <div class="page-container">
-      <!-- ============ 00 理念：学 · 练 · 创 ============ -->
-      <div class="blueprint-section">
-        <span class="bp-no">00</span>
-        <span class="bp-title">我们的理念</span>
-        <span class="bp-sub">LEARN · PRACTICE · CREATE</span>
-        <span class="bp-line" />
-      </div>
-      <div class="idea-grid">
-        <div class="idea-card tech-frame">
-          <span class="idea-no">01</span>
-          <svg class="idea-svg" viewBox="0 0 24 24"><path d="M4 4h16v16H4z" /><path d="M8 9h8M8 13h8M8 17h5" /></svg>
-          <h3>学</h3>
-          <p>系统化教程逐章可读，像翻阅工程图纸一样学习，AI 助手随时解答疑问。</p>
+      <!-- ============ 课程 ============ -->
+      <section class="block">
+        <div class="block-head">
+          <div class="block-head-left">
+            <span class="block-en">COURSES</span>
+            <h2 class="block-title">课程</h2>
+          </div>
+          <button class="more-link" @click="router.push('/resources')">全部课程 →</button>
         </div>
-        <div class="idea-card tech-frame">
-          <span class="idea-no">02</span>
-          <svg class="idea-svg" viewBox="0 0 24 24"><path d="M4 20l12-12" /><path d="M13 7l4 4" /><path d="M15 3h6v6" /></svg>
-          <h3>练</h3>
-          <p>步骤打卡记录每一点进步，学习分析用图表丈量你的成长轨迹。</p>
+        <div class="list-rows">
+          <button v-for="(r, i) in resources" :key="r.id" class="list-row" @click="router.push(`/resources/${r.id}`)">
+            <span class="row-no">{{ String(i + 1).padStart(2, '0') }}</span>
+            <span class="row-title">{{ r.title }}</span>
+            <span class="row-meta">
+              <template v-if="r.categoryName">{{ r.categoryName }}</template>
+              <template v-if="r.difficultyLevel"> · {{ r.difficultyLevel }}</template>
+              <template v-if="r.completionCount"> · {{ formatCount(r.completionCount) }} 人学过</template>
+            </span>
+            <span class="row-arrow">→</span>
+          </button>
         </div>
-        <div class="idea-card tech-frame">
-          <span class="idea-no">03</span>
-          <svg class="idea-svg" viewBox="0 0 24 24"><path d="M12 3l9 5v8l-9 5-9-5V8z" /><path d="M12 13l9-5M12 13L3 8M12 13v8" /></svg>
-          <h3>创</h3>
-          <p>模型资源库提供可在线预览的 3D 模型，让灵感直接落地为作品。</p>
+      </section>
+
+      <!-- ============ 模型精选 ============ -->
+      <section class="block">
+        <div class="block-head">
+          <div class="block-head-left">
+            <span class="block-en">MODELS</span>
+            <h2 class="block-title">模型精选</h2>
+          </div>
+          <button class="more-link" @click="router.push('/market')">进入模型资源库 →</button>
         </div>
-      </div>
-
-      <!-- ============ 01 学习资源 ============ -->
-      <div class="blueprint-section">
-        <span class="bp-no">01</span>
-        <span class="bp-title">学习资源</span>
-        <span class="bp-sub">系统课程 · 在线阅读 · 步骤打卡</span>
-        <span class="bp-line" />
-        <el-link type="primary" class="bp-more" @click="router.push('/resources')">查看全部 →</el-link>
-      </div>
-      <div class="card-grid">
-        <ResourceCard v-for="r in resources" :key="r.id" :resource="r" />
-      </div>
-
-      <!-- ============ 02 学习路径 ============ -->
-      <div class="blueprint-section">
-        <span class="bp-no">02</span>
-        <span class="bp-title">学习路径</span>
-        <span class="bp-sub">规划路线 · 循序渐进</span>
-        <span class="bp-line" />
-        <el-link type="primary" class="bp-more" @click="router.push('/paths')">查看全部 →</el-link>
-      </div>
-      <div class="card-grid">
-        <PathCard v-for="p in paths" :key="p.id" :path="p" />
-      </div>
-
-      <!-- ============ 03 模型资源库 ============ -->
-      <div class="blueprint-section">
-        <span class="bp-no">03</span>
-        <span class="bp-title">模型资源库</span>
-        <span class="bp-sub">在线 3D 预览 · 灵感落地</span>
-        <span class="bp-line" />
-        <el-link type="primary" class="bp-more" @click="router.push('/market')">查看全部 →</el-link>
-      </div>
-      <div class="card-grid">
-        <ModelCard v-for="m in models" :key="m.id" :model="m" />
-      </div>
-
-      <!-- ============ 04 学习分类 ============ -->
-      <div class="blueprint-section">
-        <span class="bp-no">04</span>
-        <span class="bp-title">学习分类</span>
-        <span class="bp-sub">按方向找到你的起点</span>
-        <span class="bp-line" />
-      </div>
-      <div class="cat-grid">
-        <button
-          v-for="g in catGroups"
-          :key="g.parent.id"
-          class="cat-tile"
-          @click="router.push({ path: '/resources', query: { categoryId: g.parent.id } })"
-        >
-          <span class="cat-name">{{ g.parent.name }}</span>
-          <span class="cat-children text-muted">{{ g.children.map((c) => c.name).join(' · ') || '综合' }}</span>
-        </button>
-      </div>
-
-      <!-- ============ 05 AI 助手 ============ -->
-      <div class="blueprint-section">
-        <span class="bp-no">05</span>
-        <span class="bp-title">AI 学习助手</span>
-        <span class="bp-sub">随时提问 · 全站悬浮</span>
-        <span class="bp-line" />
-      </div>
-      <section class="ai-banner tech-frame">
-        <div class="ai-text">
-          <h3>🤖 学不会？问 AI。</h3>
-          <p>智能推荐学习资源、分析学习进度、解答 3D 建模问题——点击右下角悬浮按钮，AI 助手随叫随到。</p>
+        <div class="model-row">
+          <button v-for="m in models" :key="m.id" class="model-item" @click="router.push(`/market/${m.id}`)">
+            <div class="model-frame">
+              <span class="model-wire">◇</span>
+            </div>
+            <span class="model-name">{{ m.name }}</span>
+            <span class="model-meta">
+              {{ m.categoryName || '模型' }} · {{ Number(m.price) === 0 ? '免费' : formatPrice(m.price) }}
+            </span>
+          </button>
         </div>
-        <el-button size="large" class="ai-btn" @click="router.push('/ai/chat')">进入 AI 答疑 →</el-button>
+      </section>
+
+      <!-- ============ 路径与分类 ============ -->
+      <section class="block two-col">
+        <div>
+          <div class="block-head">
+            <div class="block-head-left">
+              <span class="block-en">PATHS</span>
+              <h2 class="block-title">学习路径</h2>
+            </div>
+            <button class="more-link" @click="router.push('/paths')">全部 →</button>
+          </div>
+          <div class="list-rows slim">
+            <button v-for="p in paths" :key="p.id" class="list-row" @click="router.push(`/paths/${p.id}`)">
+              <span class="row-title">{{ p.name }}</span>
+              <span class="row-meta">{{ p.resourceCount || 0 }} 个资源 · {{ p.enrollmentCount }} 人报名</span>
+              <span class="row-arrow">→</span>
+            </button>
+          </div>
+        </div>
+        <div>
+          <div class="block-head">
+            <div class="block-head-left">
+              <span class="block-en">CATEGORIES</span>
+              <h2 class="block-title">学习分类</h2>
+            </div>
+          </div>
+          <div class="cat-chips">
+            <button
+              v-for="g in catGroups"
+              :key="g.parent.id"
+              class="cat-chip"
+              @click="router.push({ path: '/resources', query: { categoryId: g.parent.id } })"
+            >
+              {{ g.parent.name }}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 收尾 CTA ============ -->
+      <section class="closing">
+        <p class="closing-text">学习路上，答疑随行。</p>
+        <button class="closing-btn" @click="router.push('/resources')">从今天开始你的第一课 →</button>
       </section>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* ================= HERO：工程图纸 ================= */
+/* ================= HERO：深色对撞 ================= */
 .hero {
-  background: var(--el-bg-color);
-  border-bottom: 2px solid var(--line-color);
-  padding: 48px 16px 40px;
-  position: relative;
+  background: var(--el-color-primary);
+  color: var(--el-bg-color);
+  border-bottom: 1px solid var(--line-color);
 }
-.hero-frame {
+.hero-inner {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 28px 40px 20px;
+  padding: 40px 24px 56px;
 }
-.hero-annotation {
-  position: absolute;
+.hero-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.35);
+}
+.hero-en {
   font-family: 'Consolas', 'Courier New', monospace;
   font-size: 11px;
-  letter-spacing: 2px;
-  color: var(--el-text-color-secondary);
+  letter-spacing: 3px;
+  opacity: 0.7;
 }
-.ann-tl { top: 2px; left: 10px; }
-.ann-tr { top: 2px; right: 10px; }
-.ann-bl { bottom: 0; left: 10px; }
-.ann-br { bottom: 0; right: 10px; }
-
-.hero-inner {
+.hero-body {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 48px;
+  padding: 56px 0 40px;
 }
-.hero-left {
-  flex-shrink: 0;
+.hero-title {
+  font-size: 58px;
+  font-weight: 900;
+  line-height: 1.18;
+  letter-spacing: 2px;
+  margin: 0 0 20px;
 }
-.hero-right {
-  flex: 1;
-  min-width: 0;
+.hero-title-2 {
+  color: var(--theme-color);
+}
+.hero-slogan {
+  font-size: 15px;
+  line-height: 2;
+  letter-spacing: 1px;
+  opacity: 0.75;
+  max-width: 520px;
+  margin: 0 0 28px;
+}
+.hero-search {
+  max-width: 480px;
+  margin-bottom: 22px;
+}
+.hero-search :deep(.el-input__wrapper) {
+  border-radius: 2px;
+  background: transparent;
+  box-shadow: 0 0 0 1px rgba(128, 128, 128, 0.5) inset;
+}
+.hero-search :deep(.el-input__inner) {
+  color: var(--el-bg-color);
+}
+.search-btn {
+  background: var(--theme-color);
+  border-color: var(--theme-color);
+  color: #fff;
+}
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.hero-btn {
+  background: transparent;
+  border: 1px solid rgba(128, 128, 128, 0.6);
+  color: var(--el-bg-color);
+  font-size: 14px;
+  letter-spacing: 2px;
+  padding: 10px 22px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.15s;
+}
+.hero-btn:hover {
+  border-color: var(--theme-color);
+  color: var(--theme-color);
+}
+.hero-btn-primary {
+  background: var(--theme-color);
+  border-color: var(--theme-color);
+  color: #fff;
+}
+.hero-btn-primary:hover {
+  background: #d14f07;
+  color: #fff;
 }
 
-/* 旋转线框立方体 */
+/* 线框立方体 */
+.hero-cube {
+  flex-shrink: 0;
+  text-align: center;
+}
 .cube-stage {
-  width: 240px;
-  height: 240px;
+  width: 220px;
+  height: 220px;
   position: relative;
+  margin: 0 auto;
   perspective: 800px;
 }
 .cube {
@@ -269,27 +342,26 @@ function onSearch() {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 150px;
-  height: 150px;
-  margin: -75px 0 0 -75px;
-  border: 2px solid var(--line-color);
+  width: 140px;
+  height: 140px;
+  margin: -70px 0 0 -70px;
+  border: 1.5px solid var(--el-bg-color);
   background: transparent;
 }
-.face.front { transform: translateZ(75px); }
-.face.back { transform: rotateY(180deg) translateZ(75px); }
-.face.left { transform: rotateY(-90deg) translateZ(75px); }
-.face.right { transform: rotateY(90deg) translateZ(75px); }
-.face.top { transform: rotateX(90deg) translateZ(75px); }
-.face.bottom { transform: rotateX(-90deg) translateZ(75px); }
+.face.front { transform: translateZ(70px); }
+.face.back { transform: rotateY(180deg) translateZ(70px); }
+.face.left { transform: rotateY(-90deg) translateZ(70px); }
+.face.right { transform: rotateY(90deg) translateZ(70px); }
+.face.top { transform: rotateX(90deg) translateZ(70px); }
+.face.bottom { transform: rotateX(-90deg) translateZ(70px); }
 .cube-inner {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 60px;
-  height: 60px;
-  margin: -30px 0 0 -30px;
-  border: 1px dashed var(--line-color);
-  transform: translateZ(0);
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  border: 1px dashed var(--el-bg-color);
   animation: inner-spin 16s linear infinite;
 }
 @keyframes cube-spin {
@@ -300,265 +372,326 @@ function onSearch() {
   from { transform: rotateX(0) rotateY(0); }
   to { transform: rotateX(360deg) rotateY(360deg); }
 }
-.crosshair { position: absolute; }
-.ch-1 { top: 8px; left: 8px; }
-.ch-2 { top: 8px; right: 8px; }
-.ch-3 { bottom: 8px; left: 8px; }
-.ch-4 { bottom: 8px; right: 8px; }
-.cube-label {
+.crosshair { position: absolute; width: 14px; height: 14px; }
+.crosshair::before,
+.crosshair::after {
+  content: '';
   position: absolute;
-  bottom: -6px;
-  left: 0;
-  right: 0;
-  text-align: center;
+  background: rgba(128, 128, 128, 0.6);
+}
+.crosshair::before { left: 6px; top: 0; width: 1px; height: 14px; }
+.crosshair::after { left: 0; top: 6px; width: 14px; height: 1px; }
+.ch-1 { top: 2px; left: 2px; }
+.ch-2 { top: 2px; right: 2px; }
+.ch-3 { bottom: 2px; left: 2px; }
+.ch-4 { bottom: 2px; right: 2px; }
+.cube-label {
+  display: block;
+  margin-top: 6px;
   font-family: 'Consolas', 'Courier New', monospace;
   font-size: 11px;
-  letter-spacing: 1px;
-  color: var(--el-text-color-secondary);
-}
-
-/* 标题区 */
-.hero-kicker {
-  margin-bottom: 18px;
-  max-width: 560px;
-}
-.hero-title {
-  font-size: 44px;
-  line-height: 1.25;
-  letter-spacing: 4px;
-  margin: 0 0 14px;
-  font-weight: 800;
-}
-.hero-accent {
-  color: var(--theme-color);
-  position: relative;
-}
-.hero-line {
-  width: 120px;
-  height: 4px;
-  background: var(--theme-color);
-  margin-bottom: 18px;
-  transform-origin: left;
-  animation: line-draw 1.4s ease-out;
-}
-@keyframes line-draw {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-}
-.hero-slogan {
-  font-size: 15px;
-  line-height: 1.9;
-  color: var(--el-text-color-secondary);
-  letter-spacing: 1px;
-  margin: 0 0 26px;
-  max-width: 620px;
-}
-.hero-search {
-  max-width: 560px;
-  margin-bottom: 22px;
-}
-.hero-search :deep(.el-input__wrapper) {
-  border-radius: 2px;
-}
-.search-btn {
-  background: var(--theme-color);
-  border-color: var(--theme-color);
-  color: #fff;
-}
-.search-btn:hover {
-  background: #d14f07;
-  border-color: #d14f07;
-}
-.hero-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.hero-actions .el-button--primary {
-  background: var(--theme-color);
-  border-color: var(--theme-color);
-}
-.hero-actions .el-button--primary:hover {
-  background: #d14f07;
-  border-color: #d14f07;
-}
-.ghost {
-  background: transparent;
-  border: 1px solid var(--line-color);
-  color: var(--el-text-color-primary);
-}
-.ghost:hover {
-  border-color: var(--theme-color);
-  color: var(--theme-color);
+  letter-spacing: 2px;
+  opacity: 0.6;
 }
 
 /* 数据条 */
 .hero-stats {
-  margin-top: 30px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line-soft);
   display: flex;
   justify-content: center;
-  gap: 32px;
+  gap: 48px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(128, 128, 128, 0.35);
   flex-wrap: wrap;
 }
-.stat {
+.hstat {
   display: flex;
   align-items: baseline;
   gap: 10px;
 }
-.stat .num {
-  font-size: 26px;
+.hnum {
+  font-size: 30px;
   font-weight: 800;
+  font-family: 'Consolas', 'Courier New', monospace;
   color: var(--theme-color);
-  font-family: 'Consolas', 'Courier New', monospace;
 }
-.stat .label {
-  font-size: 13px;
-  letter-spacing: 2px;
-  color: var(--el-text-color-secondary);
+.hlabel {
+  font-size: 12px;
+  letter-spacing: 3px;
+  opacity: 0.7;
 }
-.stat-divider {
+.hstat-line {
   width: 1px;
-  background: var(--line-soft);
+  background: rgba(128, 128, 128, 0.35);
 }
 
-/* ================= 理念区 ================= */
-.idea-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+/* ================= 理念三行 ================= */
+.manifesto {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
 }
-.idea-card {
-  border: 1px solid var(--border-color);
-  background: var(--el-bg-color);
-  padding: 26px 22px;
-  position: relative;
+.mani-row {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 34px 8px;
+  border-bottom: 1px solid var(--line-color);
+  cursor: pointer;
+  transition: padding-left 0.2s;
 }
-.idea-no {
-  position: absolute;
-  top: 12px;
-  right: 16px;
+.mani-row:hover {
+  padding-left: 20px;
+}
+.mani-row:hover .mani-arrow {
+  color: var(--theme-color);
+  transform: translateX(4px);
+}
+.mani-en {
   font-family: 'Consolas', 'Courier New', monospace;
-  font-size: 26px;
-  font-weight: 700;
-  color: var(--line-soft);
-  letter-spacing: 2px;
-}
-.idea-svg {
-  width: 40px;
-  height: 40px;
-  stroke: var(--theme-color);
-  stroke-width: 1.5;
-  fill: none;
-  margin-bottom: 14px;
-}
-.idea-card h3 {
-  font-size: 22px;
+  font-size: 12px;
   letter-spacing: 4px;
-  margin: 0 0 8px;
-}
-.idea-card p {
-  margin: 0;
   color: var(--el-text-color-secondary);
-  line-height: 1.8;
-  font-size: 14px;
-}
-
-/* ================= 蓝图分区标题延伸 ================= */
-.bp-more {
+  width: 110px;
   flex-shrink: 0;
 }
-
-/* ================= 分类磁贴（线条风） ================= */
-.cat-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 12px;
+.mani-title {
+  font-size: 40px;
+  font-weight: 900;
+  letter-spacing: 12px;
+  margin: 0;
+  width: 90px;
+  flex-shrink: 0;
 }
-.cat-tile {
+.mani-desc {
+  flex: 1;
+  margin: 0;
+  color: var(--el-text-color-secondary);
+  line-height: 1.9;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+.mani-arrow {
+  font-size: 22px;
+  transition: all 0.2s;
+}
+
+/* ================= 区块通用 ================= */
+.block {
+  margin-top: 88px;
+}
+.block-head {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 16px;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--line-color);
+  margin-bottom: 20px;
+}
+.block-en {
+  display: block;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--el-text-color-secondary);
+  margin-bottom: 4px;
+}
+.block-title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 6px;
+  margin: 0;
+}
+.more-link {
+  background: none;
+  border: none;
+  color: var(--el-text-color-secondary);
+  font-size: 13px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  padding: 6px 0;
+  transition: color 0.15s;
+}
+.more-link:hover {
+  color: var(--theme-color);
+}
+
+/* 列表行（hover 反色） */
+.list-rows {
   border: 1px solid var(--border-color);
+}
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  padding: 18px 20px;
+  border: none;
+  border-bottom: 1px solid var(--border-color);
   background: var(--el-bg-color);
   cursor: pointer;
   text-align: left;
-  transition: all 0.15s;
-  position: relative;
+  transition: all 0.12s;
 }
-.cat-tile::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: transparent;
+.list-row:last-child {
+  border-bottom: none;
 }
-.cat-tile:hover {
-  border-color: var(--line-color);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+.list-row:hover {
+  background: var(--el-color-primary);
+  color: var(--el-bg-color);
 }
-.cat-tile:hover::before {
-  background: var(--theme-color);
-}
-.cat-name {
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 2px;
-}
-.cat-children {
+.row-no {
+  font-family: 'Consolas', 'Courier New', monospace;
   font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--theme-color);
+  width: 28px;
+  flex-shrink: 0;
+}
+.row-title {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+.row-meta {
+  flex: 1;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--el-text-color-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.list-row:hover .row-meta {
+  color: inherit;
+  opacity: 0.7;
+}
+.row-arrow {
+  font-size: 18px;
+  transition: transform 0.15s;
+}
+.list-row:hover .row-arrow {
+  transform: translateX(4px);
+}
+.list-rows.slim .row-title {
+  font-size: 14px;
+}
 
-/* ================= AI 横幅（线稿黑卡） ================= */
-.ai-banner {
-  padding: 26px 32px;
-  border: 1px solid var(--line-color);
-  background: #17181c;
+/* 模型精选 */
+.model-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.model-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--el-bg-color);
+  padding: 0 0 16px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+}
+.model-item:hover {
+  border-color: var(--line-color);
+  transform: translateY(-3px);
+}
+.model-frame {
+  height: 150px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  justify-content: center;
+  background: var(--el-bg-color-page, #f5f5f3);
+  border-bottom: 1px solid var(--border-color);
 }
-.ai-text h3 {
-  margin: 0 0 6px;
-  color: #fff;
+.model-wire {
+  font-size: 56px;
+  color: var(--line-soft);
+  transition: color 0.2s;
+}
+.model-item:hover .model-wire {
+  color: var(--theme-color);
+}
+.model-name {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  padding: 0 16px;
+}
+.model-meta {
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+  padding: 0 16px;
   letter-spacing: 1px;
 }
-.ai-text p {
-  margin: 0;
-  color: #b8bcc4;
+
+/* 双列 */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
 }
-.ai-btn {
-  background: var(--theme-color);
+.cat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.cat-chip {
+  border: 1px solid var(--border-color);
+  background: var(--el-bg-color);
+  padding: 8px 18px;
+  font-size: 13px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.15s;
+}
+.cat-chip:hover {
   border-color: var(--theme-color);
-  color: #fff;
+  color: var(--theme-color);
 }
-.ai-btn:hover {
-  background: #d14f07;
-  border-color: #d14f07;
+
+/* 收尾 CTA */
+.closing {
+  margin-top: 88px;
+  padding: 48px 24px;
+  background: var(--el-color-primary);
+  color: var(--el-bg-color);
+  text-align: center;
+}
+.closing-text {
+  font-size: 20px;
+  letter-spacing: 8px;
+  margin: 0 0 18px;
+  opacity: 0.85;
+}
+.closing-btn {
+  background: var(--theme-color);
+  border: none;
   color: #fff;
+  font-size: 14px;
+  letter-spacing: 3px;
+  padding: 12px 28px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.15s;
+}
+.closing-btn:hover {
+  background: #d14f07;
 }
 
 /* ================= 响应式 ================= */
 @media (max-width: 960px) {
-  .hero-inner {
+  .hero-title {
+    font-size: 40px;
+  }
+  .hero-body {
     flex-direction: column;
     text-align: center;
-    gap: 24px;
-  }
-  .hero-title {
-    font-size: 34px;
-  }
-  .hero-line {
-    margin: 0 auto 18px;
+    gap: 32px;
   }
   .hero-slogan {
     margin-left: auto;
@@ -570,45 +703,45 @@ function onSearch() {
     margin-right: auto;
     justify-content: center;
   }
-  .hero-kicker {
-    margin-left: auto;
-    margin-right: auto;
-  }
-  .idea-grid {
+  .two-col {
     grid-template-columns: 1fr;
+    gap: 64px;
+  }
+  .mani-row {
+    flex-wrap: wrap;
+    gap: 12px 20px;
+  }
+  .mani-title {
+    width: auto;
+  }
+  .mani-desc {
+    flex-basis: 100%;
   }
 }
 @media (max-width: 640px) {
-  .hero-frame {
-    padding: 22px 18px 14px;
+  .hero-inner {
+    padding: 24px 16px 36px;
   }
-  .hero-annotation {
-    display: none;
+  .hero-title {
+    font-size: 32px;
   }
-  .cube-stage {
-    width: 180px;
-    height: 180px;
-  }
-  .face {
-    width: 110px;
-    height: 110px;
-    margin: -55px 0 0 -55px;
-  }
-  .face.front { transform: translateZ(55px); }
-  .face.back { transform: rotateY(180deg) translateZ(55px); }
-  .face.left { transform: rotateY(-90deg) translateZ(55px); }
-  .face.right { transform: rotateY(90deg) translateZ(55px); }
-  .face.top { transform: rotateX(90deg) translateZ(55px); }
-  .face.bottom { transform: rotateX(-90deg) translateZ(55px); }
   .hero-stats {
-    gap: 16px;
+    gap: 20px;
   }
-  .stat-divider {
+  .hstat-line {
     display: none;
   }
-  .ai-banner {
-    flex-direction: column;
-    align-items: flex-start;
+  .model-row {
+    grid-template-columns: 1fr;
+  }
+  .row-meta {
+    display: none;
+  }
+  .block {
+    margin-top: 56px;
+  }
+  .closing {
+    margin-top: 56px;
   }
 }
 </style>

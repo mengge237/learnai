@@ -81,6 +81,10 @@ public class User {
     @Column(name = "dark_mode", nullable = false)
     private Boolean darkMode = false;
 
+    /** 外观模式：light / dark / auto（跟随系统） */
+    @Column(name = "theme_mode", nullable = false, length = 10)
+    private String themeMode = "auto";
+
     @Column(name = "sidebar_position", nullable = false, length = 10)
     private String sidebarPosition = "left";
 

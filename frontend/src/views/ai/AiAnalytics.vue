@@ -31,7 +31,7 @@ onMounted(async () => {
         <el-col :span="8"><el-card><el-statistic title="学习资源总数" :value="data.totalLearningResources" /></el-card></el-col>
         <el-col :span="8"><el-card><el-statistic title="已完成" :value="data.totalCompleted" /></el-card></el-col>
         <el-col :span="8"><el-card><el-statistic title="进行中" :value="data.totalInProgress" /></el-card></el-col>
-        <el-col :span="8"><el-card><el-statistic title="AI 交互次数" :value="data.totalAIInteractions" /></el-card></el-col>
+        <el-col :span="8"><el-card><el-statistic title="答疑互动" :value="data.totalInteractions" suffix="次" /></el-card></el-col>
         <el-col :span="8"><el-card><el-statistic title="平均进度" :value="data.averageProgress" suffix="%" :precision="1" /></el-card></el-col>
         <el-col :span="8"><el-card><el-statistic title="累计学习时长" :value="data.totalLearningMinutes" suffix="分钟" /></el-card></el-col>
       </el-row>

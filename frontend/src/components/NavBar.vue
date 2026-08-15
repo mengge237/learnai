@@ -96,9 +96,9 @@ async function handleCommand(cmd) {
           <button class="icon-btn" @click="router.push('/user/settings')" title="个性化设置">⚙️</button>
         </el-tooltip>
 
-        <el-tooltip :content="prefs.prefs.darkMode ? '切换到浅色模式' : '切换到深色模式'">
+        <el-tooltip :content="prefs.isDarkEffective ? '切换到浅色模式' : '切换到深色模式'">
           <button class="icon-btn" @click="prefs.toggleDark()">
-            {{ prefs.prefs.darkMode ? '☀️' : '🌙' }}
+            {{ prefs.isDarkEffective ? '☀️' : '🌙' }}
           </button>
         </el-tooltip>
 

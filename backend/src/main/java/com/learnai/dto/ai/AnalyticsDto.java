@@ -11,7 +11,7 @@ public record AnalyticsDto(
         int totalLearningResources,
         int totalCompleted,
         int totalInProgress,
-        long totalAIInteractions,
+        long totalInteractions,
         double averageProgress,
         int totalLearningMinutes,
         List<CategoryStatDto> categoryStats,

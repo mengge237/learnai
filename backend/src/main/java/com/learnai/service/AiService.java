@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * AI 学习助手：规则式对话（匹配顺序与文案沿用旧系统）、智能推荐、学习分析
+ * 学习答疑助手：规则式对话（匹配顺序与文案沿用旧系统）、智能推荐、学习分析
  */
 @Service
 @RequiredArgsConstructor
@@ -175,7 +175,7 @@ public class AiService {
         String msg = message == null ? "" : message.toLowerCase().trim();
 
         if (msg.contains("你好") || msg.contains("hi") || msg.contains("hello")) {
-            return "你好！我是您的AI学习助手。请问有什么我可以帮助您的吗？无论是学习上的问题，还是需要推荐学习资源，我都很乐意为您服务！";
+            return "你好！我是您的学习助手。请问有什么我可以帮助您的吗？无论是学习上的问题，还是需要推荐学习资源，我都很乐意为您服务！";
         }
         if (msg.contains("推荐") || msg.contains("建议")) {
             return resourceRecommendations();
@@ -187,7 +187,7 @@ public class AiService {
             return progressReport(userId);
         }
         if (msg.contains("问题") || msg.contains("疑问") || msg.contains("不懂")) {
-            return "好的，让我来帮您解答这个问题。由于这是一个模拟AI助手，我无法实时回答具体的技术问题。建议您查看相关学习资源的详细内容，或者在学习社区中提问。如果您有关于学习方法或学习规划的问题，我很乐意提供建议！";
+            return "好的，让我来帮您解答这个问题。由于这是一个模拟答疑助手，我无法实时回答具体的技术问题。建议您查看相关学习资源的详细内容，或者在学习社区中提问。如果您有关于学习方法或学习规划的问题，我很乐意提供建议！";
         }
         if (msg.contains("谢谢") || msg.contains("感谢")) {
             return "不客气！祝您学习愉快！如果还有其他问题，随时可以来找我。";
@@ -206,7 +206,7 @@ public class AiService {
     }
 
     private String fallback() {
-        return "我理解您的问题，但作为AI学习助手，我的能力主要集中在学习指导方面。请问您有关于学习资源、学习方法或学习规划的问题吗？我很乐意帮助您！";
+        return "我理解您的问题，但作为学习助手，我的能力主要集中在学习指导方面。请问您有关于学习资源、学习方法或学习规划的问题吗？我很乐意帮助您！";
     }
 
     private String resourceRecommendations() {

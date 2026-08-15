@@ -26,6 +26,7 @@ public record UserProfileDto(
         String borderColor,
         String themeColor,
         Boolean darkMode,
+        String themeMode,
         String sidebarPosition,
         String animationSpeed
 ) {
@@ -49,6 +50,7 @@ public record UserProfileDto(
                 u.getBorderColor(),
                 u.getThemeColor(),
                 u.getDarkMode(),
+                u.getThemeMode(),
                 u.getSidebarPosition(),
                 u.getAnimationSpeed());
     }

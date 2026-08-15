@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * AI 学习助手（均需登录）
+ * 学习答疑（均需登录）
  */
 @RestController
 @RequestMapping("/api/ai")

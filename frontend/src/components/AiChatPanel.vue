@@ -57,7 +57,7 @@ async function send(text) {
     scrollToBottom()
   } catch {
     messages.value.pop()
-    ElMessage.error('AI 暂时开小差了，请稍后再试')
+    ElMessage.error('服务暂时开小差了，请稍后再试')
   } finally {
     sending.value = false
   }
@@ -80,11 +80,11 @@ defineExpose({ loadHistory })
     <div ref="listRef" v-loading="loading" class="msg-list">
       <el-empty
         v-if="!loading && messages.length === 0"
-        description="我是你的 AI 学习助手，试试问我学习问题吧～"
+        description="我是你的学习助手，试试问我学习问题吧～"
         :image-size="80"
       />
       <div v-for="(m, i) in messages" :key="i" class="msg" :class="m.userMessage ? 'from-user' : 'from-ai'">
-        <div class="avatar">{{ m.userMessage ? '我' : 'AI' }}</div>
+        <div class="avatar">{{ m.userMessage ? '我' : '助手' }}</div>
         <div class="bubble">
           <div class="text">{{ m.aiMessage }}</div>
           <div class="time text-muted">{{ m.interactionTime ? formatDate(m.interactionTime) : '…' }}</div>
@@ -97,7 +97,7 @@ defineExpose({ loadHistory })
         <el-select v-model="contextResourceId" placeholder="关联学习资源（可选）" clearable size="small" style="width: 260px">
           <el-option v-for="r in learningResources" :key="r.resourceId" :label="r.title" :value="r.resourceId" />
         </el-select>
-        <span class="text-muted">选择正在学习的资源，AI 回答更有针对性</span>
+        <span class="text-muted">选择正在学习的资源，回答更有针对性</span>
       </div>
       <div class="quick">
         <el-tag v-for="q in quickQuestions" :key="q" class="quick-tag" @click="send(q)">{{ q }}</el-tag>

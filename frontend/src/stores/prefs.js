@@ -9,12 +9,16 @@ const DEFAULTS = {
   borderColor: '#d0d0d0',
   themeColor: '#e8590c',
   darkMode: false,
+  themeMode: 'auto', // light / dark / auto（跟随系统）
   sidebarPosition: 'left',
   animationSpeed: 'normal',
 }
 
+let mediaWatcher = null
+
 /**
  * 界面个性化偏好：本地持久化 + 登录后与服务器同步（服务器优先）。
+ * 外观模式三态：浅色 / 深色 / 跟随系统（auto 监听系统 prefers-color-scheme）。
  * apply() 把偏好写到 <html> 的 CSS 变量 / class / data 属性上。
  */
 export const usePrefsStore = defineStore('prefs', {
@@ -22,16 +26,37 @@ export const usePrefsStore = defineStore('prefs', {
     prefs: { ...DEFAULTS, ...JSON.parse(localStorage.getItem(PREFS_KEY) || '{}') },
   }),
 
+  getters: {
+    /** 实际生效的暗色状态（auto 模式按系统解析） */
+    isDarkEffective() {
+      return this.prefs.themeMode === 'auto'
+        ? resolveSystemDark()
+        : this.prefs.themeMode === 'dark'
+    },
+  },
+
   actions: {
     persist() {
       localStorage.setItem(PREFS_KEY, JSON.stringify(this.prefs))
     },
+    /** 注册系统主题变化监听（仅一次），auto 模式下跟随系统实时切换 */
+    ensureSystemWatch() {
+      if (mediaWatcher) return
+      const mq = window.matchMedia('(prefers-color-scheme: dark)')
+      mediaWatcher = mq
+      const onChange = () => {
+        if (this.prefs.themeMode === 'auto') this.apply()
+      }
+      mq.addEventListener?.('change', onChange)
+      mq.addListener?.(onChange) // 旧浏览器兜底
+    },
     apply() {
       const root = document.documentElement
+      this.ensureSystemWatch()
       root.style.setProperty('--font-size', `${this.prefs.fontSize}px`)
       root.style.setProperty('--border-color', this.prefs.borderColor)
       root.style.setProperty('--theme-color', this.prefs.themeColor)
-      root.classList.toggle('dark', !!this.prefs.darkMode)
+      root.classList.toggle('dark', this.isDarkEffective)
       root.setAttribute('data-animation', this.prefs.animationSpeed)
       root.setAttribute('data-sidebar', this.prefs.sidebarPosition)
     },
@@ -59,8 +84,17 @@ export const usePrefsStore = defineStore('prefs', {
         }
       }
     },
+    /** 导航栏切换按钮：auto 时按当前实际状态切到明确的相反模式；否则 light/dark 互换 */
     toggleDark() {
-      return this.update({ darkMode: !this.prefs.darkMode })
+      if (this.prefs.themeMode === 'auto') {
+        return this.update({ themeMode: resolveSystemDark() ? 'light' : 'dark' })
+      }
+      return this.update({ themeMode: this.prefs.themeMode === 'dark' ? 'light' : 'dark' })
     },
   },
 })
+
+/** 系统当前是否为深色 */
+function resolveSystemDark() {
+  return typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches
+}

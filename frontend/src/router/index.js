@@ -19,7 +19,7 @@ const routes = [
   { path: '/paths/:id', name: 'path-detail', meta: { title: '路径详情' }, component: () => import('@/views/paths/PathDetail.vue') },
 
   // AI 助手
-  { path: '/ai/chat', name: 'ai-chat', meta: { title: 'AI 答疑', requiresAuth: true }, component: () => import('@/views/ai/AiChat.vue') },
+  { path: '/ai/chat', name: 'ai-chat', meta: { title: '在线答疑', requiresAuth: true }, component: () => import('@/views/ai/AiChat.vue') },
   { path: '/ai/analytics', name: 'ai-analytics', meta: { title: '学习分析', requiresAuth: true }, component: () => import('@/views/ai/AiAnalytics.vue') },
   { path: '/ai/recommend', name: 'ai-recommend', meta: { title: '智能推荐', requiresAuth: true }, component: () => import('@/views/ai/AiRecommend.vue') },
 

@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import AiChatPanel from '@/components/AiChatPanel.vue'
 
 /**
- * 全站右下角悬浮 AI 助手：点击展开抽屉式聊天面板，自然融入每个页面。
+ * 全站右下角悬浮答疑入口：点击展开抽屉式聊天面板，自然融入每个页面。
  */
 const open = ref(false)
 </script>
@@ -12,15 +12,15 @@ const open = ref(false)
   <div class="ai-assistant">
     <el-drawer v-model="open" direction="rtl" size="400px" :with-header="false" class="ai-drawer">
       <div class="drawer-head">
-        <span class="drawer-title">🤖 AI 智能学习助手</span>
-        <span class="drawer-sub text-muted">随时提问 · 学习答疑</span>
+        <span class="drawer-title">💬 学习答疑</span>
+        <span class="drawer-sub text-muted">随时提问 · 随叫随到</span>
       </div>
       <AiChatPanel v-if="open" compact />
     </el-drawer>
 
-    <button class="fab" :class="{ active: open }" @click="open = !open" title="AI 学习助手">
-      <span class="fab-icon">🤖</span>
-      <span class="fab-tip">AI 助手</span>
+    <button class="fab" :class="{ active: open }" @click="open = !open" title="学习答疑">
+      <span class="fab-icon">💬</span>
+      <span class="fab-tip">答疑</span>
     </button>
   </div>
 </template>

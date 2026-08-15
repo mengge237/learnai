@@ -18,9 +18,11 @@
 LearnAI/
 ├── backend/    # Spring Boot REST API（端口 8080）
 │   └── src/main/java/com/learnai/
-│       ├── controller/  # 认证/资源/路径/AI/商城/互动/管理/审核
-│       ├── service/     # 业务逻辑（服务端计价、状态机、文件存储等）
-│       ├── entity/      # JPA 实体 + 枚举（学习/步骤/路径/订单状态）
+│       ├── controller/  # 认证/资源/路径/答疑/商城/互动/管理/审核/学习激励
+│       ├── service/     # 业务逻辑（服务端计价、状态机、文件存储、学习活动等）
+│       │   ├── factory/ # StepTemplateFactory —— 教程步骤模板工厂 + 注册表
+│       │   └── storage/ # StorageStrategy 策略接口 + LocalStorageStrategy + 策略工厂
+│       ├── entity/      # JPA 实体 + 枚举（学习/步骤/路径/订单/每日学习日志）
 │       ├── dto/         # 请求/响应对象
 │       ├── security/    # JWT 工具 + 认证过滤器
 │       ├── config/      # Security 配置、静态资源映射、数据初始化
@@ -34,6 +36,18 @@ LearnAI/
 │       └── views/       # 首页、资源、路径、AI、商城、个人中心、管理
 └── uploads/    # 上传文件（backend 工作目录下，静态映射 /uploads/**）
 ```
+
+## 设计模式与架构约定
+
+| 模式 | 落点 | 说明 |
+|---|---|---|
+| 工厂模式 | `StepTemplateFactory` | 教程步骤模板集中注册（标题 + 正文模板），运行期建步骤与种子数据共用同一份定义 |
+| 工厂 + 策略模式 | `StorageStrategyFactory` / `StorageStrategy` | 文件存储可插拔：默认 `LocalStorageStrategy`，扩展对象存储只需新增实现自动注册 |
+| 统一响应 | `GlobalExceptionHandler` + `ApiException` | 全部错误统一为 `{status, message, timestamp}` 中文 JSON |
+| 统一分页 | `PageResponse<T>` | 列表接口统一 `content / totalElements` 结构 |
+| 统一取当前用户 | `SecurityUtils.currentUserId()` | Controller 不碰 SecurityContext，鉴权逻辑集中一处 |
+
+学习激励：`StudyActivityService` 接收学习页 30s 心跳，按日聚合到 `study_log` 表，提供今日时长 / 连续打卡 / 周统计 / 「是否正在学习」（90s 心跳窗口）检测。
 
 ## 快速启动
 

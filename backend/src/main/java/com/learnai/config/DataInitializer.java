@@ -3,7 +3,7 @@ package com.learnai.config;
 import com.learnai.entity.*;
 import com.learnai.entity.enums.*;
 import com.learnai.repository.*;
-import com.learnai.service.LearningProgressService;
+import com.learnai.service.factory.StepTemplateFactory;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,7 +64,8 @@ public class DataInitializer implements CommandLineRunner {
 
     private static final DateTimeFormatter MONTH = DateTimeFormatter.ofPattern("yyyyMM");
     /** 默认步骤标题（与 LearningProgressService 共用的正文模板见该服务） */
-    private static final List<String> STEP_TITLES = List.of("了解内容概览", "深入学习与实践", "完成练习与总结");
+    private static final List<String> STEP_TITLES = StepTemplateFactory.all().stream()
+            .map(StepTemplateFactory.StepTemplate::title).toList();
 
     private Path root;
     private Long adminId;
@@ -457,8 +458,7 @@ public class DataInitializer implements CommandLineRunner {
         s.setRecordId(record.getRecordId());
         s.setStepNumber(number);
         s.setStepTitle(STEP_TITLES.get(number - 1));
-        s.setStepContent(String.format(
-                LearningProgressService.DEFAULT_STEPS[number - 1][1], resource.getResourceTitle()));
+        s.setStepContent(StepTemplateFactory.templateOf(number).render(resource.getResourceTitle()));
         s.setStatus(status);
         if (status == StepStatus.Completed) {
             s.setCompletedTime(record.getStartTime().plusMinutes(45L * number));
@@ -613,7 +613,7 @@ public class DataInitializer implements CommandLineRunner {
 
     private void seedAiHistory() {
         aiInteractionRepository.saveAll(List.of(
-                ai("你好", "你好！我是你的 AI 学习助手，可以为你推荐学习资源、制定学习路径、分析学习进度，有什么可以帮你的吗？", "问候", 6),
+                ai("你好", "你好！我是你的学习助手，可以为你推荐学习资源、制定学习路径、分析学习进度，有什么可以帮你的吗？", "问候", 6),
                 ai("推荐一些适合我的学习资源", "根据你的学习记录，为你推荐以下同类热门资源：《Blender 材质与灯光》《Blender 动画制作实战》《低多边形风格化建模》，都是 Blender 入门方向的优质内容！", "推荐", 5),
                 ai("学习路径怎么安排？", "平台为你准备了多条学习路径：《Blender 零基础到进阶之路》《Web 3D 图形开发路线》《3D 游戏开发工程师路线》，建议按顺序完成路径中的资源，循序渐进。", "学习路径", 4),
                 ai("我的学习进度怎么样？", "你已完成《Blender 基础建模入门》，当前正在学习《Blender 材质与灯光》（进度 60%）和《Unity 3D 游戏开发入门》（进度 35%），继续保持！", "学习进度", 3),

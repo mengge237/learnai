@@ -8,7 +8,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 /**
- * AI 助手交互记录
+ * 答疑交互记录
  */
 @Entity
 @Table(name = "ai_interaction",
