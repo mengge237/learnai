@@ -141,14 +141,29 @@ onMounted(async () => {
       <template v-if="auth.isAuditorOrAdmin">
         <div class="section-title"><LineIcon name="settings" :size="15" /> 管理入口</div>
         <div class="quick-grid">
+          <button v-if="auth.isAdmin" class="quick-item" @click="router.push('/admin')">
+            <span class="quick-icon"><LineIcon name="monitor" :size="22" /></span><span class="quick-label">管理后台</span>
+          </button>
           <button v-if="auth.isAdmin" class="quick-item" @click="router.push('/admin/dashboard')">
             <span class="quick-icon"><LineIcon name="chart" :size="22" /></span><span class="quick-label">数据看板</span>
           </button>
           <button v-if="auth.isAdmin" class="quick-item" @click="router.push('/admin/users')">
             <span class="quick-icon"><LineIcon name="user" :size="22" /></span><span class="quick-label">用户管理</span>
           </button>
+          <button v-if="auth.isAdmin" class="quick-item" @click="router.push('/admin/resources')">
+            <span class="quick-icon"><LineIcon name="book" :size="22" /></span><span class="quick-label">资源管理</span>
+          </button>
+          <button v-if="auth.isAdmin" class="quick-item" @click="router.push('/admin/models')">
+            <span class="quick-icon"><LineIcon name="cube" :size="22" /></span><span class="quick-label">模型管理</span>
+          </button>
+          <button v-if="auth.isAdmin" class="quick-item" @click="router.push('/admin/orders')">
+            <span class="quick-icon"><LineIcon name="box" :size="22" /></span><span class="quick-label">订单管理</span>
+          </button>
+          <button v-if="auth.isAdmin" class="quick-item" @click="router.push('/admin/categories')">
+            <span class="quick-icon"><LineIcon name="layers" :size="22" /></span><span class="quick-label">分类管理</span>
+          </button>
           <button v-if="auth.isAuditorOrAdmin" class="quick-item" @click="router.push('/audit')">
-            <span class="quick-icon"><LineIcon name="check" :size="22" /></span><span class="quick-label">内容审核</span>
+            <span class="quick-icon"><LineIcon name="check" :size="22" /></span><span class="quick-label">审核工作台</span>
           </button>
         </div>
       </template>

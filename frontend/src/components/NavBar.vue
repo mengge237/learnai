@@ -96,6 +96,8 @@ async function handleCommand(cmd) {
       <el-menu :default-active="activeMenu" mode="horizontal" :ellipsis="true" router class="nav-menu">
         <el-menu-item v-for="m in menus" :key="m.index" :index="m.index">{{ m.label }}</el-menu-item>
         <el-menu-item v-if="auth.isLoggedIn" index="/console">控制台</el-menu-item>
+        <el-menu-item v-if="auth.isAuditorOrAdmin" index="/audit">审核工作台</el-menu-item>
+        <el-menu-item v-if="auth.isAdmin" index="/admin">管理后台</el-menu-item>
       </el-menu>
 
       <div class="navbar-right">
@@ -184,9 +186,14 @@ async function handleCommand(cmd) {
                 <el-dropdown-item command="/user/favorites">我的收藏</el-dropdown-item>
                 <el-dropdown-item command="/user/downloads">下载历史</el-dropdown-item>
                 <el-dropdown-item command="/market/orders">我的订单</el-dropdown-item>
-                <el-dropdown-item v-if="auth.isAdmin" command="/admin/dashboard" divided>数据看板</el-dropdown-item>
+                <el-dropdown-item v-if="auth.isAdmin" command="/admin" divided>管理后台</el-dropdown-item>
+                <el-dropdown-item v-if="auth.isAdmin" command="/admin/dashboard">数据看板</el-dropdown-item>
                 <el-dropdown-item v-if="auth.isAdmin" command="/admin/users">用户管理</el-dropdown-item>
-                <el-dropdown-item v-if="auth.isAuditorOrAdmin" command="/audit">内容审核</el-dropdown-item>
+                <el-dropdown-item v-if="auth.isAdmin" command="/admin/resources">资源管理</el-dropdown-item>
+                <el-dropdown-item v-if="auth.isAdmin" command="/admin/models">模型管理</el-dropdown-item>
+                <el-dropdown-item v-if="auth.isAdmin" command="/admin/orders">订单管理</el-dropdown-item>
+                <el-dropdown-item v-if="auth.isAdmin" command="/admin/categories">分类管理</el-dropdown-item>
+                <el-dropdown-item v-if="auth.isAuditorOrAdmin" command="/audit" divided>审核工作台</el-dropdown-item>
                 <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>

@@ -42,9 +42,14 @@ const routes = [
   { path: '/console', name: 'console', meta: { title: '个人控制台', requiresAuth: true }, component: () => import('@/views/user/Console.vue') },
 
   // 管理 / 审核
+  { path: '/admin', name: 'admin-home', meta: { title: '管理后台', requiresAuth: true, roles: ['ADMIN'] }, component: () => import('@/views/admin/Admin.vue') },
   { path: '/admin/dashboard', name: 'admin-dashboard', meta: { title: '数据看板', requiresAuth: true, roles: ['ADMIN'] }, component: () => import('@/views/admin/AdminDashboard.vue') },
   { path: '/admin/users', name: 'admin-users', meta: { title: '用户管理', requiresAuth: true, roles: ['ADMIN'] }, component: () => import('@/views/admin/AdminUsers.vue') },
-  { path: '/audit', name: 'audit', meta: { title: '内容审核', requiresAuth: true, roles: ['ADMIN', 'AUDITOR'] }, component: () => import('@/views/admin/Audit.vue') },
+  { path: '/admin/resources', name: 'admin-resources', meta: { title: '资源管理', requiresAuth: true, roles: ['ADMIN'] }, component: () => import('@/views/admin/AdminResources.vue') },
+  { path: '/admin/models', name: 'admin-models', meta: { title: '模型管理', requiresAuth: true, roles: ['ADMIN'] }, component: () => import('@/views/admin/AdminModels.vue') },
+  { path: '/admin/orders', name: 'admin-orders', meta: { title: '订单管理', requiresAuth: true, roles: ['ADMIN'] }, component: () => import('@/views/admin/AdminOrders.vue') },
+  { path: '/admin/categories', name: 'admin-categories', meta: { title: '分类管理', requiresAuth: true, roles: ['ADMIN'] }, component: () => import('@/views/admin/AdminCategories.vue') },
+  { path: '/audit', name: 'audit', meta: { title: '审核工作台', requiresAuth: true, roles: ['ADMIN', 'AUDITOR'] }, component: () => import('@/views/admin/Audit.vue') },
 
   { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/views/NotFound.vue') },
 ]

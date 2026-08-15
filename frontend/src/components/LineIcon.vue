@@ -39,6 +39,7 @@ const ICONS = {
   cube: '<path d="M12 2l8 4.5v9L12 20l-8-4.5v-9L12 2z"/><path d="M12 11l8-4.5M12 11L4 6.5M12 11v9"/>',
   check: '<path d="M20 6L9 17l-5-5"/>',
   box: '<path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
 }
 
 const icon = computed(() => ICONS[props.name] ?? ICONS.settings)

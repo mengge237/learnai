@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface Model3DRepository extends JpaRepository<Model3D, Long>, JpaSpecificationExecutor<Model3D> {
@@ -16,6 +17,13 @@ public interface Model3DRepository extends JpaRepository<Model3D, Long>, JpaSpec
     long countByIsApprovedFalseAndRejectionReasonIsNull();
 
     List<Model3D> findByIsApprovedFalseAndRejectionReasonIsNullOrderByCreateDateDesc();
+
+    /** 审核历史：已审核（有审核时间）的记录，按审核时间倒序 */
+    Page<Model3D> findByApprovedDateIsNotNullOrderByApprovedDateDesc(Pageable pageable);
+
+    long countByApprovedDateIsNotNull();
+
+    long countByApprovedDateAfter(LocalDateTime after);
 
     /** 全局搜索：模型名/作者模糊匹配（仅公开且已审核） */
     @Query("select m from Model3D m where m.isApproved = true and m.isPublic = true " +

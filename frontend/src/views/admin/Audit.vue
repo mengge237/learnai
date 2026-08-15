@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { adminApi } from '@/api/admin'
@@ -12,17 +12,56 @@ const router = useRouter()
 
 const resources = ref([])
 const models = ref([])
+const stats = ref(null)
 const loading = ref(true)
+
+// 审核历史
+const historyType = ref('resources')
+const history = ref([])
+const historyTotal = ref(0)
+const historyPage = ref(1)
+const historySize = ref(10)
+const historyLoading = ref(false)
+
+const statCards = computed(() => [
+  { key: 'pendingResources', label: '待审资源', icon: 'book' },
+  { key: 'pendingModels', label: '待审模型', icon: 'cube' },
+  { key: 'totalReviewed', label: '累计审核', icon: 'check' },
+  { key: 'reviewedToday', label: '今日审核', icon: 'flame' },
+])
 
 async function load() {
   loading.value = true
   try {
     if (auth.isAdmin || auth.isAuditor) {
-      ;[resources.value, models.value] = await Promise.all([adminApi.pendingResources(), adminApi.pendingModels()])
+      ;[resources.value, models.value, stats.value] = await Promise.all([
+        adminApi.pendingResources(),
+        adminApi.pendingModels(),
+        adminApi.auditStats(),
+      ])
     }
   } finally {
     loading.value = false
   }
+}
+
+async function loadHistory() {
+  historyLoading.value = true
+  try {
+    const res = await adminApi.auditHistory(historyType.value, {
+      page: historyPage.value,
+      size: historySize.value,
+    })
+    history.value = res.content
+    historyTotal.value = res.totalElements
+  } finally {
+    historyLoading.value = false
+  }
+}
+
+function onHistoryTypeChange() {
+  historyPage.value = 1
+  loadHistory()
 }
 
 async function approveResource(r) {
@@ -67,14 +106,28 @@ async function rejectModel(m) {
   load()
 }
 
-onMounted(load)
+onMounted(() => {
+  load()
+  loadHistory()
+})
 </script>
 
 <template>
-  <div class="page-container">
-    <div class="page-title"><LineIcon name="check" :size="19" /> 内容审核</div>
+  <div class="page-container" v-loading="loading">
+    <div class="page-title"><LineIcon name="check" :size="19" /> 内容审核工作台</div>
 
-    <el-tabs v-loading="loading">
+    <!-- 统计卡片 -->
+    <div v-if="stats" class="stat-grid">
+      <div v-for="s in statCards" :key="s.key" class="stat-card" :class="{ warn: s.key.startsWith('pending') }">
+        <div class="stat-head">
+          <LineIcon :name="s.icon" :size="18" />
+        </div>
+        <div class="stat-value">{{ stats[s.key] }}</div>
+        <div class="stat-label text-muted">{{ s.label }}</div>
+      </div>
+    </div>
+
+    <el-tabs>
       <el-tab-pane :label="`待审核资源（${resources.length}）`">
         <el-empty v-if="resources.length === 0" description="太棒了，没有待审核的资源" />
         <el-card v-for="r in resources" :key="r.id" class="audit-card">
@@ -126,11 +179,98 @@ onMounted(load)
           </div>
         </el-card>
       </el-tab-pane>
+
+      <el-tab-pane label="审核历史">
+        <div class="history-head">
+          <el-radio-group v-model="historyType" @change="onHistoryTypeChange">
+            <el-radio-button value="resources">资源审核历史</el-radio-button>
+            <el-radio-button value="models">模型审核历史</el-radio-button>
+          </el-radio-group>
+          <span class="text-muted history-total">共 {{ historyTotal }} 条记录</span>
+        </div>
+        <el-table v-loading="historyLoading" :data="history" size="small">
+          <el-table-column label="编号" width="90">
+            <template #default="{ row }">#{{ row.id }}</template>
+          </el-table-column>
+          <el-table-column label="类型" width="80" align="center">
+            <template #default="{ row }">
+              <el-tag size="small" effect="plain">{{ row.type === 'resource' ? '资源' : '模型' }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="标题" min-width="200" show-overflow-tooltip>
+            <template #default="{ row }">
+              <el-link type="primary" @click="router.push(row.type === 'resource' ? `/resources/${row.id}` : `/market/${row.id}`)">
+                {{ row.title }}
+              </el-link>
+            </template>
+          </el-table-column>
+          <el-table-column label="作者" width="130" show-overflow-tooltip>
+            <template #default="{ row }">{{ row.author || '未知' }}</template>
+          </el-table-column>
+          <el-table-column label="结果" width="90" align="center">
+            <template #default="{ row }">
+              <el-tag size="small" :type="row.result === 'approved' ? 'success' : 'danger'" effect="plain">
+                {{ row.result === 'approved' ? '通过' : '驳回' }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="驳回原因" min-width="160" show-overflow-tooltip>
+            <template #default="{ row }">
+              <span v-if="row.reason" class="text-muted">{{ row.reason }}</span>
+              <span v-else class="text-muted">—</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="审核人" width="110">
+            <template #default="{ row }">{{ row.reviewerName || '未知' }}</template>
+          </el-table-column>
+          <el-table-column label="审核时间" width="160">
+            <template #default="{ row }">{{ formatDate(row.reviewedAt) }}</template>
+          </el-table-column>
+        </el-table>
+        <div class="pager">
+          <el-pagination
+            layout="total, prev, pager, next"
+            :total="historyTotal"
+            :page-size="historySize"
+            :current-page="historyPage"
+            @current-change="(p) => { historyPage = p; loadHistory() }"
+          />
+        </div>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
 
 <style scoped>
+/* 统计卡片：工业风线框 + 橙色序号边 */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.stat-card {
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--theme-color);
+  border-radius: 2px;
+  background: var(--el-bg-color);
+  padding: 14px 16px;
+}
+.stat-card.warn {
+  border-left-color: #e6a23c;
+}
+.stat-head {
+  color: var(--el-text-color-secondary);
+}
+.stat-value {
+  font-size: 26px;
+  font-weight: 800;
+  font-family: 'Consolas', 'Courier New', monospace;
+  margin: 2px 0;
+}
+.stat-label {
+  font-size: 13px;
+}
 .audit-card {
   margin-bottom: 12px;
 }
@@ -173,5 +313,19 @@ onMounted(load)
 .actions {
   display: flex;
   gap: 8px;
+}
+.history-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.history-total {
+  font-size: 13px;
+}
+.pager {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
 }
 </style>

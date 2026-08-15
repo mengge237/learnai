@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface LearningResourceRepository extends JpaRepository<LearningResource, Long>, JpaSpecificationExecutor<LearningResource> {
@@ -24,6 +25,17 @@ public interface LearningResourceRepository extends JpaRepository<LearningResour
             List<Long> categoryIds, List<Long> excludeIds);
 
     List<LearningResource> findByIsApprovedFalseAndRejectionReasonIsNullOrderByCreateDateDesc();
+
+    /** 审核历史：已审核（有审核时间）的记录，按审核时间倒序 */
+    Page<LearningResource> findByApprovedDateIsNotNullOrderByApprovedDateDesc(Pageable pageable);
+
+    long countByApprovedDateIsNotNull();
+
+    long countByApprovedDateAfter(LocalDateTime after);
+
+    boolean existsByCategoryCategoryId(Long categoryId);
+
+    long countByCategoryCategoryId(Long categoryId);
 
     /** 全局搜索：标题/简介/作者模糊匹配（仅公开且已审核，按热度排序） */
     @Query("select r from LearningResource r where r.isApproved = true and r.isPublic = true " +

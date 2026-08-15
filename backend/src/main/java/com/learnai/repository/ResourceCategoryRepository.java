@@ -11,4 +11,6 @@ public interface ResourceCategoryRepository extends JpaRepository<ResourceCatego
 
     /** 某父分类下的子分类（用于父分类筛选时扩展到全部子分类资源） */
     List<ResourceCategory> findByIsActiveTrueAndParentCategoryIdOrderBySortOrderAsc(Long parentCategoryId);
+
+    boolean existsByParentCategoryId(Long parentCategoryId);
 }

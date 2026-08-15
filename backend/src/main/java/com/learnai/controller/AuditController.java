@@ -1,6 +1,9 @@
 package com.learnai.controller;
 
+import com.learnai.dto.audit.AuditRecordDto;
 import com.learnai.dto.audit.AuditRequest;
+import com.learnai.dto.audit.AuditStatsDto;
+import com.learnai.dto.common.PageResponse;
 import com.learnai.dto.learning.ResourceDto;
 import com.learnai.dto.market.ModelDto;
 import com.learnai.security.SecurityUtils;
@@ -22,6 +25,26 @@ import java.util.List;
 public class AuditController {
 
     private final AuditService auditService;
+
+    /** 审核工作台统计 */
+    @GetMapping("/stats")
+    public AuditStatsDto stats() {
+        return auditService.stats();
+    }
+
+    /** 资源审核历史 */
+    @GetMapping("/history/resources")
+    public PageResponse<AuditRecordDto> historyResources(@RequestParam(defaultValue = "1") int page,
+                                                         @RequestParam(defaultValue = "10") int size) {
+        return auditService.historyResources(page, size);
+    }
+
+    /** 模型审核历史 */
+    @GetMapping("/history/models")
+    public PageResponse<AuditRecordDto> historyModels(@RequestParam(defaultValue = "1") int page,
+                                                      @RequestParam(defaultValue = "10") int size) {
+        return auditService.historyModels(page, size);
+    }
 
     @GetMapping("/resources")
     public List<ResourceDto> pendingResources() {
