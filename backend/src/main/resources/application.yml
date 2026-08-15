@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: learnai-backend
+  datasource:
+    url: jdbc:mysql://localhost:3306/learnai?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: learnai
+    password: LearnAI@2026
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 220MB
+  jackson:
+    time-zone: Asia/Shanghai
+
+server:
+  port: 8080
+
+app:
+  upload-dir: uploads
+  jwt:
+    secret: "learnai-super-secret-key-for-jwt-hs256-signing-please-change-in-production-0123456789"
+    expire-hours: 24
+
+logging:
+  level:
+    org.hibernate.SQL: warn
