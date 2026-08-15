@@ -1,0 +1,86 @@
+# LearnAI 智能学习平台
+
+一个面向 3D 建模学习者的前后端分离教育类网站（类似菜鸟教程），包含学习资源、学习路径、学习进度、AI 智能答疑、3D 模型商城等完整功能。
+
+> 本项目由旧版 ASP.NET MVC 5 单体应用（`E:\NET Program\模型实现`）重构而来。
+
+## 技术栈
+
+| 层 | 技术 |
+|---|---|
+| 后端 | Spring Boot 4.0.7 · Java 21 · Spring Security（JWT 无状态认证）· JPA/Hibernate · MySQL 8.0 |
+| 前端 | Vue 3 · Vite · Pinia · Vue Router · Axios · Element Plus · Three.js（3D 在线预览） |
+| 数据库 | MySQL 8.0（库名 `learnai`，17 张表） |
+
+## 项目结构
+
+```
+LearnAI/
+├── backend/    # Spring Boot REST API（端口 8080）
+│   └── src/main/java/com/learnai/
+│       ├── controller/  # 认证/资源/路径/AI/商城/互动/管理/审核
+│       ├── service/     # 业务逻辑（服务端计价、状态机、文件存储等）
+│       ├── entity/      # JPA 实体 + 枚举（学习/步骤/路径/订单状态）
+│       ├── dto/         # 请求/响应对象
+│       ├── security/    # JWT 工具 + 认证过滤器
+│       ├── config/      # Security 配置、静态资源映射、数据初始化
+│       └── exception/   # 统一异常处理（中文 JSON 提示）
+├── frontend/   # Vue 3 单页应用（端口 5173，代理 /api 和 /uploads）
+│   └── src/
+│       ├── api/         # axios 封装（拦截器统一处理 401/403）
+│       ├── stores/      # Pinia：auth / cart（唯一购物车）/ prefs（主题）
+│       ├── router/      # 路由 + 登录/角色守卫
+│       ├── components/  # 导航栏、卡片、评论树、分页、3D 查看器
+│       └── views/       # 首页、资源、路径、AI、商城、个人中心、管理
+└── uploads/    # 上传文件（backend 工作目录下，静态映射 /uploads/**）
+```
+
+## 快速启动
+
+### 1. 数据库（MySQL 8.0，本机）
+
+已建好库 `learnai` 和专用账号：
+
+- 账号：`learnai` / 密码：`LearnAI@2026`（配置在 `backend/src/main/resources/application.yml`）
+- 首次启动自动建表 + 播种演示数据（中文课程、评论、订单、AI 对话等，含可下载/可预览的占位文件）
+
+### 2. 后端（端口 8080）
+
+```bash
+cd backend
+mvnw.cmd spring-boot:run        # Windows（已内置 Maven Wrapper，无需安装 Maven）
+```
+
+### 3. 前端（端口 5173）
+
+```bash
+cd frontend
+npm install
+npm run dev                     # 浏览器打开 http://localhost:5173
+```
+
+## 演示账号
+
+| 角色 | 账号 | 密码 |
+|---|---|---|
+| 管理员 | `admin` | `admin123` |
+| 审核员 | `auditor` | `audit123` |
+| 普通用户 | `demo` | `demo123` |
+
+## 功能清单
+
+- **学习资源**：分类树筛选、搜索/排序/分页、详情、点赞、评论（树形回复）、下载（中文文件名）
+- **学习中心**：开始学习 → 步骤打卡 → 进度保存 → 完成打分（学习记录/学习步骤）
+- **学习路径**：系统化路线（含顺序资源列表）、报名（幂等）、我的路径进度
+- **AI 助手**：规则式智能答疑（问候/推荐/进度/问答）、智能推荐（热门/历史/分类）、学习分析（近 7 天图表、分类统计）
+- **3D 模型商城**：模型目录、**Three.js 在线 3D 预览**（GLB/GLTF/OBJ）、购物车（Pinia 持久化）、结算、**模拟支付**、订单状态机（待支付→待处理→处理中→已发货→已完成）、管理员推进状态
+- **内容审核**：用户提交资源/模型 → 审核员/管理员通过或驳回
+- **管理员**：数据看板（11 项统计）、用户管理（角色/启用禁用）
+- **个性化**：暗色模式、主题色、字体大小、动画速度（登录后云端同步）
+- **安全**：JWT 认证、注册强制普通用户角色、服务端订单计价、他人订单 404 隐私保护、401/403 中文提示
+
+## 安全设计要点
+
+- 密码 BCrypt 存储；JWT 24 小时有效；过滤器每次请求从数据库重载用户（角色变更即时生效）
+- 上传白名单（PDF/Word/PPT/ZIP/3D 文件），UUID 重命名 + 路径穿越防护
+- 订单总价由服务端按模型价格计算，客户端伪造金额无效
