@@ -31,7 +31,11 @@ async function pay() {
 }
 
 async function cancel() {
-  await ElMessageBox.confirm('确定取消该订单吗？', '提示', { type: 'warning' })
+  try {
+    await ElMessageBox.confirm('确定取消该订单吗？', '提示', { type: 'warning' })
+  } catch {
+    return // 用户取消
+  }
   await marketApi.cancel(id)
   ElMessage.success('订单已取消')
   load()

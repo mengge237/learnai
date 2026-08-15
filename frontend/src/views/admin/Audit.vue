@@ -31,10 +31,15 @@ async function approveResource(r) {
 }
 
 async function rejectResource(r) {
-  const { value } = await ElMessageBox.prompt('请填写驳回原因', '驳回资源', {
-    inputPattern: /\S+/,
-    inputErrorMessage: '驳回原因不能为空',
-  })
+  let value
+  try {
+    ;({ value } = await ElMessageBox.prompt('请填写驳回原因', '驳回资源', {
+      inputPattern: /\S+/,
+      inputErrorMessage: '驳回原因不能为空',
+    }))
+  } catch {
+    return // 用户取消
+  }
   await adminApi.reviewResource(r.id, { approved: false, reason: value })
   ElMessage.success('已驳回')
   load()
@@ -47,10 +52,15 @@ async function approveModel(m) {
 }
 
 async function rejectModel(m) {
-  const { value } = await ElMessageBox.prompt('请填写驳回原因', '驳回模型', {
-    inputPattern: /\S+/,
-    inputErrorMessage: '驳回原因不能为空',
-  })
+  let value
+  try {
+    ;({ value } = await ElMessageBox.prompt('请填写驳回原因', '驳回模型', {
+      inputPattern: /\S+/,
+      inputErrorMessage: '驳回原因不能为空',
+    }))
+  } catch {
+    return // 用户取消
+  }
   await adminApi.reviewModel(m.id, { approved: false, reason: value })
   ElMessage.success('已驳回')
   load()

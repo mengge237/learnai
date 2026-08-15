@@ -63,11 +63,16 @@ async function setStep(step, status) {
 }
 
 async function complete() {
-  const { value } = await ElMessageBox.prompt('给自己本次学习打个分吧（0-100）', '完成学习', {
-    inputPattern: /^$|^\d{1,3}$/,
-    inputErrorMessage: '请输入 0-100 的整数',
-    inputValue: progress.value.score != null ? String(progress.value.score) : '',
-  })
+  let value
+  try {
+    ;({ value } = await ElMessageBox.prompt('给自己本次学习打个分吧（0-100）', '完成学习', {
+      inputPattern: /^$|^\d{1,3}$/,
+      inputErrorMessage: '请输入 0-100 的整数',
+      inputValue: progress.value.score != null ? String(progress.value.score) : '',
+    }))
+  } catch {
+    return // 用户取消
+  }
   busy.value = true
   try {
     progress.value = await resourceApi.complete(id, {

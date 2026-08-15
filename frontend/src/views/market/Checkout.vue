@@ -40,11 +40,17 @@ async function submit() {
       recipientAddress: form.recipientAddress,
     })
     cart.clear()
-    const { value } = await ElMessageBox.confirm(
-      `订单 #${order.id} 创建成功，合计 ${formatPrice(order.totalAmount)}。是否立即模拟支付？`,
-      '下单成功',
-      { confirmButtonText: '去支付', cancelButtonText: '稍后支付', type: 'success' },
-    )
+    let value
+    try {
+      ;({ value } = await ElMessageBox.confirm(
+        `订单 #${order.id} 创建成功，合计 ${formatPrice(order.totalAmount)}。是否立即模拟支付？`,
+        '下单成功',
+        { confirmButtonText: '去支付', cancelButtonText: '稍后支付', type: 'success' },
+      ))
+    } catch {
+      router.push('/orders')
+      return // 用户选择稍后支付
+    }
     if (value) {
       await marketApi.pay(order.id)
       ElMessage.success('支付成功！等待管理员处理发货')

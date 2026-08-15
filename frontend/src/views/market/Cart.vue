@@ -18,7 +18,11 @@ function checkout() {
 }
 
 async function clearAll() {
-  await ElMessageBox.confirm('确定要清空购物车吗？', '提示', { type: 'warning' })
+  try {
+    await ElMessageBox.confirm('确定要清空购物车吗？', '提示', { type: 'warning' })
+  } catch {
+    return // 用户取消
+  }
   cart.clear()
   ElMessage.success('购物车已清空')
 }

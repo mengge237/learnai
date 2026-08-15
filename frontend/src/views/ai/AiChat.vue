@@ -141,7 +141,7 @@ onMounted(async () => {
   background: var(--el-fill-color-light);
 }
 .from-user .bubble {
-  background: #ecf5ff;
+  background: var(--el-color-primary-light-9);
 }
 .text {
   white-space: pre-wrap;

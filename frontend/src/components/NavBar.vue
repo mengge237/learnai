@@ -33,7 +33,11 @@ function onSearch() {
 
 async function handleCommand(cmd) {
   if (cmd === 'logout') {
-    await ElMessageBox.confirm('确定要退出登录吗？', '提示', { type: 'warning' })
+    try {
+      await ElMessageBox.confirm('确定要退出登录吗？', '提示', { type: 'warning' })
+    } catch {
+      return // 用户取消
+    }
     auth.logout()
     cart.clear()
     router.push({ name: 'home' })
@@ -83,7 +87,7 @@ async function handleCommand(cmd) {
           <el-dropdown @command="handleCommand">
             <span class="user-chip">
               <span class="avatar">{{ (auth.user?.username || '?').slice(0, 1).toUpperCase() }}</span>
-              {{ auth.user?.username }}
+              <span class="user-name">{{ auth.user?.username }}</span>
             </span>
             <template #dropdown>
               <el-dropdown-menu>
@@ -189,6 +193,22 @@ async function handleCommand(cmd) {
 @media (max-width: 900px) {
   .search-input {
     display: none;
+  }
+}
+@media (max-width: 640px) {
+  .navbar-inner {
+    gap: 8px;
+    padding: 0 8px;
+  }
+  .logo-sub,
+  .user-name {
+    display: none;
+  }
+  .logo-text {
+    font-size: 17px;
+  }
+  .nav-menu {
+    overflow-x: auto;
   }
 }
 </style>

@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { marketApi } from '@/api/market'
@@ -8,6 +8,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
 import { LICENSE_TYPES, formatDate, formatPrice } from '@/utils/format'
 import CommentSection from '@/components/CommentSection.vue'
+import ModelViewer from '@/components/ModelViewer.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -19,6 +20,18 @@ const model = ref(null)
 const loading = ref(true)
 const quantity = ref(1)
 const licenseType = ref('个人')
+
+/** 支持在线预览的格式：glb / gltf / obj，其余提示下载 */
+const viewerFormat = computed(() => {
+  const name = (model.value?.originalFileName || model.value?.filePath || '').toLowerCase()
+  if (name.endsWith('.glb')) return 'glb'
+  if (name.endsWith('.gltf')) return 'gltf'
+  if (name.endsWith('.obj')) return 'obj'
+  return ''
+})
+const viewerSrc = computed(() =>
+  viewerFormat.value && model.value?.filePath ? `/uploads/${model.value.filePath}` : '',
+)
 
 async function load() {
   loading.value = true
@@ -59,8 +72,11 @@ onMounted(load)
       <el-card class="detail-card">
         <div class="detail-layout">
           <div class="cover-box">
-            <el-image v-if="model.previewUrl" :src="model.previewUrl" fit="cover" class="cover" />
-            <div v-else class="cover cover-fallback" />
+            <ModelViewer v-if="viewerSrc" :src="viewerSrc" :format="viewerFormat" class="viewer" />
+            <template v-else>
+              <el-image v-if="model.previewUrl" :src="model.previewUrl" fit="cover" class="cover" />
+              <div v-else class="cover cover-fallback" />
+            </template>
           </div>
           <div class="info">
             <h2 class="title">
@@ -88,7 +104,7 @@ onMounted(load)
               <el-button type="danger" size="large" plain :disabled="model.isApproved === false" @click="buyNow">立即购买</el-button>
               <el-button size="large" @click="download">⬇️ 下载模型文件</el-button>
             </div>
-            <div class="viewer-tip text-muted">💡 3D 在线预览功能即将上线（开发中）</div>
+            <div v-if="!viewerSrc" class="viewer-tip text-muted">💡 该格式暂不支持在线预览，可下载后用本地软件（Blender / 3ds Max 等）打开</div>
           </div>
         </div>
       </el-card>
@@ -115,6 +131,9 @@ onMounted(load)
 .cover-box {
   border-radius: 8px;
   overflow: hidden;
+}
+.viewer {
+  height: 300px;
 }
 .cover {
   width: 100%;
