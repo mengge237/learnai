@@ -92,8 +92,32 @@ async function handleCommand(cmd) {
         <span class="logo-text">AI智学<span class="logo-sub">校园学习平台</span></span>
       </router-link>
 
-      <el-menu :default-active="activeMenu" mode="horizontal" :ellipsis="false" router class="nav-menu">
+      <!-- ellipsis=true：宽度不足时收起溢出项到「…」子菜单，避免与右侧搜索框重叠 -->
+      <el-menu :default-active="activeMenu" mode="horizontal" :ellipsis="true" router class="nav-menu">
         <el-menu-item v-for="m in menus" :key="m.index" :index="m.index">{{ m.label }}</el-menu-item>
+        <el-menu-item v-if="auth.isLoggedIn" index="/console">控制台</el-menu-item>
+      </el-menu>
+
+      <div class="navbar-right">
+        <el-input
+          v-model="searchText"
+          class="search-input"
+          placeholder="全局搜索：课程 / 路径 / 模型…"
+          clearable
+          @keyup.enter="onSearch"
+        >
+          <template #append>
+            <el-button class="search-btn" @click="onSearch" aria-label="搜索">
+              <LineIcon name="search" :size="15" />
+            </el-button>
+          </template>
+        </el-input>
+
+        <el-tooltip content="个性化设置">
+          <button class="icon-btn" @click="router.push('/user/settings')" title="个性化设置">
+            <LineIcon name="settings" :size="19" />
+          </button>
+        </el-tooltip>
 
         <!-- 我的学习：悬停下拉实时显示学习进度（点击进入完整页） -->
         <el-popover
@@ -107,7 +131,7 @@ async function handleCommand(cmd) {
         >
           <template #reference>
             <span
-              class="nav-study"
+              class="text-btn nav-study"
               :class="{ active: route.path.startsWith('/resources/my') }"
               @click="router.push('/resources/my')"
             >
@@ -139,30 +163,6 @@ async function handleCommand(cmd) {
             </div>
           </div>
         </el-popover>
-
-        <el-menu-item v-if="auth.isLoggedIn" index="/console">控制台</el-menu-item>
-      </el-menu>
-
-      <div class="navbar-right">
-        <el-input
-          v-model="searchText"
-          class="search-input"
-          placeholder="全局搜索：课程 / 路径 / 模型…"
-          clearable
-          @keyup.enter="onSearch"
-        >
-          <template #append>
-            <el-button class="search-btn" @click="onSearch" aria-label="搜索">
-              <LineIcon name="search" :size="15" />
-            </el-button>
-          </template>
-        </el-input>
-
-        <el-tooltip content="个性化设置">
-          <button class="icon-btn" @click="router.push('/user/settings')" title="个性化设置">
-            <LineIcon name="settings" :size="19" />
-          </button>
-        </el-tooltip>
 
         <el-badge :value="favCount" :hidden="favCount === 0">
           <button class="text-btn" @click="router.push('/user/favorites')" title="我的收藏">我的收藏</button>
@@ -304,21 +304,11 @@ async function handleCommand(cmd) {
   justify-content: center;
   font-size: 14px;
 }
-/* 我的学习 hover 触发区（模拟菜单项样式） */
+/* 我的学习按钮（导航右侧，与收藏同款文字按钮） */
 .nav-study {
-  display: inline-flex;
-  align-items: center;
-  height: 60px;
-  padding: 0 16px;
-  font-size: 14px;
-  cursor: pointer;
-  color: var(--el-text-color-primary);
-  border-bottom: 2px solid transparent;
-  box-sizing: border-box;
   flex-shrink: 0;
   white-space: nowrap;
 }
-.nav-study:hover,
 .nav-study.active {
   color: var(--theme-color);
   border-bottom-color: var(--theme-color);
@@ -440,7 +430,8 @@ async function handleCommand(cmd) {
     padding: 0 8px;
   }
   .logo-sub,
-  .user-name {
+  .user-name,
+  .icon-btn {
     display: none;
   }
   .logo-text {

@@ -11,6 +11,7 @@ import { LICENSE_TYPES, formatDate, formatPrice } from '@/utils/format'
 import CommentSection from '@/components/CommentSection.vue'
 import LineIcon from '@/components/LineIcon.vue'
 import ModelViewer from '@/components/ModelViewer.vue'
+import PageBreadcrumb from '@/components/PageBreadcrumb.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -83,11 +84,13 @@ onMounted(load)
 
 <template>
   <div class="page-container" v-loading="loading">
-    <el-breadcrumb separator="/" class="back">
-      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: '/market' }">模型资源库</el-breadcrumb-item>
-      <el-breadcrumb-item v-if="model">{{ model.name }}</el-breadcrumb-item>
-    </el-breadcrumb>
+    <PageBreadcrumb
+      :items="[
+        { label: '首页', to: '/' },
+        { label: '模型资源库', to: '/market' },
+        ...(model ? [{ label: model.name }] : []),
+      ]"
+    />
 
     <template v-if="model">
       <el-card class="detail-card">
@@ -139,9 +142,6 @@ onMounted(load)
 </template>
 
 <style scoped>
-.back {
-  margin-bottom: 16px;
-}
 .detail-layout {
   display: grid;
   grid-template-columns: 420px 1fr;

@@ -6,6 +6,7 @@ import { pathApi } from '@/api/paths'
 import { useAuthStore } from '@/stores/auth'
 import { PATH_DIFFICULTY, PATH_STATUS, PATH_TAG, formatDate, formatCount, formatPrice } from '@/utils/format'
 import LineIcon from '@/components/LineIcon.vue'
+import PageBreadcrumb from '@/components/PageBreadcrumb.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -46,11 +47,14 @@ async function enroll() {
 
 <template>
   <div class="page-container" v-loading="loading">
-    <el-page-header v-if="path" @back="router.back()" class="back">
-      <template #content>
-        <span class="detail-title">{{ path.name }}</span>
-      </template>
-    </el-page-header>
+    <PageBreadcrumb
+      v-if="path"
+      :items="[
+        { label: '首页', to: '/' },
+        { label: '学习路径', to: '/paths' },
+        { label: path.name },
+      ]"
+    />
 
     <template v-if="path">
       <el-card class="head-card">
@@ -107,12 +111,6 @@ async function enroll() {
 </template>
 
 <style scoped>
-.back {
-  margin-bottom: 16px;
-}
-.detail-title {
-  font-weight: 600;
-}
 .head-card {
   margin-bottom: 16px;
 }

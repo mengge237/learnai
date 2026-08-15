@@ -278,29 +278,3 @@ html[data-animation='off'] * {
   background: var(--line-soft);
 }
 
-/* ---------- 面包屑：紧凑线稿风（不拥挤） ---------- */
-.el-breadcrumb {
-  font-size: 12px;
-  margin-bottom: 14px;
-  flex-wrap: nowrap;
-}
-.el-breadcrumb__inner,
-.el-breadcrumb__inner a {
-  color: var(--el-text-color-secondary) !important;
-  font-weight: 400 !important;
-}
-.el-breadcrumb__item:last-child .el-breadcrumb__inner {
-  color: var(--el-text-color-primary) !important;
-  font-weight: 600 !important;
-  max-width: 420px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  display: inline-block;
-  vertical-align: bottom;
-}
-.el-breadcrumb__separator {
-  color: var(--line-soft) !important;
-  margin: 0 6px !important;
-  font-weight: 400;
-}

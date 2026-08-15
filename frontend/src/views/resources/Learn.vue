@@ -6,6 +6,7 @@ import { resourceApi } from '@/api/resources'
 import { studyApi } from '@/api/study'
 import { LEARNING_STATUS, LEARNING_TAG, STEP_STATUS, formatDate } from '@/utils/format'
 import LineIcon from '@/components/LineIcon.vue'
+import PageBreadcrumb from '@/components/PageBreadcrumb.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -194,6 +195,15 @@ onBeforeUnmount(stopTimer)
 <template>
   <div class="page-container learn-page" v-loading="loading">
     <template v-if="progress">
+      <!-- 面包屑：首页 / 学习资源 / 当前课程 -->
+      <PageBreadcrumb
+        :items="[
+          { label: '首页', to: '/' },
+          { label: '学习资源', to: '/resources' },
+          { label: progress.resourceTitle },
+        ]"
+      />
+
       <!-- 未开始 -->
       <el-card v-if="progress.recordId == null" class="box">
         <el-empty description="还没有开始学习这个资源">
@@ -206,10 +216,6 @@ onBeforeUnmount(stopTimer)
         <!-- ============ 左侧目录侧边栏 ============ -->
         <aside class="learn-sidebar">
           <div class="side-title">
-            <el-breadcrumb separator="/">
-              <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-              <el-breadcrumb-item :to="{ path: '/resources' }">学习资源</el-breadcrumb-item>
-            </el-breadcrumb>
             <h2 class="side-course">{{ progress.resourceTitle }}</h2>
           </div>
 

@@ -9,6 +9,7 @@ import { useAuthStore } from '@/stores/auth'
 import { formatCount, formatDate, formatPrice } from '@/utils/format'
 import CommentSection from '@/components/CommentSection.vue'
 import LineIcon from '@/components/LineIcon.vue'
+import PageBreadcrumb from '@/components/PageBreadcrumb.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -65,11 +66,13 @@ onMounted(load)
 
 <template>
   <div class="page-container" v-loading="loading">
-    <el-breadcrumb separator="/" class="back">
-      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: '/resources' }">学习资源</el-breadcrumb-item>
-      <el-breadcrumb-item v-if="resource">{{ resource.title }}</el-breadcrumb-item>
-    </el-breadcrumb>
+    <PageBreadcrumb
+      :items="[
+        { label: '首页', to: '/' },
+        { label: '学习资源', to: '/resources' },
+        ...(resource ? [{ label: resource.title }] : []),
+      ]"
+    />
 
     <el-card v-if="resource" class="detail-card">
       <div class="detail-layout">
@@ -115,9 +118,6 @@ onMounted(load)
 </template>
 
 <style scoped>
-.back {
-  margin-bottom: 16px;
-}
 .detail-layout {
   display: grid;
   grid-template-columns: 420px 1fr;

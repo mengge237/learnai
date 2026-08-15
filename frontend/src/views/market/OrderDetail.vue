@@ -5,6 +5,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { marketApi } from '@/api/market'
 import { ORDER_STATUS, ORDER_TAG, formatDate, formatPrice } from '@/utils/format'
 import LineIcon from '@/components/LineIcon.vue'
+import PageBreadcrumb from '@/components/PageBreadcrumb.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -47,11 +48,15 @@ onMounted(load)
 
 <template>
   <div class="page-container narrow" v-loading="loading">
-    <el-page-header v-if="order" @back="router.back()" class="back">
-      <template #content>
-        <span class="detail-title">订单 #{{ order.id }}</span>
-      </template>
-    </el-page-header>
+    <PageBreadcrumb
+      v-if="order"
+      :items="[
+        { label: '首页', to: '/' },
+        { label: '模型资源库', to: '/market' },
+        { label: '我的订单', to: '/market/orders' },
+        { label: `订单 #${order.id}` },
+      ]"
+    />
 
     <template v-if="order">
       <el-card class="block">
@@ -125,12 +130,6 @@ onMounted(load)
 <style scoped>
 .narrow {
   max-width: 860px;
-}
-.back {
-  margin-bottom: 16px;
-}
-.detail-title {
-  font-weight: 600;
 }
 .block {
   margin-bottom: 16px;
