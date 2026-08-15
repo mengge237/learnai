@@ -21,9 +21,9 @@ onMounted(() => {
 
 // 演示账号（校园特供版一键填入）
 const demoAccounts = [
-  { label: '👨‍🎓 学生演示', username: 'demo', password: 'demo123' },
-  { label: '🔍 审核员', username: 'auditor', password: 'audit123' },
-  { label: '🛠️ 管理员', username: 'admin', password: 'admin123' },
+  { label: '学生演示', username: 'demo', password: 'demo123' },
+  { label: '审核员', username: 'auditor', password: 'audit123' },
+  { label: '管理员', username: 'admin', password: 'admin123' },
 ]
 
 const rules = {

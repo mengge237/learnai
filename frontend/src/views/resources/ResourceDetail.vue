@@ -8,6 +8,7 @@ import { downloadFile } from '@/api/http'
 import { useAuthStore } from '@/stores/auth'
 import { formatCount, formatDate, formatPrice } from '@/utils/format'
 import CommentSection from '@/components/CommentSection.vue'
+import LineIcon from '@/components/LineIcon.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -93,15 +94,15 @@ onMounted(load)
             <div><span class="text-muted">发布时间：</span>{{ formatDate(resource.createDate) }}</div>
           </div>
           <div class="stats">
-            <span>👁 {{ formatCount(resource.viewCount) }} 浏览</span>
-            <span>👍 {{ formatCount(resource.likeCount) }} 点赞</span>
-            <span>🎓 {{ formatCount(resource.completionCount) }} 人学完</span>
+            <span>{{ formatCount(resource.viewCount) }} 浏览</span>
+            <span>{{ formatCount(resource.likeCount) }} 点赞</span>
+            <span><LineIcon name="user" :size="14" /> {{ formatCount(resource.completionCount) }} 人学完</span>
           </div>
           <div class="actions">
-            <el-button type="primary" size="large" @click="startLearn">📖 开始学习</el-button>
-            <el-button size="large" :loading="likeBusy" @click="like">👍 点赞</el-button>
-            <el-button size="large" @click="toggleFavorite">{{ favorited ? '⭐ 已收藏' : '☆ 收藏' }}</el-button>
-            <el-button size="large" @click="download">⬇️ 下载资料</el-button>
+            <el-button type="primary" size="large" @click="startLearn"><LineIcon name="book" :size="14" /> 开始学习</el-button>
+            <el-button size="large" :loading="likeBusy" @click="like">点赞</el-button>
+            <el-button size="large" @click="toggleFavorite">{{ favorited ? '已收藏' : '收藏' }}</el-button>
+            <el-button size="large" @click="download"><LineIcon name="download" :size="14" /> 下载资料</el-button>
           </div>
         </div>
       </div>

@@ -87,7 +87,11 @@ defineExpose({ loadHistory })
         <div class="avatar">{{ m.userMessage ? '我' : '助手' }}</div>
         <div class="bubble">
           <div class="text">{{ m.aiMessage }}</div>
-          <div class="time text-muted">{{ m.interactionTime ? formatDate(m.interactionTime) : '…' }}</div>
+          <div class="time text-muted">
+            <span v-if="m.provider === 'llm'" class="prov">大模型</span>
+            <span v-else-if="m.provider === 'rule'" class="prov prov-rule">演示模式</span>
+            {{ m.interactionTime ? formatDate(m.interactionTime) : '…' }}
+          </div>
         </div>
       </div>
     </div>
@@ -178,6 +182,19 @@ defineExpose({ loadHistory })
   font-size: 12px;
   margin-top: 4px;
   text-align: right;
+}
+.prov {
+  display: inline-block;
+  font-size: 11px;
+  color: var(--el-color-success);
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  padding: 0 4px;
+  line-height: 15px;
+  margin-right: 6px;
+}
+.prov-rule {
+  color: var(--el-text-color-secondary);
 }
 .input-area {
   border-top: 1px solid var(--border-color);

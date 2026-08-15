@@ -6,6 +6,7 @@ import { downloadFile } from '@/api/http'
 import { resourceApi } from '@/api/resources'
 import { marketApi } from '@/api/market'
 import { formatDate } from '@/utils/format'
+import LineIcon from '@/components/LineIcon.vue'
 
 const router = useRouter()
 const items = ref([])
@@ -27,7 +28,7 @@ function reDownload(it) {
 
 <template>
   <div class="page-container">
-    <div class="page-title">⬇️ 我的下载</div>
+    <div class="page-title"><LineIcon name="download" :size="19" /> 我的下载</div>
 
     <el-empty v-if="!loading && items.length === 0" description="还没有下载记录" />
 

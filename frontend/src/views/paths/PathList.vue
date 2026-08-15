@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { pathApi } from '@/api/paths'
 import PathCard from '@/components/PathCard.vue'
 import PaginationBar from '@/components/PaginationBar.vue'
+import LineIcon from '@/components/LineIcon.vue'
 
 const paths = ref([])
 const loading = ref(true)
@@ -27,7 +28,7 @@ onMounted(load)
 <template>
   <div class="page-container">
     <div class="banner">
-      <h2>🗺️ 学习路径</h2>
+      <h2><LineIcon name="layers" :size="20" /> 学习路径</h2>
       <p>系统化的进阶路线，从入门到精通，一步一步带你成为 3D 建模高手。</p>
     </div>
 
@@ -50,6 +51,9 @@ onMounted(load)
 }
 .banner h2 {
   margin: 0 0 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 .banner p {
   margin: 0;

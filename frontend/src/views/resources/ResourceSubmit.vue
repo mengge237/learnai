@@ -5,6 +5,7 @@ import { ElMessage } from 'element-plus'
 import { resourceApi } from '@/api/resources'
 import http from '@/api/http'
 import { groupCategories } from '@/utils/categories'
+import LineIcon from '@/components/LineIcon.vue'
 
 const router = useRouter()
 const formRef = ref()
@@ -66,7 +67,7 @@ onMounted(async () => {
 
 <template>
   <div class="page-container narrow">
-    <div class="page-title">📤 提交学习资源</div>
+    <div class="page-title"><LineIcon name="upload" :size="19" /> 提交学习资源</div>
     <el-alert type="info" :closable="false" class="tip" show-icon
       title="提交后需管理员/审核员审核通过才会公开展示"
       description="支持格式：PDF、Word、PPT、ZIP、RAR、Blend、OBJ、FBX、STL、DAE、3DS" />

@@ -5,6 +5,7 @@ import { aiApi } from '@/api/ai'
 import { studyApi } from '@/api/study'
 import { useAuthStore } from '@/stores/auth'
 import { LEARNING_STATUS, formatDate } from '@/utils/format'
+import LineIcon from '@/components/LineIcon.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -13,16 +14,16 @@ const study = ref(null)
 const loading = ref(true)
 
 const quickEntries = [
-  { icon: '📚', label: '我的学习', path: '/resources/my' },
-  { icon: '🗺️', label: '学习路径', path: '/paths' },
-  { icon: '📊', label: '学习分析', path: '/ai/analytics' },
-  { icon: '🧭', label: '智能推荐', path: '/ai/recommend' },
-  { icon: '💬', label: '在线答疑', path: '/ai/chat' },
-  { icon: '⭐', label: '我的收藏', path: '/user/favorites' },
-  { icon: '⬇️', label: '下载历史', path: '/user/downloads' },
-  { icon: '📦', label: '我的订单', path: '/market/orders' },
-  { icon: '🏪', label: '模型资源库', path: '/market' },
-  { icon: '📤', label: '提交资源', path: '/resources/submit' },
+  { icon: 'book', label: '我的学习', path: '/resources/my' },
+  { icon: 'layers', label: '学习路径', path: '/paths' },
+  { icon: 'chart', label: '学习分析', path: '/ai/analytics' },
+  { icon: 'sparkle', label: '智能推荐', path: '/ai/recommend' },
+  { icon: 'chat', label: '在线答疑', path: '/ai/chat' },
+  { icon: 'star', label: '我的收藏', path: '/user/favorites' },
+  { icon: 'download', label: '下载历史', path: '/user/downloads' },
+  { icon: 'box', label: '我的订单', path: '/market/orders' },
+  { icon: 'cube', label: '模型资源库', path: '/market' },
+  { icon: 'upload', label: '提交资源', path: '/resources/submit' },
 ]
 
 const stats = [
@@ -50,7 +51,7 @@ onMounted(async () => {
 <template>
   <div class="page-container" v-loading="loading">
     <div class="console-head">
-      <div class="page-title" style="margin-bottom: 8px">🎛 个人控制台</div>
+      <div class="page-title" style="margin-bottom: 8px"><LineIcon name="monitor" :size="19" /> 个人控制台</div>
       <div class="console-sub text-muted">
         {{ auth.user?.username }}
         <template v-if="auth.user?.studentNo">· 学号 {{ auth.user.studentNo }}</template>
@@ -68,7 +69,7 @@ onMounted(async () => {
         </div>
         <div class="study-card">
           <div class="sc-label">连续学习</div>
-          <div class="sc-value flame">🔥 {{ study.streakDays }}<span class="sc-unit">天</span></div>
+          <div class="sc-value flame"><LineIcon name="flame" :size="24" /> {{ study.streakDays }}<span class="sc-unit">天</span></div>
           <div class="sc-sub text-muted">坚持就是胜利</div>
         </div>
         <div class="study-card" :class="{ online: study.isStudying }">
@@ -106,15 +107,15 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="section-title">⚡ 快捷入口</div>
+      <div class="section-title"><LineIcon name="sparkle" :size="15" /> 快捷入口</div>
       <div class="quick-grid">
         <button v-for="q in quickEntries" :key="q.path" class="quick-item" @click="router.push(q.path)">
-          <span class="quick-icon">{{ q.icon }}</span>
+          <span class="quick-icon"><LineIcon :name="q.icon" :size="22" /></span>
           <span class="quick-label">{{ q.label }}</span>
         </button>
       </div>
 
-      <div class="section-title">🕘 最近学习</div>
+      <div class="section-title"><LineIcon name="clock" :size="15" /> 最近学习</div>
       <el-card>
         <el-table v-if="data.recentRecords?.length" :data="data.recentRecords" size="small">
           <el-table-column label="资源" min-width="220">
@@ -138,16 +139,16 @@ onMounted(async () => {
       </el-card>
 
       <template v-if="auth.isAuditorOrAdmin">
-        <div class="section-title">🛠 管理入口</div>
+        <div class="section-title"><LineIcon name="settings" :size="15" /> 管理入口</div>
         <div class="quick-grid">
           <button v-if="auth.isAdmin" class="quick-item" @click="router.push('/admin/dashboard')">
-            <span class="quick-icon">📈</span><span class="quick-label">数据看板</span>
+            <span class="quick-icon"><LineIcon name="chart" :size="22" /></span><span class="quick-label">数据看板</span>
           </button>
           <button v-if="auth.isAdmin" class="quick-item" @click="router.push('/admin/users')">
-            <span class="quick-icon">👥</span><span class="quick-label">用户管理</span>
+            <span class="quick-icon"><LineIcon name="user" :size="22" /></span><span class="quick-label">用户管理</span>
           </button>
           <button v-if="auth.isAuditorOrAdmin" class="quick-item" @click="router.push('/audit')">
-            <span class="quick-icon">✅</span><span class="quick-label">内容审核</span>
+            <span class="quick-icon"><LineIcon name="check" :size="22" /></span><span class="quick-label">内容审核</span>
           </button>
         </div>
       </template>
@@ -159,6 +160,11 @@ onMounted(async () => {
 .console-sub {
   margin-bottom: 20px;
   letter-spacing: 1px;
+}
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 /* ================= 学习激励卡片 ================= */
 .study-grid {

@@ -5,6 +5,7 @@ import { ElMessage } from 'element-plus'
 import { pathApi } from '@/api/paths'
 import { useAuthStore } from '@/stores/auth'
 import { PATH_DIFFICULTY, PATH_STATUS, PATH_TAG, formatDate, formatCount, formatPrice } from '@/utils/format'
+import LineIcon from '@/components/LineIcon.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -36,7 +37,7 @@ async function enroll() {
   try {
     const mine = await pathApi.enroll(id)
     myPaths.value = [mine, ...myPaths.value.filter((m) => m.pathId !== id)]
-    ElMessage.success('报名成功！开始你的学习之旅吧 🚀')
+    ElMessage.success('报名成功！开始你的学习之旅吧')
   } finally {
     enrollBusy.value = false
   }
@@ -56,34 +57,34 @@ async function enroll() {
         <div class="head-layout">
           <div class="info">
             <h2 class="title">
-              🗺️ {{ path.name }}
+              <LineIcon name="layers" :size="16" /> {{ path.name }}
               <el-tag v-if="enrolled" :type="PATH_TAG[enrolled.status] || 'info'">
                 {{ PATH_STATUS[enrolled.status] || enrolled.status }}
               </el-tag>
             </h2>
             <p class="desc">{{ path.description }}</p>
             <div class="meta">
-              <span>📌 适合人群：{{ path.targetAudience || '不限' }}</span>
-              <span>📊 难度：{{ PATH_DIFFICULTY[path.difficultyLevel] || '入门' }}</span>
-              <span>⏱ 预计 {{ path.estimatedHours }} 小时</span>
-              <span>👁 {{ formatCount(path.viewCount) }} 浏览</span>
-              <span>👥 {{ formatCount(path.enrollmentCount) }} 人已报名</span>
-              <span>📅 创建于 {{ formatDate(path.createDate) }}</span>
+              <span><LineIcon name="clock" :size="14" /> 适合人群：{{ path.targetAudience || '不限' }}</span>
+              <span>难度：{{ PATH_DIFFICULTY[path.difficultyLevel] || '入门' }}</span>
+              <span><LineIcon name="clock" :size="14" /> 预计 {{ path.estimatedHours }} 小时</span>
+              <span><LineIcon name="user" :size="14" /> {{ formatCount(path.viewCount) }} 浏览</span>
+              <span><LineIcon name="user" :size="14" /> {{ formatCount(path.enrollmentCount) }} 人已报名</span>
+              <span><LineIcon name="clock" :size="14" /> 创建于 {{ formatDate(path.createDate) }}</span>
             </div>
             <div class="actions">
               <el-button type="primary" size="large" :loading="enrollBusy" @click="enroll">
-                {{ enrolled ? '再次确认报名' : '🚀 立即报名' }}
+                <LineIcon name="arrowRight" :size="15" /> {{ enrolled ? '再次确认报名' : '立即报名' }}
               </el-button>
               <el-button v-if="enrolled" size="large" @click="router.push('/paths/my')">查看我的学习</el-button>
             </div>
           </div>
           <el-image v-if="path.coverImageUrl" :src="path.coverImageUrl" fit="cover" class="cover" />
-          <div v-else class="cover cover-fallback">🗺️</div>
+          <div v-else class="cover cover-fallback"><LineIcon name="layers" :size="20" /></div>
         </div>
       </el-card>
 
       <el-card class="resources-card">
-        <div class="section-label">📚 路径资源（{{ path.resources.length }} 个）</div>
+        <div class="section-label"><LineIcon name="book" :size="15" /> 路径资源（{{ path.resources.length }} 个）</div>
         <div v-for="(r, i) in path.resources" :key="r.id" class="resource-row" @click="router.push(`/resources/${r.id}`)">
           <span class="seq">{{ String(i + 1).padStart(2, '0') }}</span>
           <el-image v-if="r.previewUrl || r.thumbnailUrl" :src="r.previewUrl || r.thumbnailUrl" fit="cover" class="thumb" />
@@ -97,7 +98,7 @@ async function enroll() {
           <div class="r-right">
             <el-tag v-if="r.isFree" type="success" effect="plain">免费</el-tag>
             <el-tag v-else type="danger" effect="plain">{{ formatPrice(r.price) }}</el-tag>
-            <span class="text-muted">👍 {{ r.likeCount }}</span>
+            <span class="text-muted"><LineIcon name="heart" :size="14" /> {{ r.likeCount }}</span>
           </div>
         </div>
       </el-card>

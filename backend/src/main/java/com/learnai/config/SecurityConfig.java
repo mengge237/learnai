@@ -58,7 +58,8 @@ public class SecurityConfig {
                                 "/api/resources", "/api/resources/*",
                                 "/api/models", "/api/models/*",
                                 "/api/paths", "/api/paths/*",
-                                "/api/categories", "/api/model-categories", "/api/comments").permitAll()
+                                "/api/categories", "/api/model-categories", "/api/comments",
+                                "/api/search").permitAll()
                         // 上传的静态文件公开
                         .requestMatchers("/uploads/**", "/error").permitAll()
                         .anyRequest().authenticated())

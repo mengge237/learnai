@@ -162,7 +162,7 @@ onUnmounted(dispose)
     <div v-if="status === 'error'" class="overlay">
       <span class="text-muted">{{ errorMsg }}，请下载后在本地软件中打开</span>
     </div>
-    <div v-if="status === 'ready'" class="hint text-muted">🖱 拖拽旋转 · 滚轮缩放 · 右键平移</div>
+    <div v-if="status === 'ready'" class="hint text-muted">拖拽旋转 · 滚轮缩放 · 右键平移</div>
   </div>
 </template>
 

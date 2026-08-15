@@ -25,6 +25,12 @@ app:
   jwt:
     secret: "learnai-super-secret-key-for-jwt-hs256-signing-please-change-in-production-0123456789"
     expire-hours: 24
+  ai:
+    # 答疑大模型接入（OpenAI 兼容协议）。api-key 留空 = 演示模式（规则式回复）；
+    # 填入任意 OpenAI 兼容服务的 key（DeepSeek / 通义 / OpenAI 等）即切换为真实大模型答疑。
+    api-key: ""
+    base-url: https://api.deepseek.com
+    model: deepseek-chat
 
 logging:
   level:

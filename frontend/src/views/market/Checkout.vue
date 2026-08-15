@@ -6,6 +6,7 @@ import { marketApi } from '@/api/market'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
 import { formatPrice } from '@/utils/format'
+import LineIcon from '@/components/LineIcon.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -66,7 +67,7 @@ async function submit() {
 
 <template>
   <div class="page-container narrow">
-    <div class="page-title">📋 确认订单</div>
+    <div class="page-title"><LineIcon name="box" :size="19" /> 确认订单</div>
 
     <el-empty v-if="cart.items.length === 0" description="购物车是空的，无法结算">
       <el-button type="primary" @click="router.push('/market')">去逛逛</el-button>
@@ -74,7 +75,7 @@ async function submit() {
 
     <template v-else>
       <el-card class="block">
-        <div class="section-label">🛍 商品清单</div>
+        <div class="section-label"><LineIcon name="box" :size="15" /> 商品清单</div>
         <div v-for="it in cart.items" :key="it.modelId" class="item-row">
           <el-image v-if="it.previewUrl" :src="it.previewUrl" fit="cover" class="thumb" />
           <div v-else class="thumb thumb-fallback" />
@@ -89,7 +90,7 @@ async function submit() {
       </el-card>
 
       <el-card class="block">
-        <div class="section-label">📍 收货信息</div>
+        <div class="section-label"><LineIcon name="user" :size="15" /> 收货信息</div>
         <el-form ref="formRef" :model="form" :rules="rules" label-width="90px">
           <el-form-item label="收货人" prop="recipientName">
             <el-input v-model="form.recipientName" maxlength="50" />

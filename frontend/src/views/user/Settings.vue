@@ -4,6 +4,7 @@ import { ElMessage } from 'element-plus'
 import { authApi } from '@/api/auth'
 import { usePrefsStore } from '@/stores/prefs'
 import { useAuthStore } from '@/stores/auth'
+import LineIcon from '@/components/LineIcon.vue'
 
 const prefs = usePrefsStore()
 const auth = useAuthStore()
@@ -42,10 +43,10 @@ async function changePassword() {
 
 <template>
   <div class="page-container narrow">
-    <div class="page-title">⚙️ 个性化设置</div>
+    <div class="page-title"><LineIcon name="settings" :size="19" /> 个性化设置</div>
 
     <el-card class="block">
-      <div class="section-label">🎨 界面外观</div>
+      <div class="section-label"><LineIcon name="monitor" :size="15" /> 界面外观</div>
       <div class="pref-row">
         <span>外观模式</span>
         <el-radio-group :model-value="prefs.prefs.themeMode || 'auto'" @change="(v) => prefs.update({ themeMode: v })">
@@ -88,7 +89,7 @@ async function changePassword() {
     </el-card>
 
     <el-card v-if="auth.isLoggedIn" class="block">
-      <div class="section-label">🔒 修改密码</div>
+      <div class="section-label"><LineIcon name="lock" :size="15" /> 修改密码</div>
       <el-form ref="pwdFormRef" :model="pwd" :rules="pwdRules" label-width="90px">
         <el-form-item label="原密码" prop="oldPassword">
           <el-input v-model="pwd.oldPassword" type="password" show-password />
@@ -105,7 +106,7 @@ async function changePassword() {
       </el-form>
     </el-card>
     <el-card v-else class="block">
-      <div class="section-label">🔒 修改密码</div>
+      <div class="section-label"><LineIcon name="lock" :size="15" /> 修改密码</div>
       <div class="text-muted">登录后可修改密码，<router-link to="/login" class="login-link">去登录</router-link></div>
     </el-card>
   </div>
@@ -118,7 +119,15 @@ async function changePassword() {
 .block {
   margin-bottom: 16px;
 }
+.page-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
 .section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-weight: 600;
   margin-bottom: 14px;
 }

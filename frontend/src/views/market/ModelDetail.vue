@@ -9,6 +9,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
 import { LICENSE_TYPES, formatDate, formatPrice } from '@/utils/format'
 import CommentSection from '@/components/CommentSection.vue'
+import LineIcon from '@/components/LineIcon.vue'
 import ModelViewer from '@/components/ModelViewer.vue'
 
 const route = useRoute()
@@ -120,12 +121,12 @@ onMounted(load)
               <el-input-number v-model="quantity" :min="1" :max="99" />
             </div>
             <div class="actions">
-              <el-button type="primary" size="large" :disabled="model.isApproved === false" @click="addToCart">🛒 加入购物车</el-button>
+              <el-button type="primary" size="large" :disabled="model.isApproved === false" @click="addToCart"><LineIcon name="box" :size="14" /> 加入购物车</el-button>
               <el-button type="danger" size="large" plain :disabled="model.isApproved === false" @click="buyNow">立即购买</el-button>
-              <el-button size="large" @click="toggleFavorite">{{ favorited ? '⭐ 已收藏' : '☆ 收藏' }}</el-button>
-              <el-button size="large" @click="download">⬇️ 下载模型文件</el-button>
+              <el-button size="large" @click="toggleFavorite">{{ favorited ? '已收藏' : '收藏' }}</el-button>
+              <el-button size="large" @click="download"><LineIcon name="download" :size="14" /> 下载模型文件</el-button>
             </div>
-            <div v-if="!viewerSrc" class="viewer-tip text-muted">💡 该格式暂不支持在线预览，可下载后用本地软件（Blender / 3ds Max 等）打开</div>
+            <div v-if="!viewerSrc" class="viewer-tip text-muted">该格式暂不支持在线预览，可下载后用本地软件（Blender / 3ds Max 等）打开</div>
           </div>
         </div>
       </el-card>

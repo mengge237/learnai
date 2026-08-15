@@ -5,6 +5,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { adminApi } from '@/api/admin'
 import { useAuthStore } from '@/stores/auth'
 import { formatDate, formatPrice } from '@/utils/format'
+import LineIcon from '@/components/LineIcon.vue'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -71,7 +72,7 @@ onMounted(load)
 
 <template>
   <div class="page-container">
-    <div class="page-title">🛡 内容审核</div>
+    <div class="page-title"><LineIcon name="check" :size="19" /> 内容审核</div>
 
     <el-tabs v-loading="loading">
       <el-tab-pane :label="`待审核资源（${resources.length}）`">
@@ -92,8 +93,8 @@ onMounted(load)
               </div>
               <div class="desc text-muted">{{ r.description }}</div>
               <div class="actions">
-                <el-button size="small" type="success" @click="approveResource(r)">✅ 通过</el-button>
-                <el-button size="small" type="danger" plain @click="rejectResource(r)">❌ 驳回</el-button>
+                <el-button size="small" type="success" @click="approveResource(r)"><LineIcon name="check" :size="14" /> 通过</el-button>
+                <el-button size="small" type="danger" plain @click="rejectResource(r)"><LineIcon name="close" :size="14" /> 驳回</el-button>
                 <el-button size="small" @click="router.push(`/resources/${r.id}`)">查看详情</el-button>
               </div>
             </div>
@@ -117,8 +118,8 @@ onMounted(load)
                 {{ m.creator || '未知创作者' }} · {{ m.categoryName }} · 提交于 {{ formatDate(m.createDate) }}
               </div>
               <div class="actions">
-                <el-button size="small" type="success" @click="approveModel(m)">✅ 通过</el-button>
-                <el-button size="small" type="danger" plain @click="rejectModel(m)">❌ 驳回</el-button>
+                <el-button size="small" type="success" @click="approveModel(m)"><LineIcon name="check" :size="14" /> 通过</el-button>
+                <el-button size="small" type="danger" plain @click="rejectModel(m)"><LineIcon name="close" :size="14" /> 驳回</el-button>
                 <el-button size="small" @click="router.push(`/market/${m.id}`)">查看详情</el-button>
               </div>
             </div>

@@ -5,6 +5,7 @@ import { ElMessage } from 'element-plus'
 import { interactionApi } from '@/api/interaction'
 import { useAuthStore } from '@/stores/auth'
 import { formatDate } from '@/utils/format'
+import LineIcon from './LineIcon.vue'
 
 const props = defineProps({
   resourceId: { type: Number, default: null },
@@ -61,7 +62,7 @@ function startReply(c) {
 
 <template>
   <div class="comment-section" v-loading="loading">
-    <div class="comment-count">💬 评论（{{ comments.length }}）</div>
+    <div class="comment-count"><LineIcon name="chat" :size="15" /> 评论（{{ comments.length }}）</div>
 
     <!-- 输入区 -->
     <div class="input-area">
@@ -109,6 +110,9 @@ function startReply(c) {
   margin-top: 16px;
 }
 .comment-count {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-weight: 600;
   margin-bottom: 12px;
 }

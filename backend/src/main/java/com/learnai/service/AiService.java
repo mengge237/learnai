@@ -7,15 +7,17 @@ import com.learnai.dto.ai.ChatResponse;
 import com.learnai.dto.ai.RecommendResponse;
 import com.learnai.dto.learning.ResourceDto;
 import com.learnai.entity.AiInteraction;
-import com.learnai.entity.LearningPath;
 import com.learnai.entity.LearningRecord;
 import com.learnai.entity.LearningResource;
 import com.learnai.entity.enums.LearningStatus;
 import com.learnai.repository.AiInteractionRepository;
-import com.learnai.repository.LearningPathRepository;
 import com.learnai.repository.LearningRecordRepository;
 import com.learnai.repository.LearningResourceRepository;
+import com.learnai.service.ai.AiProvider;
+import com.learnai.service.ai.AiProviderFactory;
+import com.learnai.service.ai.ChatContext;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,8 +32,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * 学习答疑助手：规则式对话（匹配顺序与文案沿用旧系统）、智能推荐、学习分析
+ * 学习答疑助手：策略模式接入答疑提供方（真实大模型 / 规则式兜底）、智能推荐、学习分析
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AiService {
@@ -47,13 +50,29 @@ public class AiService {
 
     private final AiInteractionRepository interactionRepository;
     private final LearningResourceRepository resourceRepository;
-    private final LearningPathRepository pathRepository;
     private final LearningRecordRepository recordRepository;
+    private final AiProviderFactory providerFactory;
 
-    /** 对话：规则匹配生成回复并记录历史 */
+    /** 对话：按配置选择答疑提供方（LLM 优先，失败回退规则式）并记录历史 */
     @Transactional
     public ChatResponse chat(Long userId, ChatRequest req) {
-        String aiMessage = generateResponse(req.message(), req.resourceId(), userId);
+        ChatContext ctx = buildContext(userId, req.message(), req.resourceId());
+
+        AiProvider provider = providerFactory.get();
+        String aiMessage;
+        String providerName = provider.name();
+        if ("llm".equals(providerName)) {
+            try {
+                aiMessage = provider.reply(ctx);
+            } catch (Exception e) {
+                log.warn("大模型调用失败，回退规则式答疑: {}", e.getMessage());
+                aiMessage = providerFactory.ruleFallback().reply(ctx);
+                providerName = "rule";
+            }
+        } else {
+            aiMessage = provider.reply(ctx);
+        }
+
         AiInteraction interaction = new AiInteraction();
         interaction.setUserId(userId);
         interaction.setResourceId(req.resourceId());
@@ -63,7 +82,47 @@ public class AiService {
         interaction.setTopic(extractTopic(req.message()));
         interaction.setInteractionTime(LocalDateTime.now());
         interactionRepository.save(interaction);
-        return new ChatResponse(req.message(), aiMessage, interaction.getInteractionTime());
+        return new ChatResponse(req.message(), aiMessage, interaction.getInteractionTime(), providerName);
+    }
+
+    /** 组装答疑上下文：关联资源标题 + 学习进度概况 */
+    private ChatContext buildContext(Long userId, String message, Long resourceId) {
+        String resourceTitle = null;
+        if (resourceId != null) {
+            resourceTitle = resourceRepository.findById(resourceId)
+                    .map(LearningResource::getResourceTitle).orElse(null);
+        }
+        return new ChatContext(userId, message, resourceId, resourceTitle, buildProgressSummary(userId));
+    }
+
+    /** 学习进度文字概况（注入大模型上下文，让它回答"我的进度"时有真实数据） */
+    private String buildProgressSummary(Long userId) {
+        List<LearningRecord> records = recordRepository.findByUserId(userId);
+        if (records.isEmpty()) {
+            return "尚未开始学习任何课程。";
+        }
+        int completed = (int) records.stream().filter(r -> r.getStatus() == LearningStatus.Completed).count();
+        int inProgress = (int) records.stream().filter(r -> r.getStatus() == LearningStatus.InProgress).count();
+        double avg = records.stream()
+                .mapToDouble(r -> r.getProgress() == null ? 0 : r.getProgress()).average().orElse(0);
+        Map<Long, LearningResource> resources = resourceRepository.findAllById(
+                        records.stream().map(LearningRecord::getResourceId).toList())
+                .stream().collect(Collectors.toMap(LearningResource::getResourceId, x -> x));
+        List<String> recent = records.stream()
+                .sorted(Comparator.comparing(LearningRecord::getStartTime, Comparator.reverseOrder()))
+                .limit(3)
+                .map(rec -> {
+                    String title = resources.containsKey(rec.getResourceId())
+                            ? resources.get(rec.getResourceId()).getResourceTitle() : "未知课程";
+                    String status = rec.getStatus() == LearningStatus.Completed ? "已完成"
+                            : rec.getStatus() == LearningStatus.InProgress
+                                    ? String.format("进行中 (%.0f%%)", rec.getProgress() == null ? 0 : rec.getProgress())
+                                    : "未开始";
+                    return String.format("《%s》%s", title, status);
+                })
+                .toList();
+        return String.format("共学习 %d 门课程，已完成 %d 门，进行中 %d 门，平均进度 %.1f%%。最近学习：%s。",
+                records.size(), completed, inProgress, avg, String.join("、", recent));
     }
 
     @Transactional(readOnly = true)
@@ -167,117 +226,6 @@ public class AiService {
 
         return new AnalyticsDto(records.size(), completed, inProgress, interactions,
                 Math.round(avg * 10) / 10.0, minutes, categoryStats, weekly, recent);
-    }
-
-    // ---------- 规则回复（匹配顺序与文案照抄旧系统） ----------
-
-    private String generateResponse(String message, Long resourceId, Long userId) {
-        String msg = message == null ? "" : message.toLowerCase().trim();
-
-        if (msg.contains("你好") || msg.contains("hi") || msg.contains("hello")) {
-            return "你好！我是您的学习助手。请问有什么我可以帮助您的吗？无论是学习上的问题，还是需要推荐学习资源，我都很乐意为您服务！";
-        }
-        if (msg.contains("推荐") || msg.contains("建议")) {
-            return resourceRecommendations();
-        }
-        if (msg.contains("学习路径") || msg.contains("学习计划")) {
-            return pathRecommendations();
-        }
-        if (msg.contains("进度") || msg.contains("学习进度")) {
-            return progressReport(userId);
-        }
-        if (msg.contains("问题") || msg.contains("疑问") || msg.contains("不懂")) {
-            return "好的，让我来帮您解答这个问题。由于这是一个模拟答疑助手，我无法实时回答具体的技术问题。建议您查看相关学习资源的详细内容，或者在学习社区中提问。如果您有关于学习方法或学习规划的问题，我很乐意提供建议！";
-        }
-        if (msg.contains("谢谢") || msg.contains("感谢")) {
-            return "不客气！祝您学习愉快！如果还有其他问题，随时可以来找我。";
-        }
-        if (msg.contains("再见") || msg.contains("拜拜")) {
-            return "再见！祝您学习进步，下次见！";
-        }
-        if (resourceId != null) {
-            return resourceRepository.findById(resourceId)
-                    .map(r -> "关于「" + r.getResourceTitle() + "」这个学习资源，我可以帮您：\n\n"
-                            + "1. 解释学习重点和难点\n2. 提供学习方法建议\n3. 推荐相关学习资源\n4. 帮助制定学习计划\n\n"
-                            + "请问您想了解哪方面的内容呢？")
-                    .orElseGet(this::fallback);
-        }
-        return fallback();
-    }
-
-    private String fallback() {
-        return "我理解您的问题，但作为学习助手，我的能力主要集中在学习指导方面。请问您有关于学习资源、学习方法或学习规划的问题吗？我很乐意帮助您！";
-    }
-
-    private String resourceRecommendations() {
-        List<LearningResource> top = resourceRepository.findPopular(5);
-        if (top.isEmpty()) {
-            return "目前没有找到合适的学习资源推荐。请尝试搜索特定的学习主题。";
-        }
-        StringBuilder sb = new StringBuilder("根据您的学习需求，我为您推荐以下热门学习资源：\n\n");
-        int index = 1;
-        for (LearningResource r : top) {
-            sb.append(index++).append(". 《").append(r.getResourceTitle()).append("》\n")
-                    .append("   - 难度：").append(r.getDifficultyLevel() == null ? "未知" : r.getDifficultyLevel()).append("\n")
-                    .append("   - 时长：").append(r.getDurationMinutes() == null ? 0 : r.getDurationMinutes()).append("分钟\n")
-                    .append("   - 作者：").append(r.getAuthor() == null ? "平台" : r.getAuthor()).append("\n\n");
-        }
-        sb.append("点击资源名称即可开始学习！");
-        return sb.toString();
-    }
-
-    private String pathRecommendations() {
-        List<LearningPath> paths = pathRepository.findByIsActiveTrueOrderByEnrollmentCountDesc()
-                .stream().limit(3).toList();
-        if (paths.isEmpty()) {
-            return "目前还没有学习路径。您可以浏览学习资源，根据自己的兴趣制定学习计划。";
-        }
-        StringBuilder sb = new StringBuilder("为您推荐以下热门学习路径：\n\n");
-        int index = 1;
-        for (LearningPath p : paths) {
-            sb.append(index++).append(". 《").append(p.getPathName()).append("》\n")
-                    .append("   - 适合人群：").append(p.getTargetAudience() == null ? "所有人" : p.getTargetAudience()).append("\n")
-                    .append("   - 预计时长：").append(p.getEstimatedHours() == null ? 0 : p.getEstimatedHours()).append("小时\n")
-                    .append("   - 难度等级：").append(p.getDifficultyLevel()).append("级\n")
-                    .append("   - 已有 ").append(p.getEnrollmentCount()).append(" 人报名\n\n");
-        }
-        sb.append("点击学习路径名称即可查看详情并报名！");
-        return sb.toString();
-    }
-
-    private String progressReport(Long userId) {
-        List<LearningRecord> records = recordRepository.findByUserId(userId);
-        if (records.isEmpty()) {
-            return "您还没有开始任何学习。点击首页的学习资源开始您的学习之旅吧！";
-        }
-        int completedCount = (int) records.stream().filter(r -> r.getStatus() == LearningStatus.Completed).count();
-        int inProgressCount = (int) records.stream().filter(r -> r.getStatus() == LearningStatus.InProgress).count();
-        double avgProgress = records.stream()
-                .mapToDouble(r -> r.getProgress() == null ? 0 : r.getProgress()).average().orElse(0);
-        Map<Long, LearningResource> resources = resourceRepository.findAllById(
-                        records.stream().map(LearningRecord::getResourceId).toList())
-                .stream().collect(Collectors.toMap(LearningResource::getResourceId, x -> x));
-
-        StringBuilder sb = new StringBuilder("您的学习进度报告：\n\n");
-        sb.append("📚 总学习资源数：").append(records.size()).append("\n");
-        sb.append("✅ 已完成：").append(completedCount).append("\n");
-        sb.append("🔄 学习中：").append(inProgressCount).append("\n");
-        sb.append(String.format("📊 平均进度：%.1f%%%n%n", avgProgress));
-        sb.append("最近学习的资源：\n");
-        records.stream()
-                .sorted(Comparator.comparing(LearningRecord::getStartTime, Comparator.reverseOrder()))
-                .limit(3)
-                .forEach(rec -> {
-                    LearningResource r = resources.get(rec.getResourceId());
-                    String statusText = rec.getStatus() == LearningStatus.Completed ? "已完成"
-                            : rec.getStatus() == LearningStatus.InProgress
-                                    ? String.format("进行中 (%.0f%%)", rec.getProgress() == null ? 0 : rec.getProgress())
-                                    : "未开始";
-                    sb.append("  - 《").append(r == null ? "未知" : r.getResourceTitle()).append("》: ")
-                            .append(statusText).append("\n");
-                });
-        sb.append("\n继续加油！坚持学习，您会取得更大的进步！");
-        return sb.toString();
     }
 
     private String extractTopic(String message) {

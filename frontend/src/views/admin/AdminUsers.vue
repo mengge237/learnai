@@ -4,6 +4,7 @@ import { ElMessage } from 'element-plus'
 import { adminApi } from '@/api/admin'
 import { useAuthStore } from '@/stores/auth'
 import PaginationBar from '@/components/PaginationBar.vue'
+import LineIcon from '@/components/LineIcon.vue'
 
 const auth = useAuthStore()
 const users = ref([])
@@ -64,7 +65,7 @@ onMounted(load)
 
 <template>
   <div class="page-container">
-    <div class="page-title">👥 用户管理</div>
+    <div class="page-title"><LineIcon name="user" :size="19" /> 用户管理</div>
 
     <div class="toolbar">
       <el-input v-model="search" placeholder="搜索用户名 / 邮箱 / 手机号" clearable class="search" @keyup.enter="doSearch" @clear="doSearch">

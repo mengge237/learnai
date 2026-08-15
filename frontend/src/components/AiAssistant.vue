@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import AiChatPanel from '@/components/AiChatPanel.vue'
+import LineIcon from '@/components/LineIcon.vue'
 
 /**
  * 全站右下角悬浮答疑入口：点击展开抽屉式聊天面板，自然融入每个页面。
@@ -12,14 +13,14 @@ const open = ref(false)
   <div class="ai-assistant">
     <el-drawer v-model="open" direction="rtl" size="400px" :with-header="false" class="ai-drawer">
       <div class="drawer-head">
-        <span class="drawer-title">💬 学习答疑</span>
+        <span class="drawer-title"><LineIcon name="chat" :size="16" /> 学习答疑</span>
         <span class="drawer-sub text-muted">随时提问 · 随叫随到</span>
       </div>
       <AiChatPanel v-if="open" compact />
     </el-drawer>
 
     <button class="fab" :class="{ active: open }" @click="open = !open" title="学习答疑">
-      <span class="fab-icon">💬</span>
+      <span class="fab-icon"><LineIcon name="chat" :size="22" /></span>
       <span class="fab-tip">答疑</span>
     </button>
   </div>

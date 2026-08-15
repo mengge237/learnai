@@ -3,6 +3,7 @@ import { onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { authApi } from '@/api/auth'
 import { useAuthStore } from '@/stores/auth'
+import LineIcon from '@/components/LineIcon.vue'
 
 const auth = useAuthStore()
 const loading = ref(true)
@@ -47,7 +48,7 @@ async function save() {
 
 <template>
   <div class="page-container narrow" v-loading="loading">
-    <div class="page-title">👤 个人资料</div>
+    <div class="page-title"><LineIcon name="user" :size="19" /> 个人资料</div>
 
     <el-card class="info-card">
       <div class="avatar-big">{{ (auth.user?.username || '?').slice(0, 1).toUpperCase() }}</div>

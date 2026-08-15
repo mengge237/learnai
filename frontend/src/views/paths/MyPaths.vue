@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { pathApi } from '@/api/paths'
 import { PATH_STATUS, PATH_TAG, formatDate } from '@/utils/format'
+import LineIcon from '@/components/LineIcon.vue'
 
 const router = useRouter()
 const paths = ref([])
@@ -19,7 +20,7 @@ onMounted(async () => {
 
 <template>
   <div class="page-container">
-    <div class="page-title">🗺️ 我的学习路径</div>
+    <div class="page-title"><LineIcon name="layers" :size="19" /> 我的学习路径</div>
 
     <el-empty v-if="!loading && paths.length === 0" description="还没有报名任何学习路径">
       <el-button type="primary" @click="router.push('/paths')">浏览学习路径</el-button>
@@ -29,7 +30,7 @@ onMounted(async () => {
       @click="router.push(`/paths/${p.pathId}`)">
       <div class="row">
         <el-image v-if="p.coverImageUrl" :src="p.coverImageUrl" fit="cover" class="thumb" />
-        <div v-else class="thumb thumb-fallback">🗺️</div>
+        <div v-else class="thumb thumb-fallback"><LineIcon name="layers" :size="20" /></div>
         <div class="info">
           <div class="title-row">
             <span class="title">{{ p.pathName }}</span>

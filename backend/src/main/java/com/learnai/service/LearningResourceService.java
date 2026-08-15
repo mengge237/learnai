@@ -54,7 +54,13 @@ public class LearningResourceService {
             ps.add(cb.isTrue(root.get("isApproved")));
             ps.add(cb.isTrue(root.get("isPublic")));
             if (categoryId != null) {
-                ps.add(cb.equal(root.get("category").get("categoryId"), categoryId));
+                // 选中父分类时自动包含其全部子分类的资源
+                List<Long> ids = new ArrayList<>();
+                ids.add(categoryId);
+                ids.addAll(categoryRepository
+                        .findByIsActiveTrueAndParentCategoryIdOrderBySortOrderAsc(categoryId)
+                        .stream().map(ResourceCategory::getCategoryId).toList());
+                ps.add(root.get("category").get("categoryId").in(ids));
             }
             if (search != null && !search.isBlank()) {
                 String like = "%" + search.trim() + "%";

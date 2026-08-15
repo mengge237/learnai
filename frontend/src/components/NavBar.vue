@@ -4,17 +4,34 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
-import { usePrefsStore } from '@/stores/prefs'
 import { interactionApi } from '@/api/interaction'
+import { resourceApi } from '@/api/resources'
+import LineIcon from '@/components/LineIcon.vue'
 
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
 const cart = useCartStore()
-const prefs = usePrefsStore()
 
 const searchText = ref('')
 const favCount = ref(0)
+
+// 我的学习 hover 面板：打开时实时拉取
+const studyList = ref([])
+const studyLoading = ref(false)
+const STUDY_STATUS = { NotStarted: '未开始', InProgress: '学习中', Completed: '已完成' }
+
+async function loadMyLearning() {
+  if (!auth.isLoggedIn || studyLoading.value) return
+  studyLoading.value = true
+  try {
+    studyList.value = (await resourceApi.myLearning()).slice(0, 6)
+  } catch {
+    studyList.value = []
+  } finally {
+    studyLoading.value = false
+  }
+}
 
 // 登录后加载收藏数量（导航以收藏为主，购物车入口移入模型资源库页内）
 watch(
@@ -46,7 +63,9 @@ const menus = [
 ]
 
 function onSearch() {
-  router.push({ path: '/resources', query: { search: searchText.value || undefined } })
+  const kw = searchText.value.trim()
+  if (!kw) return
+  router.push({ path: '/search', query: { q: kw } })
 }
 
 async function handleCommand(cmd) {
@@ -75,7 +94,52 @@ async function handleCommand(cmd) {
 
       <el-menu :default-active="activeMenu" mode="horizontal" :ellipsis="false" router class="nav-menu">
         <el-menu-item v-for="m in menus" :key="m.index" :index="m.index">{{ m.label }}</el-menu-item>
-        <el-menu-item v-if="auth.isLoggedIn" index="/resources/my">我的学习</el-menu-item>
+
+        <!-- 我的学习：悬停下拉实时显示学习进度（点击进入完整页） -->
+        <el-popover
+          v-if="auth.isLoggedIn"
+          trigger="hover"
+          :width="360"
+          placement="bottom-start"
+          :show-after="80"
+          :hide-after="150"
+          @show="loadMyLearning"
+        >
+          <template #reference>
+            <span
+              class="nav-study"
+              :class="{ active: route.path.startsWith('/resources/my') }"
+              @click="router.push('/resources/my')"
+            >
+              我的学习
+            </span>
+          </template>
+          <div class="study-panel" v-loading="studyLoading">
+            <div class="study-panel-head">
+              <span class="sp-title">我的学习</span>
+              <span class="sp-sub text-muted">最近进度 · 实时更新</span>
+            </div>
+            <template v-if="studyList.length">
+              <div v-for="r in studyList" :key="r.resourceId" class="sp-item" @click="router.push(`/resources/${r.resourceId}/learn`)">
+                <div class="sp-item-head">
+                  <span class="sp-item-title">{{ r.title }}</span>
+                  <span class="sp-status" :class="r.status">{{ STUDY_STATUS[r.status] || r.status }}</span>
+                </div>
+                <div class="sp-item-progress">
+                  <div class="sp-bar"><i :style="{ width: `${Math.round(r.progress ?? 0)}%` }" /></div>
+                  <span class="sp-pct">{{ Math.round(r.progress ?? 0) }}%</span>
+                </div>
+              </div>
+            </template>
+            <div v-else-if="!studyLoading" class="sp-empty">
+              还没有学习记录，去<a @click="router.push('/resources')">学习资源</a>开始学习吧
+            </div>
+            <div class="sp-foot">
+              <router-link to="/resources/my">查看全部学习记录 <LineIcon name="arrowRight" :size="13" /></router-link>
+            </div>
+          </div>
+        </el-popover>
+
         <el-menu-item v-if="auth.isLoggedIn" index="/console">控制台</el-menu-item>
       </el-menu>
 
@@ -83,30 +147,26 @@ async function handleCommand(cmd) {
         <el-input
           v-model="searchText"
           class="search-input"
-          placeholder="搜索学习资源 / 3D 模型…"
+          placeholder="全局搜索：课程 / 路径 / 模型…"
           clearable
           @keyup.enter="onSearch"
         >
           <template #append>
-            <el-button @click="onSearch">🔍</el-button>
+            <el-button class="search-btn" @click="onSearch" aria-label="搜索">
+              <LineIcon name="search" :size="15" />
+            </el-button>
           </template>
         </el-input>
 
         <el-tooltip content="个性化设置">
-          <button class="icon-btn" @click="router.push('/user/settings')" title="个性化设置">⚙️</button>
-        </el-tooltip>
-
-        <el-tooltip :content="prefs.isDarkEffective ? '切换到浅色模式' : '切换到深色模式'">
-          <button class="icon-btn" @click="prefs.toggleDark()">
-            {{ prefs.isDarkEffective ? '☀️' : '🌙' }}
+          <button class="icon-btn" @click="router.push('/user/settings')" title="个性化设置">
+            <LineIcon name="settings" :size="19" />
           </button>
         </el-tooltip>
 
-        <el-tooltip content="我的收藏">
-          <el-badge :value="favCount" :hidden="favCount === 0">
-            <button class="icon-btn fav-btn" @click="router.push('/user/favorites')" title="我的收藏">☆</button>
-          </el-badge>
-        </el-tooltip>
+        <el-badge :value="favCount" :hidden="favCount === 0">
+          <button class="text-btn" @click="router.push('/user/favorites')" title="我的收藏">我的收藏</button>
+        </el-badge>
 
         <template v-if="auth.isLoggedIn">
           <el-dropdown @command="handleCommand">
@@ -157,7 +217,7 @@ async function handleCommand(cmd) {
   padding: 0 16px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   height: 60px;
 }
 .logo {
@@ -190,19 +250,41 @@ async function handleCommand(cmd) {
   white-space: nowrap;
 }
 .search-input {
-  width: 320px;
+  width: 380px;
+}
+.search-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .icon-btn {
   border: none;
   background: none;
-  font-size: 18px;
+  color: var(--el-text-color-primary);
   cursor: pointer;
   padding: 4px 6px;
   line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.2s;
 }
-.fav-btn {
-  font-size: 22px;
+.icon-btn:hover {
+  color: var(--theme-color);
+}
+.text-btn {
+  border: none;
+  background: none;
+  font-size: 14px;
   color: var(--el-text-color-primary);
+  cursor: pointer;
+  padding: 6px 2px;
+  font-family: inherit;
+  border-bottom: 1px solid transparent;
+  transition: color 0.2s;
+}
+.text-btn:hover {
+  color: var(--theme-color);
+  border-bottom-color: var(--theme-color);
 }
 .user-chip {
   display: flex;
@@ -222,9 +304,127 @@ async function handleCommand(cmd) {
   justify-content: center;
   font-size: 14px;
 }
-@media (max-width: 1000px) {
+/* 我的学习 hover 触发区（模拟菜单项样式） */
+.nav-study {
+  display: inline-flex;
+  align-items: center;
+  height: 60px;
+  padding: 0 16px;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--el-text-color-primary);
+  border-bottom: 2px solid transparent;
+  box-sizing: border-box;
+}
+.nav-study:hover,
+.nav-study.active {
+  color: var(--theme-color);
+  border-bottom-color: var(--theme-color);
+}
+/* 我的学习下拉面板 */
+.study-panel {
+  min-height: 90px;
+}
+.study-panel-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 6px;
+}
+.sp-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding-left: 8px;
+  border-left: 4px solid var(--theme-color);
+}
+.sp-sub {
+  font-size: 12px;
+}
+.sp-item {
+  padding: 9px 8px;
+  cursor: pointer;
+  border-bottom: 1px dashed var(--border-color);
+}
+.sp-item:last-of-type {
+  border-bottom: none;
+}
+.sp-item:hover .sp-item-title {
+  color: var(--theme-color);
+}
+.sp-item-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.sp-item-title {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+.sp-status {
+  font-size: 12px;
+  flex-shrink: 0;
+  color: var(--el-text-color-secondary);
+}
+.sp-status.InProgress {
+  color: var(--el-color-success);
+}
+.sp-status.Completed {
+  color: var(--theme-color);
+}
+.sp-item-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.sp-bar {
+  flex: 1;
+  height: 3px;
+  background: var(--el-fill-color);
+}
+.sp-bar i {
+  display: block;
+  height: 100%;
+  background: var(--theme-color);
+  transition: width 0.4s;
+}
+.sp-pct {
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+  width: 34px;
+  text-align: right;
+}
+.sp-empty {
+  padding: 18px 8px;
+  font-size: 13px;
+  color: var(--el-text-color-secondary);
+}
+.sp-empty a {
+  color: var(--theme-color);
+  cursor: pointer;
+}
+.sp-foot {
+  text-align: right;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+}
+.sp-foot a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--theme-color);
+}
+@media (max-width: 1100px) {
   .search-input {
-    width: 200px;
+    width: 240px;
   }
 }
 @media (max-width: 900px) {

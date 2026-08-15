@@ -3,6 +3,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useCartStore } from '@/stores/cart'
 import { formatPrice } from '@/utils/format'
+import LineIcon from './LineIcon.vue'
 
 const props = defineProps({
   model: { type: Object, required: true },
@@ -36,7 +37,7 @@ function addToCart(e) {
         <span v-if="model.creator">· {{ model.creator }}</span>
       </div>
       <div class="actions">
-        <el-button size="small" type="primary" plain @click="addToCart">🛒 加入购物车</el-button>
+        <el-button size="small" type="primary" plain @click="addToCart"><LineIcon name="box" :size="14" /> 加入购物车</el-button>
         <el-button size="small" @click.stop="router.push(`/market/${model.id}`)">详情</el-button>
       </div>
     </div>

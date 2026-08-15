@@ -5,6 +5,7 @@ import { marketApi } from '@/api/market'
 import { useCartStore } from '@/stores/cart'
 import ModelCard from '@/components/ModelCard.vue'
 import PaginationBar from '@/components/PaginationBar.vue'
+import LineIcon from '@/components/LineIcon.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -57,7 +58,7 @@ watch(sort, () => {
 
 <template>
   <div class="page-container">
-    <div class="page-title">📦 模型资源库</div>
+    <div class="page-title"><LineIcon name="cube" :size="19" /> 模型资源库</div>
 
     <div class="toolbar">
       <el-input v-model="search" placeholder="搜索模型名称 / 创作者" clearable class="search" @keyup.enter="doSearch" @clear="doSearch">
@@ -73,7 +74,7 @@ watch(sort, () => {
         <el-option label="价格从低到高" value="priceAsc" />
         <el-option label="价格从高到低" value="priceDesc" />
       </el-select>
-      <el-button class="cart-btn" @click="router.push('/market/cart')">🛒 购物车（{{ cart.totalCount }}）</el-button>
+      <el-button class="cart-btn" @click="router.push('/market/cart')"><LineIcon name="box" :size="14" /> 购物车（{{ cart.totalCount }}）</el-button>
     </div>
 
     <div v-loading="loading" class="model-grid">

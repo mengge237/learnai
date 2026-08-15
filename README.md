@@ -43,11 +43,26 @@ LearnAI/
 |---|---|---|
 | 工厂模式 | `StepTemplateFactory` | 教程步骤模板集中注册（标题 + 正文模板），运行期建步骤与种子数据共用同一份定义 |
 | 工厂 + 策略模式 | `StorageStrategyFactory` / `StorageStrategy` | 文件存储可插拔：默认 `LocalStorageStrategy`，扩展对象存储只需新增实现自动注册 |
+| 工厂 + 策略模式 | `AiProviderFactory` / `AiProvider` | 答疑可插拔：配置 API Key 用真实大模型（`LlmAiProvider`，OpenAI 兼容协议），否则规则式演示（`RuleBasedAiProvider`），LLM 调用失败自动回退 |
 | 统一响应 | `GlobalExceptionHandler` + `ApiException` | 全部错误统一为 `{status, message, timestamp}` 中文 JSON |
 | 统一分页 | `PageResponse<T>` | 列表接口统一 `content / totalElements` 结构 |
 | 统一取当前用户 | `SecurityUtils.currentUserId()` | Controller 不碰 SecurityContext，鉴权逻辑集中一处 |
 
 学习激励：`StudyActivityService` 接收学习页 30s 心跳，按日聚合到 `study_log` 表，提供今日时长 / 连续打卡 / 周统计 / 「是否正在学习」（90s 心跳窗口）检测。
+
+### 答疑大模型接入（可选）
+
+默认演示模式（规则式回复，消息上标注「演示模式」）。要接入真实大模型，在 `backend/src/main/resources/application.yml` 的 `app.ai` 配置段填入任意 OpenAI 兼容服务的 Key（DeepSeek / 通义千问 / OpenAI 等）：
+
+```yaml
+app:
+  ai:
+    api-key: "sk-xxxxxxxx"   # 留空 = 演示模式
+    base-url: https://api.deepseek.com
+    model: deepseek-chat
+```
+
+调用失败时自动回退规则式回复，不影响使用；大模型回答会携带当前用户的学习进度概况和正在学习的资源标题作为上下文。
 
 ## 快速启动
 
@@ -83,10 +98,12 @@ npm run dev                     # 浏览器打开 http://localhost:5173
 
 ## 功能清单
 
-- **学习资源**：分类树筛选、搜索/排序/分页、详情、点赞、评论（树形回复）、下载（中文文件名）
+- **学习资源**：左侧侧边栏（搜索 + 分类树导航，每个分类显示公开课程数，选中父分类自动包含子分类资源）、排序/分页、详情、点赞、评论（树形回复）、下载（中文文件名）
+- **全局搜索**：导航栏搜索直达 `/search`，跨学习资源 / 学习路径 / 3D 模型三组检索，分组计数 + 查看全部
 - **学习中心**：面包屑导航、开始学习 → 步骤打卡 → 进度保存 → 完成打分，教程式"上一步/下一步"章节导航
 - **学习路径**：系统化路线（含顺序资源列表）、报名（幂等）、我的路径进度
-- **AI 助手**：全站右下角悬浮按钮 + 抽屉式聊天面板（也保留整页入口），规则式答疑、智能推荐、学习分析（近 7 天图表、分类统计）
+- **AI 助手**：全站右下角悬浮按钮 + 抽屉式聊天面板（也保留整页入口），策略模式接入真实大模型（OpenAI 兼容协议，见下方配置；未配置 Key 时为规则式演示并在消息上标注），智能推荐、学习分析（近 7 天图表、分类统计）
+- **导航栏**：悬停"我的学习"实时下拉最近学习进度（标题/状态/进度条）
 - **个人控制台**：学习统计卡片、快捷入口、最近学习、管理入口（管理员/审核员可见）
 - **模型资源库**（URL `/market`）：模型目录、**Three.js 在线 3D 预览**（GLB/GLTF/OBJ）、购物车（Pinia 持久化）、结算、**模拟支付**、订单状态机（待支付→待处理→处理中→已发货→已完成）、管理员推进状态
 - **内容审核**：用户提交资源/模型 → 审核员/管理员通过或驳回

@@ -54,7 +54,8 @@ export const usePrefsStore = defineStore('prefs', {
       const root = document.documentElement
       this.ensureSystemWatch()
       root.style.setProperty('--font-size', `${this.prefs.fontSize}px`)
-      root.style.setProperty('--border-color', this.prefs.borderColor)
+      // 深色下把用户选的边框色压暗（内联变量优先级最高，不处理会覆盖 html.dark 的深色边框）
+      root.style.setProperty('--border-color', this.isDarkEffective ? darkenHex(this.prefs.borderColor, 0.42) : this.prefs.borderColor)
       root.style.setProperty('--theme-color', this.prefs.themeColor)
       root.classList.toggle('dark', this.isDarkEffective)
       root.setAttribute('data-animation', this.prefs.animationSpeed)
@@ -97,4 +98,15 @@ export const usePrefsStore = defineStore('prefs', {
 /** 系统当前是否为深色 */
 function resolveSystemDark() {
   return typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches
+}
+
+/** 十六进制颜色按比例压暗（ratio 0~1，结果 0~1 亮度区间），非法输入回退深灰 */
+function darkenHex(hex, ratio) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(hex || ''))
+  if (!m) return '#3a3a3a'
+  const n = parseInt(m[1], 16)
+  const dim = (v) => Math.max(0, Math.round(v * (1 - ratio)))
+  return `#${[dim((n >> 16) & 255), dim((n >> 8) & 255), dim(n & 255)]
+    .map((v) => v.toString(16).padStart(2, '0'))
+    .join('')}`
 }

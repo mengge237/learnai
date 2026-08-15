@@ -5,6 +5,7 @@ import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
 import { resourceApi } from '@/api/resources'
 import { studyApi } from '@/api/study'
 import { LEARNING_STATUS, LEARNING_TAG, STEP_STATUS, formatDate } from '@/utils/format'
+import LineIcon from '@/components/LineIcon.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -178,13 +179,13 @@ async function complete() {
       notes: progress.value.notes,
     })
     stopTimer()
-    ElMessage.success('🎉 恭喜完成学习！')
+    ElMessage.success('恭喜完成学习！')
   } finally {
     busy.value = false
   }
 }
 
-const stepIcon = (s) => (s === 'Completed' ? '✅' : s === 'InProgress' ? '⏳' : '⬜')
+const stepIcon = (s) => STEP_STATUS[s] || s
 
 onMounted(load)
 onBeforeUnmount(stopTimer)
@@ -196,7 +197,7 @@ onBeforeUnmount(stopTimer)
       <!-- 未开始 -->
       <el-card v-if="progress.recordId == null" class="box">
         <el-empty description="还没有开始学习这个资源">
-          <el-button type="primary" size="large" :loading="busy" @click="start">🚀 开始学习</el-button>
+          <el-button type="primary" size="large" :loading="busy" @click="start"><LineIcon name="arrowRight" :size="14" /> 开始学习</el-button>
         </el-empty>
       </el-card>
 
@@ -216,7 +217,7 @@ onBeforeUnmount(stopTimer)
             <el-tag :type="LEARNING_TAG[progress.status] || 'info'" size="small">
               {{ LEARNING_STATUS[progress.status] || progress.status }}
             </el-tag>
-            <span v-if="progress.score != null" class="score">🏅 {{ progress.score }} 分</span>
+            <span v-if="progress.score != null" class="score"><LineIcon name="star" :size="13" /> {{ progress.score }} 分</span>
           </div>
 
           <!-- 学习计时与激励 -->
@@ -231,7 +232,7 @@ onBeforeUnmount(stopTimer)
             </div>
             <div class="study-row">
               <span class="study-label">连续学习</span>
-              <span class="study-value flame">🔥 {{ study?.streakDays ?? 0 }} 天</span>
+              <span class="study-value flame"><LineIcon name="flame" :size="18" /> {{ study?.streakDays ?? 0 }} 天</span>
             </div>
           </div>
 
@@ -258,7 +259,7 @@ onBeforeUnmount(stopTimer)
             <el-button v-if="progress.status !== 'Completed'" type="success" size="small" :loading="busy" @click="complete">
               提交完成
             </el-button>
-            <span v-else class="text-muted side-done">✔ 已完成 · {{ formatDate(progress.endTime) }}</span>
+            <span v-else class="text-muted side-done">已完成 · {{ formatDate(progress.endTime) }}</span>
           </div>
         </aside>
 
@@ -282,7 +283,7 @@ onBeforeUnmount(stopTimer)
                   开始本步骤
                 </el-button>
                 <el-button v-if="current.status !== 'Completed'" type="success" plain :loading="busy" @click="setStep(current, 'Completed')">
-                  ✔ 标记完成
+                  标记完成
                 </el-button>
               </div>
             </template>

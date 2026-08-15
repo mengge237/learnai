@@ -2,16 +2,17 @@
 import { computed, onMounted, ref } from 'vue'
 import { aiApi } from '@/api/ai'
 import ResourceCard from '@/components/ResourceCard.vue'
+import LineIcon from '@/components/LineIcon.vue'
 
 const data = ref(null)
 const loading = ref(true)
 
 const basedOnText = computed(() => {
   const b = data.value?.basedOn || ''
-  if (b === 'popular') return '📈 根据全站热门资源推荐'
-  if (b === 'history') return '🧠 根据你的学习历史推荐'
-  if (b.startsWith('category:')) return `🎯 根据你关注的分类「${b.slice(9)}」推荐`
-  return '✨ 为你推荐'
+  if (b === 'popular') return '根据全站热门资源推荐'
+  if (b === 'history') return '根据你的学习历史推荐'
+  if (b.startsWith('category:')) return `根据你关注的分类「${b.slice(9)}」推荐`
+  return '为你推荐'
 })
 
 onMounted(async () => {
@@ -25,7 +26,7 @@ onMounted(async () => {
 
 <template>
   <div class="page-container" v-loading="loading">
-    <div class="page-title">✨ 智能推荐</div>
+    <div class="page-title"><LineIcon name="sparkle" :size="19" /> 智能推荐</div>
     <el-alert v-if="data" :title="basedOnText" type="success" :closable="false" class="tip" show-icon />
 
     <div v-if="data && data.recommendations.length" class="res-grid">

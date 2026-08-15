@@ -41,6 +41,8 @@ html.dark {
   --line-color: #e8e8e8;
   --line-soft: #454545;
   --line-faint: rgba(232, 232, 232, 0.06);
+  /* 兜底深色边框：prefs.apply() 未覆盖时生效（内联变量优先级更高，apply 会按用户选择压暗后写入） */
+  --border-color: #3a3a3a;
 }
 
 * {

@@ -5,6 +5,7 @@ const routes = [
   { path: '/', name: 'home', component: () => import('@/views/Home.vue') },
   { path: '/login', name: 'login', component: () => import('@/views/Login.vue') },
   { path: '/register', name: 'register', component: () => import('@/views/Register.vue') },
+  { path: '/search', name: 'search', meta: { title: '全局搜索' }, component: () => import('@/views/Search.vue') },
 
   // 学习资源
   { path: '/resources', name: 'resources', meta: { title: '学习资源' }, component: () => import('@/views/resources/ResourceList.vue') },

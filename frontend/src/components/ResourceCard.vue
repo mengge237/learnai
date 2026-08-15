@@ -1,6 +1,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { formatCount, formatPrice } from '@/utils/format'
+import LineIcon from './LineIcon.vue'
 
 const props = defineProps({
   resource: { type: Object, required: true },
@@ -23,9 +24,9 @@ const router = useRouter()
         <el-tag v-if="resource.difficultyLevel" size="small" effect="plain">{{ resource.difficultyLevel }}</el-tag>
       </div>
       <div class="stats text-muted">
-        <span>👁 {{ formatCount(resource.viewCount) }}</span>
-        <span>👍 {{ formatCount(resource.likeCount) }}</span>
-        <span>🎓 {{ formatCount(resource.completionCount) }} 人学过</span>
+        <span>浏览 {{ formatCount(resource.viewCount) }}</span>
+        <span><LineIcon name="heart" :size="13" /> {{ formatCount(resource.likeCount) }}</span>
+        <span><LineIcon name="user" :size="13" /> {{ formatCount(resource.completionCount) }} 人学过</span>
       </div>
     </div>
   </el-card>

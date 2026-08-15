@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { aiApi } from '@/api/ai'
 import { LEARNING_STATUS, formatDate } from '@/utils/format'
+import LineIcon from '@/components/LineIcon.vue'
 
 const router = useRouter()
 const data = ref(null)
@@ -24,7 +25,7 @@ onMounted(async () => {
 
 <template>
   <div class="page-container" v-loading="loading">
-    <div class="page-title">📊 学习分析</div>
+    <div class="page-title"><LineIcon name="chart" :size="19" /> 学习分析</div>
 
     <template v-if="data">
       <el-row :gutter="16" class="stat-row">
@@ -37,7 +38,7 @@ onMounted(async () => {
       </el-row>
 
       <el-card class="block">
-        <div class="section-label">📅 近 7 天学习情况</div>
+        <div class="section-label"><LineIcon name="clock" :size="15" /> 近 7 天学习情况</div>
         <div class="week-chart">
           <div v-for="w in data.weeklyStats" :key="w.date" class="week-col">
             <div class="week-value text-muted">{{ w.totalLearning }}</div>
@@ -59,7 +60,7 @@ onMounted(async () => {
       <el-row :gutter="16">
         <el-col :xs="24" :md="10">
           <el-card class="block">
-            <div class="section-label">🗂 分类统计</div>
+            <div class="section-label"><LineIcon name="layers" :size="15" /> 分类统计</div>
             <el-table :data="data.categoryStats" size="small">
               <el-table-column prop="categoryName" label="分类" />
               <el-table-column prop="totalResources" label="资源数" width="80" align="center" />
@@ -74,7 +75,7 @@ onMounted(async () => {
         </el-col>
         <el-col :xs="24" :md="14">
           <el-card class="block">
-            <div class="section-label">🕘 最近学习记录</div>
+            <div class="section-label"><LineIcon name="clock" :size="15" /> 最近学习记录</div>
             <el-table :data="data.recentRecords" size="small">
               <el-table-column label="资源" min-width="180">
                 <template #default="{ row }">

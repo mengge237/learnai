@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { interactionApi } from '@/api/interaction'
 import { formatDate, formatPrice } from '@/utils/format'
+import LineIcon from '@/components/LineIcon.vue'
 
 const router = useRouter()
 const items = ref([])
@@ -35,7 +36,7 @@ onMounted(load)
 
 <template>
   <div class="page-container">
-    <div class="page-title">⭐ 我的收藏</div>
+    <div class="page-title"><LineIcon name="star" :size="19" /> 我的收藏</div>
 
     <el-empty v-if="!loading && items.length === 0" description="还没有收藏任何内容">
       <el-button type="primary" @click="router.push('/resources')">去发现</el-button>

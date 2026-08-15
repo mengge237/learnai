@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { marketApi } from '@/api/market'
 import { ORDER_STATUS, ORDER_TAG, formatDate, formatPrice } from '@/utils/format'
+import LineIcon from '@/components/LineIcon.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -72,7 +73,7 @@ onMounted(load)
       </el-card>
 
       <el-card class="block">
-        <div class="section-label">🛍 商品明细</div>
+        <div class="section-label"><LineIcon name="box" :size="15" /> 商品明细</div>
         <el-table :data="order.items">
           <el-table-column label="模型" min-width="200">
             <template #default="{ row }">
@@ -104,7 +105,7 @@ onMounted(load)
       </el-card>
 
       <el-card class="block">
-        <div class="section-label">📍 收货信息</div>
+        <div class="section-label"><LineIcon name="user" :size="15" /> 收货信息</div>
         <div class="addr-row">
           <span class="text-muted">收货人：</span>{{ order.recipientName }}
           <span class="text-muted addr-phone">电话：</span>{{ order.recipientPhone }}
@@ -113,7 +114,7 @@ onMounted(load)
           <span class="text-muted">地址：</span>{{ order.recipientAddress }}
         </div>
         <div class="actions">
-          <el-button v-if="order.status === 'PendingPayment'" type="danger" size="large" @click="pay">💰 立即支付</el-button>
+          <el-button v-if="order.status === 'PendingPayment'" type="danger" size="large" @click="pay">立即支付</el-button>
           <el-button v-if="['PendingPayment', 'Pending'].includes(order.status)" size="large" @click="cancel">取消订单</el-button>
         </div>
       </el-card>

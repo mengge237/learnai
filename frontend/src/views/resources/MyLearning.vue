@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { resourceApi } from '@/api/resources'
 import { LEARNING_STATUS, LEARNING_TAG, formatDate } from '@/utils/format'
+import LineIcon from '@/components/LineIcon.vue'
 
 const router = useRouter()
 const records = ref([])
@@ -19,12 +20,12 @@ onMounted(async () => {
 
 <template>
   <div class="page-container">
-    <div class="page-title">📚 我的学习</div>
+    <div class="page-title"><LineIcon name="book" :size="19" /> 我的学习</div>
 
     <div class="quick-row">
-      <el-button size="small" @click="router.push('/ai/analytics')">📊 学习分析</el-button>
-      <el-button size="small" @click="router.push('/ai/recommend')">🧭 智能推荐</el-button>
-      <el-button size="small" @click="router.push('/console')">🎛 个人控制台</el-button>
+      <el-button size="small" @click="router.push('/ai/analytics')"><LineIcon name="chart" :size="14" /> 学习分析</el-button>
+      <el-button size="small" @click="router.push('/ai/recommend')"><LineIcon name="sparkle" :size="14" /> 智能推荐</el-button>
+      <el-button size="small" @click="router.push('/console')"><LineIcon name="monitor" :size="14" /> 个人控制台</el-button>
     </div>
 
     <el-empty v-if="!loading && records.length === 0" description="还没有学习记录，快去挑一门课程吧">
@@ -46,7 +47,7 @@ onMounted(async () => {
           <el-progress :percentage="Math.round(r.progress || 0)" :stroke-width="10" class="bar" />
           <div class="text-muted">
             学习 {{ r.durationMinutes || 0 }} 分钟
-            <template v-if="r.score != null"> · 🏅 得分 {{ r.score }}</template>
+            <template v-if="r.score != null"> · <LineIcon name="star" :size="13" /> 得分 {{ r.score }}</template>
           </div>
         </div>
         <el-button type="primary" plain>{{ r.status === 'Completed' ? '查看详情' : '继续学习' }}</el-button>

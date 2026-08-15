@@ -4,6 +4,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { useCartStore } from '@/stores/cart'
 import { useAuthStore } from '@/stores/auth'
 import { LICENSE_TYPES, formatPrice } from '@/utils/format'
+import LineIcon from '@/components/LineIcon.vue'
 
 const router = useRouter()
 const cart = useCartStore()
@@ -30,7 +31,7 @@ async function clearAll() {
 
 <template>
   <div class="page-container">
-    <div class="page-title">🛒 购物车（{{ cart.totalCount }} 件）</div>
+    <div class="page-title"><LineIcon name="box" :size="19" /> 购物车（{{ cart.totalCount }} 件）</div>
 
     <el-empty v-if="cart.items.length === 0" description="购物车还是空的，去挑几个模型吧">
       <el-button type="primary" @click="router.push('/market')">去逛逛</el-button>

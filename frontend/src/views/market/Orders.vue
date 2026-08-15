@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { marketApi } from '@/api/market'
 import { ORDER_STATUS, ORDER_TAG, formatDate, formatPrice } from '@/utils/format'
+import LineIcon from '@/components/LineIcon.vue'
 
 const router = useRouter()
 const orders = ref([])
@@ -40,7 +41,7 @@ onMounted(load)
 
 <template>
   <div class="page-container narrow">
-    <div class="page-title">📦 我的订单</div>
+    <div class="page-title"><LineIcon name="box" :size="19" /> 我的订单</div>
 
     <el-empty v-if="!loading && orders.length === 0" description="还没有订单，去商城逛逛吧">
       <el-button type="primary" @click="router.push('/market')">去逛逛</el-button>
@@ -63,7 +64,7 @@ onMounted(load)
       </div>
       <div class="foot-row">
         <div class="actions">
-          <el-button v-if="o.status === 'PendingPayment'" type="danger" size="small" @click="pay(o)">💰 立即支付</el-button>
+          <el-button v-if="o.status === 'PendingPayment'" type="danger" size="small" @click="pay(o)">立即支付</el-button>
           <el-button v-if="['PendingPayment', 'Pending'].includes(o.status)" size="small" @click="cancel(o)">取消订单</el-button>
         </div>
         <div>
