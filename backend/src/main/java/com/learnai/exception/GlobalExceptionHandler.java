@@ -46,6 +46,12 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.CONFLICT, "数据冲突，操作失败（可能已存在相同记录）", null);
     }
 
+    /** 静态资源不存在（/uploads/** 等）→ 404 而非 500 */
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<ApiError> handleNoResource(org.springframework.web.servlet.resource.NoResourceFoundException e) {
+        return build(HttpStatus.NOT_FOUND, "资源不存在", null);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleOther(Exception e) {
         log.error("未处理异常", e);
