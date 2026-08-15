@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { resourceApi } from '@/api/resources'
 import { pathApi } from '@/api/paths'
@@ -7,6 +7,7 @@ import { marketApi } from '@/api/market'
 import { groupCategories } from '@/utils/categories'
 import { formatCount, formatPrice } from '@/utils/format'
 import LineIcon from '@/components/LineIcon.vue'
+import ScrambleText from '@/components/ScrambleText.vue'
 import http from '@/api/http'
 
 const router = useRouter()
@@ -30,6 +31,7 @@ const portals = [
 ]
 
 onMounted(async () => {
+  rafId = requestAnimationFrame(cubeLoop)
   const [res, pathList, modelList, cats] = await Promise.all([
     resourceApi.list({ page: 1, size: 6, sort: 'popular' }),
     pathApi.list({ page: 1, size: 4 }),
@@ -47,8 +49,115 @@ onMounted(async () => {
   }
 })
 
+onBeforeUnmount(() => cancelAnimationFrame(rafId))
+
 function onSearch() {
   router.push({ path: '/resources', query: { search: searchText.value || undefined } })
+}
+
+// ================= hero 立方体：鼠标拖拽旋转 =================
+// 由 rAF 循环直接驱动 transform（替代原 CSS 动画）：
+// 拖拽时跟随指针，松手惯性滑行，空闲后恢复自动旋转。
+const cubeStage = ref(null)
+const cubeEl = ref(null)
+const dragging = ref(false)
+const rotX = ref(-18)
+const rotY = ref(0)
+let velX = 0
+let velY = 0
+let lastX = 0
+let lastY = 0
+let lastT = 0
+let lastActive = 0
+let rafId = 0
+let prevFrame = 0
+
+const AUTO_SPEED = 22.5 // 自动旋转角速度（度/秒），与原 CSS 动画 16s 一圈一致
+const IDLE_RESUME_MS = 1400 // 停止操作多久后恢复自动旋转
+
+function onCubeDown(e) {
+  dragging.value = true
+  lastX = e.clientX
+  lastY = e.clientY
+  lastT = performance.now()
+  velX = 0
+  velY = 0
+  cubeStage.value?.setPointerCapture?.(e.pointerId)
+}
+
+function onCubeMove(e) {
+  if (!dragging.value) return
+  const now = performance.now()
+  const dt = Math.max(now - lastT, 1)
+  const dx = e.clientX - lastX
+  const dy = e.clientY - lastY
+  lastX = e.clientX
+  lastY = e.clientY
+  lastT = now
+  // 瞬时角速度（度/秒）+ 平滑，供松手惯性使用
+  const instX = (dx * 0.35 * 1000) / dt
+  const instY = (dy * 0.35 * 1000) / dt
+  velX = velX * 0.6 + instX * 0.4
+  velY = velY * 0.6 + instY * 0.4
+  rotY.value += dx * 0.35
+  rotX.value = Math.min(75, Math.max(-75, rotX.value + dy * 0.35))
+  lastActive = now
+}
+
+function onCubeUp() {
+  dragging.value = false
+  lastActive = performance.now()
+}
+
+function cubeLoop(t) {
+  if (!prevFrame) prevFrame = t
+  const dt = Math.min((t - prevFrame) / 1000, 0.1)
+  prevFrame = t
+  if (!dragging.value) {
+    if (Math.abs(velX) > 0.05 || Math.abs(velY) > 0.05) {
+      // 惯性滑行（指数衰减）
+      rotY.value += velX * dt
+      rotX.value = Math.min(75, Math.max(-75, rotX.value + velY * dt))
+      velX *= Math.exp(-dt * 4)
+      velY *= Math.exp(-dt * 4)
+    } else if (t - lastActive > IDLE_RESUME_MS) {
+      // 空闲：恢复自动旋转
+      rotY.value = (rotY.value + AUTO_SPEED * dt) % 360
+    }
+  }
+  if (cubeEl.value) {
+    cubeEl.value.style.transform = `rotateX(${rotX.value.toFixed(2)}deg) rotateY(${rotY.value.toFixed(2)}deg)`
+  }
+  rafId = requestAnimationFrame(cubeLoop)
+}
+
+// ================= hero 主按钮：旋转霓虹边框 + 鼠标跟随光斑（HTML_TRIAL button6 创意） =================
+function onNeonMove(e) {
+  const btn = e.currentTarget
+  const rect = btn.getBoundingClientRect()
+  btn.style.setProperty('--mx', `${e.clientX - rect.left}px`)
+  btn.style.setProperty('--my', `${e.clientY - rect.top}px`)
+}
+
+function onNeonLeave(e) {
+  const btn = e.currentTarget
+  btn.style.setProperty('--mx', '50%')
+  btn.style.setProperty('--my', '50%')
+}
+
+// ================= 学习入口方块：3D 悬停倾斜（HTML_TRIAL hover/button6 创意） =================
+function onPortalMove(e) {
+  const tile = e.target.closest('.portal-tile')
+  if (!tile) return
+  const rect = tile.getBoundingClientRect()
+  const px = (e.clientX - rect.left) / rect.width
+  const py = (e.clientY - rect.top) / rect.height
+  tile.style.transform = `perspective(650px) rotateX(${((0.5 - py) * 8).toFixed(2)}deg) rotateY(${((px - 0.5) * 8).toFixed(2)}deg) translateY(-3px)`
+}
+
+function onPortalLeave(e) {
+  const tile = e.target.closest('.portal-tile')
+  if (tile) tile.style.transform = ''
 }
 </script>
 
@@ -58,8 +167,8 @@ function onSearch() {
     <section class="hero">
       <div class="hero-inner">
         <div class="hero-top">
-          <span class="hero-en">AIZHIXUE · CAMPUS LEARNING PLATFORM</span>
-          <span class="hero-en">EST. 2026</span>
+          <span class="hero-en"><ScrambleText text="AIZHIXUE · CAMPUS LEARNING PLATFORM" auto /></span>
+          <span class="hero-en"><ScrambleText text="EST. 2026" /></span>
         </div>
 
         <div class="hero-body">
@@ -88,15 +197,32 @@ function onSearch() {
             </div>
 
             <div class="hero-actions">
-              <button class="hero-btn hero-btn-primary" @click="router.push('/resources')">开始学习</button>
+              <button
+                class="hero-btn hero-btn-primary neon-btn"
+                @click="router.push('/resources')"
+                @mousemove="onNeonMove"
+                @mouseleave="onNeonLeave"
+              >
+                <span class="neon-glow" />
+                <span class="neon-text">开始学习</span>
+              </button>
               <button class="hero-btn" @click="router.push('/paths')">学习路径</button>
               <button class="hero-btn" @click="router.push('/market')">模型资源库</button>
             </div>
           </div>
 
           <div class="hero-cube">
-            <div class="cube-stage">
-              <div class="cube">
+            <div
+              ref="cubeStage"
+              class="cube-stage"
+              :class="{ dragging }"
+              @pointerdown="onCubeDown"
+              @pointermove="onCubeMove"
+              @pointerup="onCubeUp"
+              @pointercancel="onCubeUp"
+              @pointerleave="onCubeUp"
+            >
+              <div ref="cubeEl" class="cube" style="transform: rotateX(-18deg) rotateY(0deg)">
                 <div class="face front" /><div class="face back" />
                 <div class="face left" /><div class="face right" />
                 <div class="face top" /><div class="face bottom" />
@@ -105,7 +231,8 @@ function onSearch() {
               <span class="crosshair ch-1" /><span class="crosshair ch-2" />
               <span class="crosshair ch-3" /><span class="crosshair ch-4" />
             </div>
-            <span class="cube-label">WIREFRAME · 线框是世界的起点</span>
+            <span class="cube-label"><ScrambleText text="WIREFRAME · 线框是世界的起点" /></span>
+            <span class="cube-hint">拖拽旋转 · DRAG TO ROTATE</span>
           </div>
         </div>
 
@@ -147,15 +274,15 @@ function onSearch() {
     <section class="portal-block">
       <div class="block-head">
         <div class="block-head-left">
-          <span class="block-en">PORTALS</span>
+          <span class="block-en"><ScrambleText text="PORTALS" /></span>
           <h2 class="block-title">学习入口</h2>
         </div>
         <span class="portal-hint">点击方块直达</span>
       </div>
-      <div class="portal-grid">
+      <div class="portal-grid" @mousemove="onPortalMove" @mouseleave="onPortalLeave">
         <button v-for="(p, i) in portals" :key="p.en" class="portal-tile" @click="router.push(p.route)">
           <span class="pt-top">
-            <span class="pt-en">{{ p.en }}</span>
+            <span class="pt-en"><ScrambleText :text="p.en" /></span>
             <span class="pt-no">{{ String(i + 1).padStart(2, '0') }}</span>
           </span>
           <span class="pt-icon"><LineIcon :name="p.icon" :size="30" /></span>
@@ -173,7 +300,7 @@ function onSearch() {
       <section class="block">
         <div class="block-head">
           <div class="block-head-left">
-            <span class="block-en">COURSES</span>
+            <span class="block-en"><ScrambleText text="COURSES" /></span>
             <h2 class="block-title">课程</h2>
           </div>
           <button class="more-link" @click="router.push('/resources')">全部课程 →</button>
@@ -196,7 +323,7 @@ function onSearch() {
       <section class="block">
         <div class="block-head">
           <div class="block-head-left">
-            <span class="block-en">MODELS</span>
+            <span class="block-en"><ScrambleText text="MODELS" /></span>
             <h2 class="block-title">模型精选</h2>
           </div>
           <button class="more-link" @click="router.push('/market')">进入模型资源库 →</button>
@@ -219,7 +346,7 @@ function onSearch() {
         <div>
           <div class="block-head">
             <div class="block-head-left">
-              <span class="block-en">PATHS</span>
+              <span class="block-en"><ScrambleText text="PATHS" /></span>
               <h2 class="block-title">学习路径</h2>
             </div>
             <button class="more-link" @click="router.push('/paths')">全部 →</button>
@@ -235,7 +362,7 @@ function onSearch() {
         <div>
           <div class="block-head">
             <div class="block-head-left">
-              <span class="block-en">CATEGORIES</span>
+              <span class="block-en"><ScrambleText text="CATEGORIES" /></span>
               <h2 class="block-title">学习分类</h2>
             </div>
           </div>
@@ -358,6 +485,74 @@ function onSearch() {
   color: #fff;
 }
 
+/* 旋转霓虹边框 + 鼠标跟随光斑（HTML_TRIAL button6 创意） */
+@property --neon-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+.neon-btn {
+  position: relative;
+  isolation: isolate;
+  border: none;
+  padding: 11px 23px;
+  overflow: visible;
+}
+.neon-btn::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 2px;
+  background: conic-gradient(
+    from var(--neon-angle),
+    transparent 0%,
+    transparent 25%,
+    var(--el-bg-color) 50%,
+    transparent 75%,
+    transparent 100%
+  );
+  filter: blur(2px);
+  animation: neon-rotate 3.2s linear infinite;
+  z-index: 0;
+}
+.neon-btn::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 2px;
+  background: var(--theme-color);
+  z-index: 0;
+}
+.neon-btn:hover::after {
+  background: #d14f07;
+}
+@keyframes neon-rotate {
+  to {
+    --neon-angle: 360deg;
+  }
+}
+.neon-glow {
+  position: absolute;
+  inset: 2px;
+  border-radius: 2px;
+  background: radial-gradient(
+    90px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.4),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+  z-index: 1;
+}
+.neon-btn:hover .neon-glow {
+  opacity: 1;
+}
+.neon-text {
+  position: relative;
+  z-index: 2;
+}
+
 /* 线框立方体 */
 .hero-cube {
   flex-shrink: 0;
@@ -369,12 +564,19 @@ function onSearch() {
   position: relative;
   margin: 0 auto;
   perspective: 800px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.cube-stage.dragging {
+  cursor: grabbing;
 }
 .cube {
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
-  animation: cube-spin 16s linear infinite;
+  will-change: transform;
 }
 .face {
   position: absolute;
@@ -402,10 +604,6 @@ function onSearch() {
   border: 1px dashed var(--el-bg-color);
   animation: inner-spin 16s linear infinite;
 }
-@keyframes cube-spin {
-  from { transform: rotateX(-18deg) rotateY(0deg); }
-  to { transform: rotateX(-18deg) rotateY(360deg); }
-}
 @keyframes inner-spin {
   from { transform: rotateX(0) rotateY(0); }
   to { transform: rotateX(360deg) rotateY(360deg); }
@@ -430,6 +628,14 @@ function onSearch() {
   font-size: 11px;
   letter-spacing: 2px;
   opacity: 0.6;
+}
+.cube-hint {
+  display: block;
+  margin-top: 4px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  opacity: 0.4;
 }
 
 /* 数据条 */
@@ -554,6 +760,7 @@ function onSearch() {
   position: relative;
   overflow: hidden;
   transition: background 0.15s, border-color 0.15s, transform 0.15s, color 0.15s;
+  will-change: transform;
 }
 .portal-tile:hover {
   background: var(--el-color-primary);

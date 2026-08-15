@@ -3,6 +3,7 @@ import { onMounted } from 'vue'
 import NavBar from '@/components/NavBar.vue'
 import Footer from '@/components/Footer.vue'
 import AiAssistant from '@/components/AiAssistant.vue'
+import CustomCursor from '@/components/CustomCursor.vue'
 import { usePrefsStore } from '@/stores/prefs'
 import { useAuthStore } from '@/stores/auth'
 
@@ -23,4 +24,5 @@ onMounted(() => {
   <router-view />
   <Footer />
   <AiAssistant />
+  <CustomCursor />
 </template>
