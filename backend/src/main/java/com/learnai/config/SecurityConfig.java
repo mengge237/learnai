@@ -50,9 +50,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 认证接口公开
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                        // 我的学习/我的路径需要登录（必须先于下面的通配规则声明）
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/resources/my-learning", "/api/paths/my").authenticated()
                         // 教育内容的只读接口公开（像菜鸟教程一样游客可浏览）
                         .requestMatchers(HttpMethod.GET,
-                                "/api/resources/**", "/api/models/**", "/api/paths/**",
+                                "/api/resources", "/api/resources/*",
+                                "/api/models/**",
+                                "/api/paths", "/api/paths/*",
                                 "/api/categories", "/api/model-categories", "/api/comments").permitAll()
                         // 上传的静态文件公开
                         .requestMatchers("/uploads/**", "/error").permitAll()

@@ -11,4 +11,6 @@ public interface UserLearningPathRepository extends JpaRepository<UserLearningPa
     Optional<UserLearningPath> findByUserIdAndPathId(Long userId, Long pathId);
 
     List<UserLearningPath> findByUserIdOrderByEnrollDateDesc(Long userId);
+
+    void deleteByPathId(Long pathId);
 }

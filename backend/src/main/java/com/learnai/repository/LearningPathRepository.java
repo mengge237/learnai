@@ -1,6 +1,8 @@
 package com.learnai.repository;
 
 import com.learnai.entity.LearningPath;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -8,4 +10,6 @@ import java.util.List;
 public interface LearningPathRepository extends JpaRepository<LearningPath, Long> {
 
     List<LearningPath> findByIsActiveTrueOrderByEnrollmentCountDesc();
+
+    Page<LearningPath> findByIsActiveTrue(Pageable pageable);
 }

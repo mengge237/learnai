@@ -9,5 +9,7 @@ public interface PathResourceRepository extends JpaRepository<PathResource, Long
 
     List<PathResource> findByPathIdOrderBySequenceNumberAsc(Long pathId);
 
+    long countByPathId(Long pathId);
+
     void deleteByPathId(Long pathId);
 }
