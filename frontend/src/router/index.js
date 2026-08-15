@@ -7,40 +7,40 @@ const routes = [
   { path: '/register', name: 'register', component: () => import('@/views/Register.vue') },
 
   // 学习资源
-  { path: '/resources', name: 'resources', meta: { title: '学习资源' }, component: () => import('@/views/Placeholder.vue') },
-  { path: '/resources/submit', name: 'resource-submit', meta: { title: '提交资源', requiresAuth: true }, component: () => import('@/views/Placeholder.vue') },
-  { path: '/resources/my', name: 'my-learning', meta: { title: '我的学习', requiresAuth: true }, component: () => import('@/views/Placeholder.vue') },
-  { path: '/resources/:id', name: 'resource-detail', meta: { title: '资源详情' }, component: () => import('@/views/Placeholder.vue') },
-  { path: '/resources/:id/learn', name: 'resource-learn', meta: { title: '开始学习', requiresAuth: true }, component: () => import('@/views/Placeholder.vue') },
+  { path: '/resources', name: 'resources', meta: { title: '学习资源' }, component: () => import('@/views/resources/ResourceList.vue') },
+  { path: '/resources/submit', name: 'resource-submit', meta: { title: '提交资源', requiresAuth: true }, component: () => import('@/views/resources/ResourceSubmit.vue') },
+  { path: '/resources/my', name: 'my-learning', meta: { title: '我的学习', requiresAuth: true }, component: () => import('@/views/resources/MyLearning.vue') },
+  { path: '/resources/:id', name: 'resource-detail', meta: { title: '资源详情' }, component: () => import('@/views/resources/ResourceDetail.vue') },
+  { path: '/resources/:id/learn', name: 'resource-learn', meta: { title: '开始学习', requiresAuth: true }, component: () => import('@/views/resources/Learn.vue') },
 
   // 学习路径
-  { path: '/paths', name: 'paths', meta: { title: '学习路径' }, component: () => import('@/views/Placeholder.vue') },
-  { path: '/paths/my', name: 'my-paths', meta: { title: '我的路径', requiresAuth: true }, component: () => import('@/views/Placeholder.vue') },
-  { path: '/paths/:id', name: 'path-detail', meta: { title: '路径详情' }, component: () => import('@/views/Placeholder.vue') },
+  { path: '/paths', name: 'paths', meta: { title: '学习路径' }, component: () => import('@/views/paths/PathList.vue') },
+  { path: '/paths/my', name: 'my-paths', meta: { title: '我的路径', requiresAuth: true }, component: () => import('@/views/paths/MyPaths.vue') },
+  { path: '/paths/:id', name: 'path-detail', meta: { title: '路径详情' }, component: () => import('@/views/paths/PathDetail.vue') },
 
   // AI 助手
-  { path: '/ai/chat', name: 'ai-chat', meta: { title: 'AI 答疑', requiresAuth: true }, component: () => import('@/views/Placeholder.vue') },
-  { path: '/ai/analytics', name: 'ai-analytics', meta: { title: '学习分析', requiresAuth: true }, component: () => import('@/views/Placeholder.vue') },
-  { path: '/ai/recommend', name: 'ai-recommend', meta: { title: '智能推荐', requiresAuth: true }, component: () => import('@/views/Placeholder.vue') },
+  { path: '/ai/chat', name: 'ai-chat', meta: { title: 'AI 答疑', requiresAuth: true }, component: () => import('@/views/ai/AiChat.vue') },
+  { path: '/ai/analytics', name: 'ai-analytics', meta: { title: '学习分析', requiresAuth: true }, component: () => import('@/views/ai/AiAnalytics.vue') },
+  { path: '/ai/recommend', name: 'ai-recommend', meta: { title: '智能推荐', requiresAuth: true }, component: () => import('@/views/ai/AiRecommend.vue') },
 
   // 模型商城
-  { path: '/market', name: 'market', meta: { title: '模型商城' }, component: () => import('@/views/Placeholder.vue') },
-  { path: '/market/cart', name: 'cart', meta: { title: '购物车' }, component: () => import('@/views/Placeholder.vue') },
-  { path: '/market/checkout', name: 'checkout', meta: { title: '结算', requiresAuth: true }, component: () => import('@/views/Placeholder.vue') },
-  { path: '/market/orders', name: 'orders', meta: { title: '我的订单', requiresAuth: true }, component: () => import('@/views/Placeholder.vue') },
-  { path: '/market/orders/:id', name: 'order-detail', meta: { title: '订单详情', requiresAuth: true }, component: () => import('@/views/Placeholder.vue') },
-  { path: '/market/:id', name: 'model-detail', meta: { title: '模型详情' }, component: () => import('@/views/Placeholder.vue') },
+  { path: '/market', name: 'market', meta: { title: '模型商城' }, component: () => import('@/views/market/ModelList.vue') },
+  { path: '/market/cart', name: 'cart', meta: { title: '购物车' }, component: () => import('@/views/market/Cart.vue') },
+  { path: '/market/checkout', name: 'checkout', meta: { title: '结算', requiresAuth: true }, component: () => import('@/views/market/Checkout.vue') },
+  { path: '/market/orders', name: 'orders', meta: { title: '我的订单', requiresAuth: true }, component: () => import('@/views/market/Orders.vue') },
+  { path: '/market/orders/:id', name: 'order-detail', meta: { title: '订单详情', requiresAuth: true }, component: () => import('@/views/market/OrderDetail.vue') },
+  { path: '/market/:id', name: 'model-detail', meta: { title: '模型详情' }, component: () => import('@/views/market/ModelDetail.vue') },
 
   // 个人中心
-  { path: '/user/profile', name: 'profile', meta: { title: '个人资料', requiresAuth: true }, component: () => import('@/views/Placeholder.vue') },
-  { path: '/user/settings', name: 'settings', meta: { title: '个性化设置', requiresAuth: true }, component: () => import('@/views/Placeholder.vue') },
-  { path: '/user/favorites', name: 'favorites', meta: { title: '我的收藏', requiresAuth: true }, component: () => import('@/views/Placeholder.vue') },
-  { path: '/user/downloads', name: 'downloads', meta: { title: '下载历史', requiresAuth: true }, component: () => import('@/views/Placeholder.vue') },
+  { path: '/user/profile', name: 'profile', meta: { title: '个人资料', requiresAuth: true }, component: () => import('@/views/user/Profile.vue') },
+  { path: '/user/settings', name: 'settings', meta: { title: '个性化设置', requiresAuth: true }, component: () => import('@/views/user/Settings.vue') },
+  { path: '/user/favorites', name: 'favorites', meta: { title: '我的收藏', requiresAuth: true }, component: () => import('@/views/user/Favorites.vue') },
+  { path: '/user/downloads', name: 'downloads', meta: { title: '下载历史', requiresAuth: true }, component: () => import('@/views/user/MyDownloads.vue') },
 
   // 管理 / 审核
-  { path: '/admin/dashboard', name: 'admin-dashboard', meta: { title: '数据看板', requiresAuth: true, roles: ['ADMIN'] }, component: () => import('@/views/Placeholder.vue') },
-  { path: '/admin/users', name: 'admin-users', meta: { title: '用户管理', requiresAuth: true, roles: ['ADMIN'] }, component: () => import('@/views/Placeholder.vue') },
-  { path: '/audit', name: 'audit', meta: { title: '内容审核', requiresAuth: true, roles: ['ADMIN', 'AUDITOR'] }, component: () => import('@/views/Placeholder.vue') },
+  { path: '/admin/dashboard', name: 'admin-dashboard', meta: { title: '数据看板', requiresAuth: true, roles: ['ADMIN'] }, component: () => import('@/views/admin/AdminDashboard.vue') },
+  { path: '/admin/users', name: 'admin-users', meta: { title: '用户管理', requiresAuth: true, roles: ['ADMIN'] }, component: () => import('@/views/admin/AdminUsers.vue') },
+  { path: '/audit', name: 'audit', meta: { title: '内容审核', requiresAuth: true, roles: ['ADMIN', 'AUDITOR'] }, component: () => import('@/views/admin/Audit.vue') },
 
   { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/views/NotFound.vue') },
 ]

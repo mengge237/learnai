@@ -63,4 +63,19 @@ export const STEP_STATUS = {
 /** 路径难度等级（Integer 1-3） */
 export const PATH_DIFFICULTY = { 1: '入门', 2: '进阶', 3: '高级' }
 
+/** 学习路径报名状态 */
+export const PATH_STATUS = {
+  NotStarted: '未开始',
+  InProgress: '进行中',
+  Paused: '已暂停',
+  Completed: '已完成',
+}
+
+export const PATH_TAG = {
+  NotStarted: 'info',
+  InProgress: 'primary',
+  Paused: 'warning',
+  Completed: 'success',
+}
+
 export const LICENSE_TYPES = ['个人', '商用', '教育']

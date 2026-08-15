@@ -21,13 +21,14 @@ export const useCartStore = defineStore('cart', {
       localStorage.setItem(CART_KEY, JSON.stringify(this.items))
     },
     add(model, quantity = 1, licenseType = '个人') {
-      const exist = this.items.find((it) => it.modelId === model.modelId)
+      const modelId = model.id ?? model.modelId
+      const exist = this.items.find((it) => it.modelId === modelId)
       if (exist) {
         exist.quantity += quantity
         exist.licenseType = licenseType
       } else {
         this.items.push({
-          modelId: model.modelId,
+          modelId,
           name: model.name,
           price: model.price,
           previewUrl: model.previewUrl,
