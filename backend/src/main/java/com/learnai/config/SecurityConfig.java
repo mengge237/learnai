@@ -56,7 +56,7 @@ public class SecurityConfig {
                         // 教育内容的只读接口公开（像菜鸟教程一样游客可浏览）
                         .requestMatchers(HttpMethod.GET,
                                 "/api/resources", "/api/resources/*",
-                                "/api/models/**",
+                                "/api/models", "/api/models/*",
                                 "/api/paths", "/api/paths/*",
                                 "/api/categories", "/api/model-categories", "/api/comments").permitAll()
                         // 上传的静态文件公开

@@ -20,4 +20,6 @@ public interface LearningResourceRepository extends JpaRepository<LearningResour
     /** 已完成分类中未学过的资源（按点赞数） */
     List<LearningResource> findTop6ByIsApprovedTrueAndIsPublicTrueAndCategoryCategoryIdInAndResourceIdNotInOrderByLikeCountDesc(
             List<Long> categoryIds, List<Long> excludeIds);
+
+    List<LearningResource> findByIsApprovedFalseAndRejectionReasonIsNullOrderByCreateDateDesc();
 }
