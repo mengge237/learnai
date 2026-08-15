@@ -60,6 +60,11 @@ async function goStep(step) {
   }
 }
 
+/** 点击步骤标题：仅展开阅读正文，不改变学习状态 */
+function expandStep(step) {
+  currentStep.value = step.stepNumber
+}
+
 async function start() {
   busy.value = true
   try {
@@ -128,12 +133,11 @@ onMounted(load)
 
 <template>
   <div class="page-container" v-loading="loading">
-    <!-- 面包屑 -->
+    <!-- 面包屑（紧凑） -->
     <el-breadcrumb separator="/" class="breadcrumb">
       <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item :to="{ path: '/resources' }">学习资源</el-breadcrumb-item>
       <el-breadcrumb-item v-if="progress" :to="{ path: `/resources/${id}` }">{{ progress.resourceTitle }}</el-breadcrumb-item>
-      <el-breadcrumb-item v-if="progress">学习中心</el-breadcrumb-item>
     </el-breadcrumb>
 
     <!-- 未开始 -->
@@ -165,9 +169,9 @@ onMounted(load)
         <el-progress :percentage="sliderProgress" :stroke-width="14" striped striped-flow />
       </el-card>
 
-      <!-- 步骤列表 -->
+      <!-- 步骤列表（教程正文可在线阅读） -->
       <el-card class="box">
-        <div class="section-label">📋 学习步骤</div>
+        <div class="section-label">📋 教程目录 <span class="text-muted step-hint">点击步骤标题阅读教程内容</span></div>
         <div
           v-for="step in progress.steps"
           :key="step.stepNumber"
@@ -177,11 +181,14 @@ onMounted(load)
         >
           <span class="step-icon">{{ stepIcon(step.status) }}</span>
           <div class="step-info">
-            <div class="step-title">
-              步骤 {{ step.stepNumber }}：{{ step.stepTitle }}
+            <div class="step-title" @click="expandStep(step)">
+              <span class="step-no">步骤 {{ step.stepNumber }}</span>
+              <span class="step-name">{{ step.stepTitle }}</span>
               <el-tag size="small" effect="plain">{{ STEP_STATUS[step.status] || step.status }}</el-tag>
+              <span v-if="step.stepNumber === currentStep" class="text-muted">▼ 正在阅读</span>
             </div>
             <div class="text-muted" v-if="step.completedTime">完成于 {{ formatDate(step.completedTime) }}</div>
+            <div v-if="step.stepNumber === currentStep" class="step-content">{{ step.stepContent || '本章内容正在编写中，敬请期待。' }}</div>
           </div>
           <div class="step-actions">
             <el-button v-if="step.status === 'NotStarted'" size="small" :loading="busy" @click="setStep(step, 'InProgress')">
@@ -279,6 +286,32 @@ onMounted(load)
   display: flex;
   align-items: center;
   gap: 8px;
+  cursor: pointer;
+  flex-wrap: wrap;
+}
+.step-hint {
+  font-size: 12px;
+  font-weight: 400;
+  margin-left: 8px;
+}
+.step-no {
+  color: var(--theme-color);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.step-name {
+  font-weight: 600;
+}
+/* 教程正文：像文章一样可读 */
+.step-content {
+  margin-top: 10px;
+  padding: 14px 16px;
+  background: var(--el-bg-color-page, #f5f5f3);
+  border-left: 3px solid var(--theme-color);
+  white-space: pre-line;
+  line-height: 1.9;
+  font-size: 14px;
+  color: var(--el-text-color-regular);
 }
 .step-actions {
   display: flex;

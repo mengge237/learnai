@@ -7,6 +7,11 @@
   --border-color: #d0d0d0;
   --font-size: 16px;
 
+  /* 线稿工程图风格：线条颜色 */
+  --line-color: #17181c; /* 主线条（近黑） */
+  --line-soft: #c8c8c8; /* 辅助线条（浅灰） */
+  --line-faint: rgba(23, 24, 28, 0.07); /* 网格线（极淡） */
+
   /* Element Plus 主色改为近黑 → 按钮/激活态呈黑白高级感 */
   --el-color-primary: #17181c;
   --el-color-primary-light-3: #4a4d55;
@@ -32,6 +37,10 @@ html.dark {
   --el-color-primary-light-8: #454545;
   --el-color-primary-light-9: #2b2b2b;
   --el-color-primary-dark-2: #ffffff;
+
+  --line-color: #e8e8e8;
+  --line-soft: #454545;
+  --line-faint: rgba(232, 232, 232, 0.06);
 }
 
 * {
@@ -132,4 +141,164 @@ html[data-animation='fast'] * {
 html[data-animation='off'] * {
   animation: none !important;
   transition: none !important;
+}
+
+/* ============================================================
+   线稿工程图设计系统：黑白线条嵌入网页（blueprint / 技术图纸风）
+   ============================================================ */
+
+/* 图纸网格背景 */
+.blueprint-grid {
+  background-image: linear-gradient(var(--line-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-faint) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* 技术图纸角标框：四角括号像制图框线 */
+.tech-frame {
+  position: relative;
+}
+.tech-frame::before,
+.tech-frame::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--line-color);
+  pointer-events: none;
+  opacity: 0.85;
+}
+.tech-frame::before {
+  top: 6px;
+  left: 6px;
+  border-right: none;
+  border-bottom: none;
+}
+.tech-frame::after {
+  bottom: 6px;
+  right: 6px;
+  border-left: none;
+  border-top: none;
+}
+
+/* 虚线辅助线边框 */
+.tech-dashed {
+  border: 1px dashed var(--line-soft);
+}
+
+/* 十字准星标记 */
+.crosshair {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.crosshair::before,
+.crosshair::after {
+  content: '';
+  position: absolute;
+  background: var(--line-color);
+  opacity: 0.7;
+}
+.crosshair::before {
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  transform: translateX(-50%);
+}
+.crosshair::after {
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  transform: translateY(-50%);
+}
+
+/* 蓝图分区标题：编号 + 标题 + 带刻度延伸线 */
+.blueprint-section {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin: 52px 0 20px;
+}
+.blueprint-section .bp-no {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--theme-color);
+  line-height: 1;
+}
+.blueprint-section .bp-title {
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  white-space: nowrap;
+}
+.blueprint-section .bp-sub {
+  font-size: 13px;
+  color: var(--el-text-color-secondary);
+  letter-spacing: 1px;
+}
+.blueprint-section .bp-line {
+  flex: 1;
+  height: 1px;
+  background: var(--line-soft);
+  position: relative;
+  min-width: 30px;
+}
+.blueprint-section .bp-line::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -4px;
+  width: 1px;
+  height: 9px;
+  background: var(--line-soft);
+}
+
+/* 尺寸标注条（配合数字使用，如 "2026 · 校园版"） */
+.dim-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--el-text-color-secondary);
+}
+.dim-strip::before,
+.dim-strip::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line-soft);
+}
+
+/* ---------- 面包屑：紧凑线稿风（不拥挤） ---------- */
+.el-breadcrumb {
+  font-size: 12px;
+  margin-bottom: 14px;
+  flex-wrap: nowrap;
+}
+.el-breadcrumb__inner,
+.el-breadcrumb__inner a {
+  color: var(--el-text-color-secondary) !important;
+  font-weight: 400 !important;
+}
+.el-breadcrumb__item:last-child .el-breadcrumb__inner {
+  color: var(--el-text-color-primary) !important;
+  font-weight: 600 !important;
+  max-width: 420px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: bottom;
+}
+.el-breadcrumb__separator {
+  color: var(--line-soft) !important;
+  margin: 0 6px !important;
+  font-weight: 400;
 }

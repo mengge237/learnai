@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public record StepDto(
         Integer stepNumber,
         String stepTitle,
+        String stepContent,
         String status,
         LocalDateTime completedTime,
         Integer durationSeconds
@@ -18,6 +19,7 @@ public record StepDto(
         return new StepDto(
                 s.getStepNumber(),
                 s.getStepTitle(),
+                s.getStepContent(),
                 s.getStatus() == null ? null : s.getStatus().name(),
                 s.getCompletedTime(),
                 s.getDurationSeconds());

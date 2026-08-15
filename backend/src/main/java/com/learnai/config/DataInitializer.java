@@ -3,6 +3,7 @@ package com.learnai.config;
 import com.learnai.entity.*;
 import com.learnai.entity.enums.*;
 import com.learnai.repository.*;
+import com.learnai.service.LearningProgressService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,6 +63,7 @@ public class DataInitializer implements CommandLineRunner {
     private String uploadDir;
 
     private static final DateTimeFormatter MONTH = DateTimeFormatter.ofPattern("yyyyMM");
+    /** 默认步骤标题（与 LearningProgressService 共用的正文模板见该服务） */
     private static final List<String> STEP_TITLES = List.of("了解内容概览", "深入学习与实践", "完成练习与总结");
 
     private Path root;
@@ -411,7 +413,7 @@ public class DataInitializer implements CommandLineRunner {
                 "系统学完了基础建模部分，收获很大！", 150);
         learningRecordRepository.save(done);
         for (int i = 1; i <= 3; i++) {
-            LearningStep s = step(done, i, StepStatus.Completed);
+            LearningStep s = step(done, byCode.get("RES-001"), i, StepStatus.Completed);
             s.setCompletedTime(done.getStartTime().plusMinutes(50L * i));
             learningStepRepository.save(s);
         }
@@ -420,17 +422,17 @@ public class DataInitializer implements CommandLineRunner {
         LearningRecord r2 = record(byCode.get("RES-002"), 3, LearningStatus.InProgress, 60.0, null,
                 "正在学习材质节点部分", 75);
         learningRecordRepository.save(r2);
-        learningStepRepository.save(step(r2, 1, StepStatus.Completed));
-        learningStepRepository.save(step(r2, 2, StepStatus.InProgress));
-        learningStepRepository.save(step(r2, 3, StepStatus.NotStarted));
+        learningStepRepository.save(step(r2, byCode.get("RES-002"), 1, StepStatus.Completed));
+        learningStepRepository.save(step(r2, byCode.get("RES-002"), 2, StepStatus.InProgress));
+        learningStepRepository.save(step(r2, byCode.get("RES-002"), 3, StepStatus.NotStarted));
 
         // 进行中：Unity 3D 游戏开发入门（1 天前开始）
         LearningRecord r3 = record(byCode.get("RES-007"), 1, LearningStatus.InProgress, 35.0, null,
                 "刚完成角色控制部分", 40);
         learningRecordRepository.save(r3);
-        learningStepRepository.save(step(r3, 1, StepStatus.Completed));
-        learningStepRepository.save(step(r3, 2, StepStatus.InProgress));
-        learningStepRepository.save(step(r3, 3, StepStatus.NotStarted));
+        learningStepRepository.save(step(r3, byCode.get("RES-007"), 1, StepStatus.Completed));
+        learningStepRepository.save(step(r3, byCode.get("RES-007"), 2, StepStatus.InProgress));
+        learningStepRepository.save(step(r3, byCode.get("RES-007"), 3, StepStatus.NotStarted));
     }
 
     private LearningRecord record(LearningResource resource, int daysAgo, LearningStatus status,
@@ -450,11 +452,13 @@ public class DataInitializer implements CommandLineRunner {
         return r;
     }
 
-    private LearningStep step(LearningRecord record, int number, StepStatus status) {
+    private LearningStep step(LearningRecord record, LearningResource resource, int number, StepStatus status) {
         LearningStep s = new LearningStep();
         s.setRecordId(record.getRecordId());
         s.setStepNumber(number);
         s.setStepTitle(STEP_TITLES.get(number - 1));
+        s.setStepContent(String.format(
+                LearningProgressService.DEFAULT_STEPS[number - 1][1], resource.getResourceTitle()));
         s.setStatus(status);
         if (status == StepStatus.Completed) {
             s.setCompletedTime(record.getStartTime().plusMinutes(45L * number));

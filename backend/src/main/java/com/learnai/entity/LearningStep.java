@@ -32,6 +32,10 @@ public class LearningStep {
     @Column(name = "step_title", length = 200)
     private String stepTitle;
 
+    /** 步骤正文（教程内容，可在线阅读） */
+    @Column(name = "step_content", columnDefinition = "TEXT")
+    private String stepContent;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private StepStatus status = StepStatus.NotStarted;

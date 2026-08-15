@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { marketApi } from '@/api/market'
+import { interactionApi } from '@/api/interaction'
 import { downloadFile } from '@/api/http'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
@@ -20,6 +21,7 @@ const model = ref(null)
 const loading = ref(true)
 const quantity = ref(1)
 const licenseType = ref('个人')
+const favorited = ref(false)
 
 /** 支持在线预览的格式：glb / gltf / obj，其余提示下载 */
 const viewerFormat = computed(() => {
@@ -37,9 +39,27 @@ async function load() {
   loading.value = true
   try {
     model.value = await marketApi.modelDetail(id)
+    await loadFavorite()
   } finally {
     loading.value = false
   }
+}
+
+async function loadFavorite() {
+  if (!auth.isLoggedIn) return
+  try {
+    const list = await interactionApi.favorites()
+    favorited.value = list.some((f) => f.type === 'model' && Number(f.targetId) === id)
+  } catch {
+    /* 忽略 */
+  }
+}
+
+async function toggleFavorite() {
+  if (!auth.isLoggedIn) return router.push({ name: 'login', query: { redirect: route.fullPath } })
+  const { favorited: f } = await interactionApi.toggleFavorite({ modelId: id })
+  favorited.value = f
+  ElMessage.success(f ? '已加入收藏' : '已取消收藏')
 }
 
 function addToCart() {
@@ -62,11 +82,11 @@ onMounted(load)
 
 <template>
   <div class="page-container" v-loading="loading">
-    <el-page-header v-if="model" @back="router.back()" class="back">
-      <template #content>
-        <span class="detail-title">{{ model.name }}</span>
-      </template>
-    </el-page-header>
+    <el-breadcrumb separator="/" class="back">
+      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/market' }">模型资源库</el-breadcrumb-item>
+      <el-breadcrumb-item v-if="model">{{ model.name }}</el-breadcrumb-item>
+    </el-breadcrumb>
 
     <template v-if="model">
       <el-card class="detail-card">
@@ -102,6 +122,7 @@ onMounted(load)
             <div class="actions">
               <el-button type="primary" size="large" :disabled="model.isApproved === false" @click="addToCart">🛒 加入购物车</el-button>
               <el-button type="danger" size="large" plain :disabled="model.isApproved === false" @click="buyNow">立即购买</el-button>
+              <el-button size="large" @click="toggleFavorite">{{ favorited ? '⭐ 已收藏' : '☆ 收藏' }}</el-button>
               <el-button size="large" @click="download">⬇️ 下载模型文件</el-button>
             </div>
             <div v-if="!viewerSrc" class="viewer-tip text-muted">💡 该格式暂不支持在线预览，可下载后用本地软件（Blender / 3ds Max 等）打开</div>
@@ -119,9 +140,6 @@ onMounted(load)
 <style scoped>
 .back {
   margin-bottom: 16px;
-}
-.detail-title {
-  font-weight: 600;
 }
 .detail-layout {
   display: grid;

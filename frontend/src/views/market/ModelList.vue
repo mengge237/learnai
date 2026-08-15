@@ -2,11 +2,13 @@
 import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { marketApi } from '@/api/market'
+import { useCartStore } from '@/stores/cart'
 import ModelCard from '@/components/ModelCard.vue'
 import PaginationBar from '@/components/PaginationBar.vue'
 
 const route = useRoute()
 const router = useRouter()
+const cart = useCartStore()
 
 const models = ref([])
 const loading = ref(true)
@@ -71,6 +73,7 @@ watch(sort, () => {
         <el-option label="价格从低到高" value="priceAsc" />
         <el-option label="价格从高到低" value="priceDesc" />
       </el-select>
+      <el-button class="cart-btn" @click="router.push('/market/cart')">🛒 购物车（{{ cart.totalCount }}）</el-button>
     </div>
 
     <div v-loading="loading" class="model-grid">
@@ -97,6 +100,9 @@ watch(sort, () => {
 }
 .sort {
   width: 170px;
+}
+.cart-btn {
+  margin-left: auto;
 }
 .model-grid {
   display: grid;

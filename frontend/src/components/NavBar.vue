@@ -1,10 +1,11 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
 import { usePrefsStore } from '@/stores/prefs'
+import { interactionApi } from '@/api/interaction'
 
 const route = useRoute()
 const router = useRouter()
@@ -13,6 +14,24 @@ const cart = useCartStore()
 const prefs = usePrefsStore()
 
 const searchText = ref('')
+const favCount = ref(0)
+
+// 登录后加载收藏数量（导航以收藏为主，购物车入口移入模型资源库页内）
+watch(
+  () => auth.isLoggedIn,
+  async (v) => {
+    if (!v) {
+      favCount.value = 0
+      return
+    }
+    try {
+      favCount.value = (await interactionApi.favorites()).length
+    } catch {
+      favCount.value = 0
+    }
+  },
+  { immediate: true },
+)
 
 const activeMenu = computed(() => {
   const seg = route.path.split('/')[1]
@@ -83,9 +102,11 @@ async function handleCommand(cmd) {
           </button>
         </el-tooltip>
 
-        <el-badge :value="cart.totalCount" :hidden="cart.totalCount === 0" class="cart-badge">
-          <button class="icon-btn" @click="router.push('/market/cart')" title="购物车">🛒</button>
-        </el-badge>
+        <el-tooltip content="我的收藏">
+          <el-badge :value="favCount" :hidden="favCount === 0">
+            <button class="icon-btn fav-btn" @click="router.push('/user/favorites')" title="我的收藏">☆</button>
+          </el-badge>
+        </el-tooltip>
 
         <template v-if="auth.isLoggedIn">
           <el-dropdown @command="handleCommand">
@@ -178,6 +199,10 @@ async function handleCommand(cmd) {
   cursor: pointer;
   padding: 4px 6px;
   line-height: 1;
+}
+.fav-btn {
+  font-size: 22px;
+  color: var(--el-text-color-primary);
 }
 .user-chip {
   display: flex;

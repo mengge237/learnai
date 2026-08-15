@@ -28,8 +28,34 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LearningProgressService {
 
-    /** 开始学习时自动生成的默认步骤 */
-    private static final String[] DEFAULT_STEPS = {"了解内容概览", "深入学习与实践", "完成练习与总结"};
+    /** 开始学习时自动生成的默认步骤（标题 + 教程正文模板，%s 为资源名），种子数据同样引用 */
+    public static final String[][] DEFAULT_STEPS = {
+            {"了解内容概览",
+                    "欢迎开始《%s》的学习！本步骤先带你建立整体认识。\n\n"
+                            + "▍课程定位\n《%s》面向零基础入门到进阶的学习者，围绕核心概念与常用工具展开，"
+                            + "配套演示模型与练习素材，边学边练。\n\n"
+                            + "▍知识地图\n本课程共分为三个步骤：先了解概览 → 再深入学习与实践 → 最后完成练习与总结。"
+                            + "建议按顺序完成，每一步都会解锁下一步的内容。\n\n"
+                            + "▍学习建议\n阅读时随手做笔记；遇到不懂的概念，可以点击右下角的 AI 助手即时提问。"},
+            {"深入学习与实践",
+                    "本步骤是《%s》的核心内容，请跟随示例动手实践。\n\n"
+                            + "▍核心要点\n1. 理解基础概念：先弄清「是什么」和「为什么」；\n"
+                            + "2. 跟随示例操作：打开配套演示模型，一步步复现；\n"
+                            + "3. 独立练习：脱离示例再操作一遍，检验掌握程度。\n\n"
+                            + "▍常见问题\n- 操作卡住时，先查看上文步骤是否遗漏；\n"
+                            + "- 报错信息是重要的线索，不要忽略；\n"
+                            + "- 仍然解决不了？随时呼叫 AI 助手帮忙分析。\n\n"
+                            + "▍实践任务\n完成一次完整的操作流程并截图保存，作为自己的学习成果。"},
+            {"完成练习与总结",
+                    "恭喜来到《%s》的最后一步！用练习检验成果，用总结沉淀知识。\n\n"
+                            + "▍结课练习\n1. 独立完成本课程的实践任务；\n"
+                            + "2. 用自己的话复述三个核心知识点；\n"
+                            + "3. 对照学习目标检查是否全部达成。\n\n"
+                            + "▍学习总结\n建议写下：本次学习的收获、遇到的难点、还想深入的方向。"
+                            + "总结会保存在学习记录里，方便日后回顾。\n\n"
+                            + "▍提交完成\n全部步骤完成后，点击「提交完成」为本次学习打分，"
+                            + "系统会记录你的学习成就并计入学习分析。"}
+    };
 
     private final LearningRecordRepository recordRepository;
     private final LearningStepRepository stepRepository;
@@ -51,7 +77,8 @@ public class LearningProgressService {
                         LearningStep s = new LearningStep();
                         s.setRecordId(rec.getRecordId());
                         s.setStepNumber(i + 1);
-                        s.setStepTitle(DEFAULT_STEPS[i]);
+                        s.setStepTitle(DEFAULT_STEPS[i][0]);
+                        s.setStepContent(String.format(DEFAULT_STEPS[i][1], r.getResourceTitle()));
                         s.setStatus(StepStatus.NotStarted);
                         stepRepository.save(s);
                     }
