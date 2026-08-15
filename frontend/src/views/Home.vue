@@ -6,6 +6,7 @@ import { pathApi } from '@/api/paths'
 import { marketApi } from '@/api/market'
 import { groupCategories } from '@/utils/categories'
 import { formatCount, formatPrice } from '@/utils/format'
+import LineIcon from '@/components/LineIcon.vue'
 import http from '@/api/http'
 
 const router = useRouter()
@@ -15,6 +16,18 @@ const models = ref([])
 const catGroups = ref([])
 const searchText = ref('')
 const stats = ref({ resources: 0, paths: 0, models: 0 })
+
+/** 学习入口方块（count = stats 中的键，无 count 显示箭头） */
+const portals = [
+  { en: 'COURSES', label: '学习资源', icon: 'book', route: '/resources', count: 'resources' },
+  { en: 'PATHS', label: '学习路径', icon: 'layers', route: '/paths', count: 'paths' },
+  { en: 'MODELS', label: '模型资源库', icon: 'cube', route: '/market', count: 'models' },
+  { en: 'MY-LEARN', label: '我的学习', icon: 'user', route: '/resources/my' },
+  { en: 'Q&A', label: '在线答疑', icon: 'chat', route: '/ai/chat' },
+  { en: 'ANALYTICS', label: '学习分析', icon: 'chart', route: '/ai/analytics' },
+  { en: 'SUBMIT', label: '提交资源', icon: 'upload', route: '/resources/submit' },
+  { en: 'SEARCH', label: '全局搜索', icon: 'search', route: '/search' },
+]
 
 onMounted(async () => {
   const [res, pathList, modelList, cats] = await Promise.all([
@@ -97,13 +110,13 @@ function onSearch() {
         </div>
 
         <div class="hero-stats">
-          <div class="hstat"><span class="hnum">{{ stats.resources }}</span><span class="hlabel">门课程</span></div>
+          <button class="hstat" @click="router.push('/resources')"><span class="hnum">{{ stats.resources }}</span><span class="hlabel">门课程</span></button>
           <div class="hstat-line" />
-          <div class="hstat"><span class="hnum">{{ stats.paths }}</span><span class="hlabel">条路径</span></div>
+          <button class="hstat" @click="router.push('/paths')"><span class="hnum">{{ stats.paths }}</span><span class="hlabel">条路径</span></button>
           <div class="hstat-line" />
-          <div class="hstat"><span class="hnum">{{ stats.models }}</span><span class="hlabel">个模型</span></div>
+          <button class="hstat" @click="router.push('/market')"><span class="hnum">{{ stats.models }}</span><span class="hlabel">个模型</span></button>
           <div class="hstat-line" />
-          <div class="hstat"><span class="hnum">3</span><span class="hlabel">步进阶法</span></div>
+          <button class="hstat" @click="router.push('/paths')"><span class="hnum">3</span><span class="hlabel">步进阶法</span></button>
         </div>
       </div>
     </section>
@@ -127,6 +140,31 @@ function onSearch() {
         <h2 class="mani-title">创</h2>
         <p class="mani-desc">模型资源库在线预览 3D 作品，让灵感直接落地。</p>
         <span class="mani-arrow">→</span>
+      </div>
+    </section>
+
+    <!-- ============ 学习入口方块 ============ -->
+    <section class="portal-block">
+      <div class="block-head">
+        <div class="block-head-left">
+          <span class="block-en">PORTALS</span>
+          <h2 class="block-title">学习入口</h2>
+        </div>
+        <span class="portal-hint">点击方块直达</span>
+      </div>
+      <div class="portal-grid">
+        <button v-for="(p, i) in portals" :key="p.en" class="portal-tile" @click="router.push(p.route)">
+          <span class="pt-top">
+            <span class="pt-en">{{ p.en }}</span>
+            <span class="pt-no">{{ String(i + 1).padStart(2, '0') }}</span>
+          </span>
+          <span class="pt-icon"><LineIcon :name="p.icon" :size="30" /></span>
+          <span class="pt-bottom">
+            <span class="pt-label">{{ p.label }}</span>
+            <span v-if="p.count" class="pt-num">{{ stats[p.count] ?? '—' }}</span>
+            <span v-else class="pt-arrow">→</span>
+          </span>
+        </button>
       </div>
     </section>
 
@@ -407,6 +445,17 @@ function onSearch() {
   display: flex;
   align-items: baseline;
   gap: 10px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  font-family: inherit;
+  transition: transform 0.15s, opacity 0.15s;
+}
+.hstat:hover {
+  transform: translateY(-2px);
+  opacity: 0.85;
 }
 .hnum {
   font-size: 30px;
@@ -473,6 +522,95 @@ function onSearch() {
 .mani-arrow {
   font-size: 22px;
   transition: all 0.2s;
+}
+
+/* ================= 学习入口方块 ================= */
+.portal-block {
+  max-width: 1200px;
+  margin: 88px auto 0;
+  padding: 0 24px;
+}
+.portal-hint {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--el-text-color-secondary);
+}
+.portal-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.portal-tile {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 18px;
+  border: 1px solid var(--border-color);
+  border-top: 3px solid var(--line-soft);
+  background: var(--el-bg-color);
+  cursor: pointer;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s, color 0.15s;
+}
+.portal-tile:hover {
+  background: var(--el-color-primary);
+  border-color: var(--el-color-primary);
+  color: var(--el-bg-color);
+  transform: translateY(-3px);
+}
+.pt-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.pt-en {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--el-text-color-secondary);
+}
+.pt-no {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+}
+.portal-tile:hover .pt-en,
+.portal-tile:hover .pt-no {
+  color: inherit;
+  opacity: 0.65;
+}
+.pt-icon {
+  display: flex;
+  align-items: center;
+  color: var(--theme-color);
+}
+.pt-bottom {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.pt-label {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+.pt-num {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--theme-color);
+  line-height: 1;
+}
+.pt-arrow {
+  font-size: 18px;
+  transition: transform 0.15s;
+}
+.portal-tile:hover .pt-arrow {
+  transform: translateX(4px);
 }
 
 /* ================= 区块通用 ================= */
@@ -717,6 +855,9 @@ function onSearch() {
   .mani-desc {
     flex-basis: 100%;
   }
+  .portal-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 @media (max-width: 640px) {
   .hero-inner {
@@ -739,6 +880,10 @@ function onSearch() {
   }
   .block {
     margin-top: 56px;
+  }
+  .portal-block {
+    margin-top: 56px;
+    padding: 0 16px;
   }
   .closing {
     margin-top: 56px;

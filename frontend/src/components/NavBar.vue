@@ -315,6 +315,8 @@ async function handleCommand(cmd) {
   color: var(--el-text-color-primary);
   border-bottom: 2px solid transparent;
   box-sizing: border-box;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .nav-study:hover,
 .nav-study.active {
@@ -422,7 +424,7 @@ async function handleCommand(cmd) {
   font-size: 12px;
   color: var(--theme-color);
 }
-@media (max-width: 1100px) {
+@media (max-width: 1280px) {
   .search-input {
     width: 240px;
   }
