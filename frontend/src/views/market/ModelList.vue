@@ -55,7 +55,7 @@ watch(sort, () => {
 
 <template>
   <div class="page-container">
-    <div class="page-title">🛍️ 3D 模型商城</div>
+    <div class="page-title">📦 模型资源库</div>
 
     <div class="toolbar">
       <el-input v-model="search" placeholder="搜索模型名称 / 创作者" clearable class="search" @keyup.enter="doSearch" @clear="doSearch">

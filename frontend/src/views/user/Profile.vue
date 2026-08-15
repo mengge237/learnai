@@ -10,6 +10,7 @@ const saving = ref(false)
 const formRef = ref()
 
 const form = reactive({
+  studentNo: '',
   gender: '',
   phone: '',
   email: '',
@@ -62,6 +63,11 @@ async function save() {
     <el-card>
       <el-form ref="formRef" :model="form" label-width="110px">
         <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="学号（校园版）">
+              <el-input v-model="form.studentNo" maxlength="30" placeholder="选填" />
+            </el-form-item>
+          </el-col>
           <el-col :span="12">
             <el-form-item label="性别">
               <el-select v-model="form.gender" placeholder="请选择" clearable>

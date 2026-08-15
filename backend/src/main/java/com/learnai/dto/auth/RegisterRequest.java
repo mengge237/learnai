@@ -21,6 +21,10 @@ public record RegisterRequest(
         @NotBlank(message = "请再次输入密码")
         String confirmPassword,
 
+        /** 学号（校园特供版，选填） */
+        @Size(max = 30, message = "学号长度不能超过 30 个字符")
+        String studentNo,
+
         String gender,
 
         @Pattern(regexp = "^$|^1[3-9]\\d{9}$", message = "手机号格式不正确")

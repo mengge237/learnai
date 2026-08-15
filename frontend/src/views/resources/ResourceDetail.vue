@@ -64,11 +64,11 @@ onMounted(load)
 
 <template>
   <div class="page-container" v-loading="loading">
-    <el-page-header v-if="resource" @back="router.back()" class="back">
-      <template #content>
-        <span class="detail-title">{{ resource.title }}</span>
-      </template>
-    </el-page-header>
+    <el-breadcrumb separator="/" class="back">
+      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/resources' }">学习资源</el-breadcrumb-item>
+      <el-breadcrumb-item v-if="resource">{{ resource.title }}</el-breadcrumb-item>
+    </el-breadcrumb>
 
     <el-card v-if="resource" class="detail-card">
       <div class="detail-layout">
@@ -116,9 +116,6 @@ onMounted(load)
 <style scoped>
 .back {
   margin-bottom: 16px;
-}
-.detail-title {
-  font-weight: 600;
 }
 .detail-layout {
   display: grid;

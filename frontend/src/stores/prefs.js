@@ -6,8 +6,8 @@ const PREFS_KEY = 'learnai_prefs'
 
 const DEFAULTS = {
   fontSize: 16,
-  borderColor: '#dcdfe6',
-  themeColor: '#409eff',
+  borderColor: '#d0d0d0',
+  themeColor: '#e8590c',
   darkMode: false,
   sidebarPosition: 'left',
   animationSpeed: 'normal',
@@ -31,7 +31,6 @@ export const usePrefsStore = defineStore('prefs', {
       root.style.setProperty('--font-size', `${this.prefs.fontSize}px`)
       root.style.setProperty('--border-color', this.prefs.borderColor)
       root.style.setProperty('--theme-color', this.prefs.themeColor)
-      root.style.setProperty('--el-color-primary', this.prefs.themeColor)
       root.classList.toggle('dark', !!this.prefs.darkMode)
       root.setAttribute('data-animation', this.prefs.animationSpeed)
       root.setAttribute('data-sidebar', this.prefs.sidebarPosition)

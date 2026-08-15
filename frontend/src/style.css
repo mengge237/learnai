@@ -1,12 +1,37 @@
-/* 全局样式与主题变量（prefs store 会动态覆盖 --theme-color 等） */
+/* ============================================================
+   工业简练风主题：黑白底色 + 强调色点缀（prefs store 动态覆盖）
+   主色（按钮）保持黑白单色，强调色 --theme-color 用于点缀
+   ============================================================ */
 :root {
-  --theme-color: #409eff;
-  --border-color: #dcdfe6;
+  --theme-color: #e8590c; /* 强调色（工业橙），可在设置中更换 */
+  --border-color: #d0d0d0;
   --font-size: 16px;
+
+  /* Element Plus 主色改为近黑 → 按钮/激活态呈黑白高级感 */
+  --el-color-primary: #17181c;
+  --el-color-primary-light-3: #4a4d55;
+  --el-color-primary-light-5: #7d818c;
+  --el-color-primary-light-7: #b8bcc4;
+  --el-color-primary-light-8: #d4d7dd;
+  --el-color-primary-light-9: #eceef1;
+  --el-color-primary-dark-2: #000000;
+
+  /* 直角工业风 */
+  --el-border-radius-base: 2px;
+  --el-border-radius-small: 2px;
+  --el-border-radius-round: 2px;
+  --el-box-shadow-light: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 html.dark {
   color-scheme: dark;
+  --el-color-primary: #e8e8e8;
+  --el-color-primary-light-3: #b0b0b0;
+  --el-color-primary-light-5: #8a8a8a;
+  --el-color-primary-light-7: #5c5c5c;
+  --el-color-primary-light-8: #454545;
+  --el-color-primary-light-9: #2b2b2b;
+  --el-color-primary-dark-2: #ffffff;
 }
 
 * {
@@ -20,8 +45,8 @@ body {
   font-size: var(--font-size);
   font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
     'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
-  background-color: var(--el-bg-color-page, #f5f7fa);
-  color: var(--el-text-color-primary, #303133);
+  background-color: var(--el-bg-color-page, #f5f5f3);
+  color: var(--el-text-color-primary, #17181c);
 }
 
 #app {
@@ -35,7 +60,7 @@ a {
   color: inherit;
 }
 
-/* 页面容器 */
+/* ---------- 页面容器 ---------- */
 .page-container {
   flex: 1;
   width: 100%;
@@ -44,22 +69,29 @@ a {
   padding: 24px 16px 48px;
 }
 
+/* 工业风标题：左侧强调色竖条 + 加大字距 */
 .page-title {
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 16px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  padding-left: 14px;
+  border-left: 5px solid var(--theme-color);
+  margin-bottom: 20px;
 }
 
 .section-title {
   font-size: 18px;
-  font-weight: 600;
-  margin: 32px 0 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin: 36px 0 16px;
+  padding-left: 10px;
+  border-left: 4px solid var(--theme-color);
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-/* 卡片网格 */
+/* ---------- 卡片网格 ---------- */
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -67,16 +99,28 @@ a {
 }
 
 .text-muted {
-  color: var(--el-text-color-secondary, #909399);
+  color: var(--el-text-color-secondary, #8a8a8a);
   font-size: 13px;
 }
 
 .price {
-  color: #f56c6c;
-  font-weight: 600;
+  color: var(--theme-color);
+  font-weight: 700;
 }
 
-/* 动画速度偏好 */
+/* ---------- 全局组件工业风微调 ---------- */
+.el-card {
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+}
+
+/* 强调色文字链接 */
+.el-link.el-link--primary,
+.el-link.el-link--primary:hover {
+  color: var(--theme-color);
+}
+
+/* ---------- 动画速度偏好 ---------- */
 html[data-animation='slow'] * {
   animation-duration: 1.5s !important;
   transition-duration: 0.45s !important;

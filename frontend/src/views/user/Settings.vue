@@ -83,7 +83,7 @@ async function changePassword() {
       <div class="text-muted tip">{{ auth.isLoggedIn ? '设置已自动同步到你的账号' : '登录后设置将同步到账号' }}</div>
     </el-card>
 
-    <el-card class="block">
+    <el-card v-if="auth.isLoggedIn" class="block">
       <div class="section-label">🔒 修改密码</div>
       <el-form ref="pwdFormRef" :model="pwd" :rules="pwdRules" label-width="90px">
         <el-form-item label="原密码" prop="oldPassword">
@@ -99,6 +99,10 @@ async function changePassword() {
           <el-button type="primary" :loading="changing" @click="changePassword">修改密码</el-button>
         </el-form-item>
       </el-form>
+    </el-card>
+    <el-card v-else class="block">
+      <div class="section-label">🔒 修改密码</div>
+      <div class="text-muted">登录后可修改密码，<router-link to="/login" class="login-link">去登录</router-link></div>
     </el-card>
   </div>
 </template>
@@ -133,4 +137,8 @@ async function changePassword() {
 .tip {
   font-size: 13px;
 }
+.login-link {
+  color: var(--theme-color);
+}
+
 </style>

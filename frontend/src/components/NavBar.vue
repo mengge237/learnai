@@ -23,8 +23,7 @@ const menus = [
   { index: '/', label: '首页' },
   { index: '/resources', label: '学习资源' },
   { index: '/paths', label: '学习路径' },
-  { index: '/ai/chat', label: 'AI 助手' },
-  { index: '/market', label: '模型商城' },
+  { index: '/market', label: '模型资源库' },
 ]
 
 function onSearch() {
@@ -52,19 +51,20 @@ async function handleCommand(cmd) {
     <div class="navbar-inner">
       <router-link to="/" class="logo">
         <span class="logo-mark">◈</span>
-        <span class="logo-text">LearnAI<span class="logo-sub">学习平台</span></span>
+        <span class="logo-text">AI智学<span class="logo-sub">校园学习平台</span></span>
       </router-link>
 
       <el-menu :default-active="activeMenu" mode="horizontal" :ellipsis="false" router class="nav-menu">
         <el-menu-item v-for="m in menus" :key="m.index" :index="m.index">{{ m.label }}</el-menu-item>
         <el-menu-item v-if="auth.isLoggedIn" index="/resources/my">我的学习</el-menu-item>
+        <el-menu-item v-if="auth.isLoggedIn" index="/console">控制台</el-menu-item>
       </el-menu>
 
       <div class="navbar-right">
         <el-input
           v-model="searchText"
           class="search-input"
-          placeholder="搜索学习资源…"
+          placeholder="搜索学习资源 / 3D 模型…"
           clearable
           @keyup.enter="onSearch"
         >
@@ -72,6 +72,10 @@ async function handleCommand(cmd) {
             <el-button @click="onSearch">🔍</el-button>
           </template>
         </el-input>
+
+        <el-tooltip content="个性化设置">
+          <button class="icon-btn" @click="router.push('/user/settings')" title="个性化设置">⚙️</button>
+        </el-tooltip>
 
         <el-tooltip :content="prefs.prefs.darkMode ? '切换到浅色模式' : '切换到深色模式'">
           <button class="icon-btn" @click="prefs.toggleDark()">
@@ -91,7 +95,10 @@ async function handleCommand(cmd) {
             </span>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item command="/user/profile">个人资料</el-dropdown-item>
+                <el-dropdown-item command="/console">个人控制台</el-dropdown-item>
+                <el-dropdown-item command="/ai/analytics">学习分析</el-dropdown-item>
+                <el-dropdown-item command="/ai/recommend">智能推荐</el-dropdown-item>
+                <el-dropdown-item command="/user/profile" divided>个人资料</el-dropdown-item>
                 <el-dropdown-item command="/user/settings">个性化设置</el-dropdown-item>
                 <el-dropdown-item command="/user/favorites">我的收藏</el-dropdown-item>
                 <el-dropdown-item command="/user/downloads">下载历史</el-dropdown-item>
@@ -162,7 +169,7 @@ async function handleCommand(cmd) {
   white-space: nowrap;
 }
 .search-input {
-  width: 200px;
+  width: 320px;
 }
 .icon-btn {
   border: none;
@@ -189,6 +196,11 @@ async function handleCommand(cmd) {
   align-items: center;
   justify-content: center;
   font-size: 14px;
+}
+@media (max-width: 1000px) {
+  .search-input {
+    width: 200px;
+  }
 }
 @media (max-width: 900px) {
   .search-input {

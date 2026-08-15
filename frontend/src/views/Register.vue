@@ -11,6 +11,7 @@ const formRef = ref()
 const loading = ref(false)
 const form = reactive({
   username: '',
+  studentNo: '',
   password: '',
   confirmPassword: '',
   email: '',
@@ -23,6 +24,7 @@ const rules = {
     { required: true, message: '请输入用户名', trigger: 'blur' },
     { min: 4, max: 20, message: '用户名长度需在 4-20 个字符之间', trigger: 'blur' },
   ],
+  studentNo: [{ max: 30, message: '学号长度不能超过 30 个字符', trigger: 'blur' }],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, max: 50, message: '密码长度需在 6-50 个字符之间', trigger: 'blur' },
@@ -56,10 +58,21 @@ async function onSubmit() {
 <template>
   <div class="auth-page">
     <el-card class="auth-card">
-      <h2 class="auth-title">注册 LearnAI 账号</h2>
+      <div class="auth-head">
+        <div class="auth-brand">
+          <span class="brand-mark">◈</span>
+          <span class="brand-name">AI智学</span>
+          <span class="campus-badge">校园特供版</span>
+        </div>
+        <div class="auth-sub text-muted">注册校园账号 · 开启学习之旅</div>
+      </div>
+
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top" @submit.prevent="onSubmit">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="form.username" placeholder="4-20 个字符" size="large" />
+        </el-form-item>
+        <el-form-item label="学号（校园特供版）" prop="studentNo">
+          <el-input v-model="form.studentNo" placeholder="选填，如 2026010016" size="large" />
         </el-form-item>
         <el-form-item label="密码" prop="password">
           <el-input v-model="form.password" type="password" placeholder="至少 6 位" show-password size="large" />
@@ -100,10 +113,41 @@ async function onSubmit() {
 }
 .auth-card {
   width: 400px;
+  border-top: 4px solid var(--theme-color);
 }
-.auth-title {
+.auth-head {
   text-align: center;
   margin-bottom: 24px;
+}
+.auth-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--theme-color);
+}
+.brand-mark {
+  font-size: 28px;
+}
+.brand-name {
+  color: var(--el-text-color-primary);
+}
+.campus-badge {
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: var(--theme-color);
+  border: 1px solid var(--theme-color);
+  border-radius: 2px;
+  padding: 2px 6px;
+  margin-left: 4px;
+}
+.auth-sub {
+  margin-top: 8px;
+  letter-spacing: 1px;
 }
 .submit {
   width: 100%;

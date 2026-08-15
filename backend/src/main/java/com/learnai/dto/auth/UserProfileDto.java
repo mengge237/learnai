@@ -10,6 +10,7 @@ import java.time.LocalDate;
 public record UserProfileDto(
         Long id,
         String username,
+        String studentNo,
         Long roleId,
         String roleName,
         String gender,
@@ -32,6 +33,7 @@ public record UserProfileDto(
         return new UserProfileDto(
                 u.getUserId(),
                 u.getUsername(),
+                u.getStudentNo(),
                 u.getRole().getRoleId(),
                 u.getRole().getRoleName(),
                 u.getGender(),

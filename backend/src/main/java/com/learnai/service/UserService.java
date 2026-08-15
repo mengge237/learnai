@@ -24,6 +24,7 @@ public class UserService {
     @Transactional
     public UserProfileDto updateProfile(Long userId, UpdateProfileRequest req) {
         User user = findUser(userId);
+        user.setStudentNo(req.studentNo());
         user.setGender(req.gender());
         user.setPhone(req.phone());
         user.setEmail(req.email());

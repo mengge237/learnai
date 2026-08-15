@@ -128,6 +128,14 @@ public class DataInitializer implements CommandLineRunner {
         User auditor = user("auditor", "audit123", auditorRole, "内容审核专员", "女", "上海市", "13800001002", "auditor@learnai.com");
         User demo = user("demo", "demo123", userRole, "热爱 3D 建模的学习者", "男", "广东省广州市",
                 "13800001003", "demo@learnai.com");
+        admin.setStudentNo("T0001");
+        auditor.setStudentNo("T0002");
+        demo.setStudentNo("2026010016");
+        // 工业风默认偏好：工业橙强调色 + 浅灰边框
+        for (User seed : List.of(admin, auditor, demo)) {
+            seed.setThemeColor("#e8590c");
+            seed.setBorderColor("#d0d0d0");
+        }
         demo.setProvince("广东省");
         demo.setCity("广州市");
         demo.setDefaultShippingAddress("广东省广州市天河区演示路 1 号");

@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { resourceApi } from '@/api/resources'
@@ -13,14 +13,50 @@ const progress = ref(null)
 const loading = ref(true)
 const busy = ref(false)
 const sliderProgress = ref(0)
+const currentStep = ref(1)
+const stepEls = ref([])
 
 async function load() {
   loading.value = true
   try {
     progress.value = await resourceApi.getProgress(id)
     sliderProgress.value = Math.round(progress.value.progress || 0)
+    initCurrentStep()
   } finally {
     loading.value = false
+  }
+}
+
+/** 当前定位到第一个未完成的步骤；全部完成则定位最后一步 */
+function initCurrentStep() {
+  const steps = progress.value?.steps || []
+  const firstOpen = steps.find((s) => s.status !== 'Completed')
+  currentStep.value = firstOpen ? firstOpen.stepNumber : (steps.at(-1)?.stepNumber || 1)
+}
+
+function setStepRef(el, idx) {
+  stepEls.value[idx] = el
+}
+
+const currentIdx = computed(() => {
+  const steps = progress.value?.steps || []
+  return steps.findIndex((s) => s.stepNumber === currentStep.value)
+})
+const prevStep = computed(() => (currentIdx.value > 0 ? progress.value.steps[currentIdx.value - 1] : null))
+const nextStep = computed(() =>
+  currentIdx.value >= 0 && currentIdx.value < progress.value.steps.length - 1
+    ? progress.value.steps[currentIdx.value + 1]
+    : null,
+)
+
+/** 教程式上下步：跳转并滚动到该步骤，未开始的步骤自动开始 */
+async function goStep(step) {
+  if (!step || busy.value) return
+  currentStep.value = step.stepNumber
+  await nextTick()
+  stepEls.value[step.stepNumber - 1]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  if (step.status === 'NotStarted') {
+    await setStep(step, 'InProgress')
   }
 }
 
@@ -92,11 +128,13 @@ onMounted(load)
 
 <template>
   <div class="page-container" v-loading="loading">
-    <el-page-header @back="router.back()" class="back">
-      <template #content>
-        <span v-if="progress" class="title">{{ progress.resourceTitle }} · 学习中心</span>
-      </template>
-    </el-page-header>
+    <!-- 面包屑 -->
+    <el-breadcrumb separator="/" class="breadcrumb">
+      <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/resources' }">学习资源</el-breadcrumb-item>
+      <el-breadcrumb-item v-if="progress" :to="{ path: `/resources/${id}` }">{{ progress.resourceTitle }}</el-breadcrumb-item>
+      <el-breadcrumb-item v-if="progress">学习中心</el-breadcrumb-item>
+    </el-breadcrumb>
 
     <!-- 未开始 -->
     <el-card v-if="progress && progress.recordId == null" class="box">
@@ -130,7 +168,13 @@ onMounted(load)
       <!-- 步骤列表 -->
       <el-card class="box">
         <div class="section-label">📋 学习步骤</div>
-        <div v-for="step in progress.steps" :key="step.stepNumber" class="step-row">
+        <div
+          v-for="step in progress.steps"
+          :key="step.stepNumber"
+          :ref="(el) => setStepRef(el, step.stepNumber - 1)"
+          class="step-row"
+          :class="{ 'step-current': step.stepNumber === currentStep }"
+        >
           <span class="step-icon">{{ stepIcon(step.status) }}</span>
           <div class="step-info">
             <div class="step-title">
@@ -158,16 +202,23 @@ onMounted(load)
         </div>
         <el-button type="success" size="large" :loading="busy" @click="complete">提交完成</el-button>
       </el-card>
+
+      <!-- 教程式上下步导航 -->
+      <el-card v-if="progress.steps.length" class="box nav-box">
+        <el-button :disabled="!prevStep" @click="goStep(prevStep)">
+          ← 上一步<span v-if="prevStep" class="nav-step">：步骤 {{ prevStep.stepNumber }} {{ prevStep.stepTitle }}</span>
+        </el-button>
+        <el-button type="primary" :disabled="!nextStep" @click="goStep(nextStep)">
+          下一步<span v-if="nextStep" class="nav-step">：步骤 {{ nextStep.stepNumber }} {{ nextStep.stepTitle }}</span> →
+        </el-button>
+      </el-card>
     </template>
   </div>
 </template>
 
 <style scoped>
-.back {
+.breadcrumb {
   margin-bottom: 16px;
-}
-.title {
-  font-weight: 600;
 }
 .box {
   margin-bottom: 16px;
@@ -200,8 +251,22 @@ onMounted(load)
   display: flex;
   gap: 12px;
   align-items: center;
-  padding: 12px 0;
+  padding: 12px 8px;
   border-bottom: 1px dashed var(--border-color);
+  border-left: 3px solid transparent;
+}
+.step-current {
+  border-left-color: var(--theme-color);
+  background: var(--el-color-primary-light-9);
+}
+.nav-box {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.nav-step {
+  font-weight: 400;
+  margin-left: 6px;
 }
 .step-icon {
   font-size: 20px;

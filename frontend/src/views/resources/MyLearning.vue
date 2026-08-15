@@ -21,6 +21,12 @@ onMounted(async () => {
   <div class="page-container">
     <div class="page-title">📚 我的学习</div>
 
+    <div class="quick-row">
+      <el-button size="small" @click="router.push('/ai/analytics')">📊 学习分析</el-button>
+      <el-button size="small" @click="router.push('/ai/recommend')">🧭 智能推荐</el-button>
+      <el-button size="small" @click="router.push('/console')">🎛 个人控制台</el-button>
+    </div>
+
     <el-empty v-if="!loading && records.length === 0" description="还没有学习记录，快去挑一门课程吧">
       <el-button type="primary" @click="router.push('/resources')">浏览学习资源</el-button>
     </el-empty>
@@ -50,6 +56,12 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.quick-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
 .record-card {
   margin-bottom: 12px;
   cursor: pointer;

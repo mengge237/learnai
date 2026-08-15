@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 public record AdminUserDto(
         Long id,
         String username,
+        String studentNo,
         Long roleId,
         String roleName,
         String gender,
@@ -25,6 +26,7 @@ public record AdminUserDto(
         return new AdminUserDto(
                 u.getUserId(),
                 u.getUsername(),
+                u.getStudentNo(),
                 u.getRole() == null ? null : u.getRole().getRoleId(),
                 u.getRole() == null ? null : u.getRole().getRoleName(),
                 u.getGender(),

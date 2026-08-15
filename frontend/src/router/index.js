@@ -23,8 +23,8 @@ const routes = [
   { path: '/ai/analytics', name: 'ai-analytics', meta: { title: '学习分析', requiresAuth: true }, component: () => import('@/views/ai/AiAnalytics.vue') },
   { path: '/ai/recommend', name: 'ai-recommend', meta: { title: '智能推荐', requiresAuth: true }, component: () => import('@/views/ai/AiRecommend.vue') },
 
-  // 模型商城
-  { path: '/market', name: 'market', meta: { title: '模型商城' }, component: () => import('@/views/market/ModelList.vue') },
+  // 模型资源库（教育目的的模型资源浏览）
+  { path: '/market', name: 'market', meta: { title: '模型资源库' }, component: () => import('@/views/market/ModelList.vue') },
   { path: '/market/cart', name: 'cart', meta: { title: '购物车' }, component: () => import('@/views/market/Cart.vue') },
   { path: '/market/checkout', name: 'checkout', meta: { title: '结算', requiresAuth: true }, component: () => import('@/views/market/Checkout.vue') },
   { path: '/market/orders', name: 'orders', meta: { title: '我的订单', requiresAuth: true }, component: () => import('@/views/market/Orders.vue') },
@@ -33,9 +33,12 @@ const routes = [
 
   // 个人中心
   { path: '/user/profile', name: 'profile', meta: { title: '个人资料', requiresAuth: true }, component: () => import('@/views/user/Profile.vue') },
-  { path: '/user/settings', name: 'settings', meta: { title: '个性化设置', requiresAuth: true }, component: () => import('@/views/user/Settings.vue') },
+  { path: '/user/settings', name: 'settings', meta: { title: '个性化设置' }, component: () => import('@/views/user/Settings.vue') },
   { path: '/user/favorites', name: 'favorites', meta: { title: '我的收藏', requiresAuth: true }, component: () => import('@/views/user/Favorites.vue') },
   { path: '/user/downloads', name: 'downloads', meta: { title: '下载历史', requiresAuth: true }, component: () => import('@/views/user/MyDownloads.vue') },
+
+  // 个人控制台
+  { path: '/console', name: 'console', meta: { title: '个人控制台', requiresAuth: true }, component: () => import('@/views/user/Console.vue') },
 
   // 管理 / 审核
   { path: '/admin/dashboard', name: 'admin-dashboard', meta: { title: '数据看板', requiresAuth: true, roles: ['ADMIN'] }, component: () => import('@/views/admin/AdminDashboard.vue') },
@@ -63,7 +66,7 @@ router.beforeEach((to) => {
   if ((to.name === 'login' || to.name === 'register') && auth.isLoggedIn) {
     return { name: 'home' }
   }
-  document.title = to.meta.title ? `${to.meta.title} - LearnAI 学习平台` : 'LearnAI 学习平台'
+  document.title = to.meta.title ? `${to.meta.title} - AI智学 校园学习平台` : 'AI智学 校园学习平台'
 })
 
 export default router

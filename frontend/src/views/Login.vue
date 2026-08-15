@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useAuthStore } from '@/stores/auth'
@@ -14,9 +14,27 @@ const formRef = ref()
 const loading = ref(false)
 const form = reactive({ username: '', password: '' })
 
+// 注册成功后跳转回来时自动填入用户名
+onMounted(() => {
+  if (route.query.username) form.username = route.query.username
+})
+
+// 演示账号（校园特供版一键填入）
+const demoAccounts = [
+  { label: '👨‍🎓 学生演示', username: 'demo', password: 'demo123' },
+  { label: '🔍 审核员', username: 'auditor', password: 'audit123' },
+  { label: '🛠️ 管理员', username: 'admin', password: 'admin123' },
+]
+
 const rules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+}
+
+function fillDemo(acc) {
+  form.username = acc.username
+  form.password = acc.password
+  ElMessage.info(`已填入「${acc.label}」演示账号，点击登录即可`)
 }
 
 async function onSubmit() {
@@ -36,9 +54,17 @@ async function onSubmit() {
 <template>
   <div class="auth-page">
     <el-card class="auth-card">
-      <h2 class="auth-title">登录 LearnAI</h2>
+      <div class="auth-head">
+        <div class="auth-brand">
+          <span class="brand-mark">◈</span>
+          <span class="brand-name">AI智学</span>
+          <span class="campus-badge">校园特供版</span>
+        </div>
+        <div class="auth-sub text-muted">校园学习平台 · 欢迎登录</div>
+      </div>
+
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top" @submit.prevent="onSubmit">
-        <el-form-item label="用户名" prop="username">
+        <el-form-item label="用户名 / 学号" prop="username">
           <el-input v-model="form.username" placeholder="请输入用户名" size="large" />
         </el-form-item>
         <el-form-item label="密码" prop="password">
@@ -51,11 +77,12 @@ async function onSubmit() {
       <div class="auth-foot">
         还没有账号？<el-link type="primary" @click="router.push('/register')">立即注册</el-link>
       </div>
-      <el-divider><span class="text-muted">演示账号</span></el-divider>
-      <div class="demo-tips text-muted">
-        <div>普通用户：demo / demo123</div>
-        <div>审核员：auditor / audit123</div>
-        <div>管理员：admin / admin123</div>
+
+      <el-divider><span class="text-muted">演示账号（点击一键填入）</span></el-divider>
+      <div class="demo-tips">
+        <el-button v-for="acc in demoAccounts" :key="acc.username" size="small" class="demo-btn" @click="fillDemo(acc)">
+          {{ acc.label }}
+        </el-button>
       </div>
     </el-card>
   </div>
@@ -71,10 +98,41 @@ async function onSubmit() {
 }
 .auth-card {
   width: 400px;
+  border-top: 4px solid var(--theme-color);
 }
-.auth-title {
+.auth-head {
   text-align: center;
   margin-bottom: 24px;
+}
+.auth-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--theme-color);
+}
+.brand-mark {
+  font-size: 28px;
+}
+.brand-name {
+  color: var(--el-text-color-primary);
+}
+.campus-badge {
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: var(--theme-color);
+  border: 1px solid var(--theme-color);
+  border-radius: 2px;
+  padding: 2px 6px;
+  margin-left: 4px;
+}
+.auth-sub {
+  margin-top: 8px;
+  letter-spacing: 1px;
 }
 .submit {
   width: 100%;
@@ -85,7 +143,12 @@ async function onSubmit() {
   font-size: 14px;
 }
 .demo-tips {
-  text-align: center;
-  line-height: 1.8;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.demo-btn {
+  border-radius: 2px;
 }
 </style>

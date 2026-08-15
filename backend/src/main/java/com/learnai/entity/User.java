@@ -26,6 +26,10 @@ public class User {
     @Column(name = "username", nullable = false, unique = true, length = 50)
     private String username;
 
+    /** 学号（校园特供版，选填） */
+    @Column(name = "student_no", length = 30)
+    private String studentNo;
+
     @Column(name = "password", nullable = false, length = 100)
     private String password;
 
@@ -66,13 +70,13 @@ public class User {
     // ---------- 界面个性化设置 ----------
 
     @Column(name = "font_size", nullable = false)
-    private Integer fontSize = 18;
+    private Integer fontSize = 16;
 
     @Column(name = "border_color", nullable = false, length = 20)
-    private String borderColor = "#dee2e6";
+    private String borderColor = "#d0d0d0";
 
     @Column(name = "theme_color", nullable = false, length = 20)
-    private String themeColor = "#007bff";
+    private String themeColor = "#e8590c";
 
     @Column(name = "dark_mode", nullable = false)
     private Boolean darkMode = false;
