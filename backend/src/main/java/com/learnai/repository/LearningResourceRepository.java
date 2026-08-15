@@ -16,4 +16,8 @@ public interface LearningResourceRepository extends JpaRepository<LearningResour
     @Query("select r from LearningResource r where r.isPublic = true and r.isApproved = true " +
             "order by r.likeCount desc, r.viewCount desc limit :limit")
     List<LearningResource> findPopular(int limit);
+
+    /** 已完成分类中未学过的资源（按点赞数） */
+    List<LearningResource> findTop6ByIsApprovedTrueAndIsPublicTrueAndCategoryCategoryIdInAndResourceIdNotInOrderByLikeCountDesc(
+            List<Long> categoryIds, List<Long> excludeIds);
 }
