@@ -1,6 +1,7 @@
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import { useAuthStore } from '@/stores/auth'
 import { usePrefsStore } from '@/stores/prefs'
@@ -9,6 +10,7 @@ const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
 const prefs = usePrefsStore()
+const { t } = useI18n()
 
 const formRef = ref()
 const loading = ref(false)
@@ -26,15 +28,16 @@ const demoAccounts = [
   { label: '管理员', username: 'admin', password: 'admin123' },
 ]
 
-const rules = {
-  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-}
+// 校验提示随语言切换（用 computed 重新生成 rules）
+const rules = computed(() => ({
+  username: [{ required: true, message: t('请输入用户名'), trigger: 'blur' }],
+  password: [{ required: true, message: t('请输入密码'), trigger: 'blur' }],
+}))
 
 function fillDemo(acc) {
   form.username = acc.username
   form.password = acc.password
-  ElMessage.info(`已填入「${acc.label}」演示账号，点击登录即可`)
+  ElMessage.info(t('已填入「{label}」演示账号，点击登录即可', { label: t(acc.label) }))
 }
 
 async function onSubmit() {
@@ -43,7 +46,7 @@ async function onSubmit() {
   try {
     const { user } = await auth.login(form)
     prefs.syncFromServer(user) // 服务器偏好覆盖本地
-    ElMessage.success(`欢迎回来，${user.username}！`)
+    ElMessage.success(t('欢迎回来，{name}！', { name: user.username }))
     router.push(route.query.redirect || '/')
   } finally {
     loading.value = false
@@ -57,31 +60,31 @@ async function onSubmit() {
       <div class="auth-head">
         <div class="auth-brand">
           <span class="brand-mark">◈</span>
-          <span class="brand-name">AI智学</span>
-          <span class="campus-badge">校园特供版</span>
+          <span class="brand-name">{{ $t('AI智学') }}</span>
+          <span class="campus-badge">{{ $t('校园特供版') }}</span>
         </div>
-        <div class="auth-sub text-muted">校园学习平台 · 欢迎登录</div>
+        <div class="auth-sub text-muted">{{ $t('校园学习平台') }} · {{ $t('欢迎登录') }}</div>
       </div>
 
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top" @submit.prevent="onSubmit">
-        <el-form-item label="用户名 / 学号" prop="username">
-          <el-input v-model="form.username" placeholder="请输入用户名" size="large" />
+        <el-form-item :label="$t('用户名 / 学号')" prop="username">
+          <el-input v-model="form.username" :placeholder="$t('请输入用户名')" size="large" />
         </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input v-model="form.password" type="password" placeholder="请输入密码" show-password size="large" @keyup.enter="onSubmit" />
+        <el-form-item :label="$t('密码')" prop="password">
+          <el-input v-model="form.password" type="password" :placeholder="$t('请输入密码')" show-password size="large" @keyup.enter="onSubmit" />
         </el-form-item>
         <el-button type="primary" size="large" class="submit" :loading="loading" @click="onSubmit">
-          登 录
+          {{ $t('登 录') }}
         </el-button>
       </el-form>
       <div class="auth-foot">
-        还没有账号？<el-link type="primary" @click="router.push('/register')">立即注册</el-link>
+        {{ $t('还没有账号？') }}<el-link type="primary" @click="router.push('/register')">{{ $t('立即注册') }}</el-link>
       </div>
 
-      <el-divider><span class="text-muted">演示账号（点击一键填入）</span></el-divider>
+      <el-divider><span class="text-muted">{{ $t('演示账号（点击一键填入）') }}</span></el-divider>
       <div class="demo-tips">
         <el-button v-for="acc in demoAccounts" :key="acc.username" size="small" class="demo-btn" @click="fillDemo(acc)">
-          {{ acc.label }}
+          {{ $t(acc.label) }}
         </el-button>
       </div>
     </el-card>

@@ -28,14 +28,14 @@ onMounted(load)
 <template>
   <div class="page-container">
     <div class="banner">
-      <h2><LineIcon name="layers" :size="20" /> 学习路径</h2>
-      <p>系统化的进阶路线，从入门到精通，一步一步带你成为 3D 建模高手。</p>
+      <h2><LineIcon name="layers" :size="20" /> {{ $t('学习路径') }}</h2>
+      <p>{{ $t('系统化的进阶路线，从入门到精通，一步一步带你成为 3D 建模高手。') }}</p>
     </div>
 
     <div v-loading="loading" class="path-grid">
       <PathCard v-for="p in paths" :key="p.id" :path="p" />
     </div>
-    <el-empty v-if="!loading && paths.length === 0" description="暂无学习路径" />
+    <el-empty v-if="!loading && paths.length === 0" :description="$t('暂无学习路径')" />
 
     <PaginationBar v-if="total > 0" v-model:page="page" v-model:size="size" :total="total" :sizes="[6, 12, 24]" @change="load" />
   </div>

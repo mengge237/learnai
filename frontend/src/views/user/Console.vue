@@ -51,11 +51,11 @@ onMounted(async () => {
 <template>
   <div class="page-container blueprint-grid" v-loading="loading">
     <div class="console-head">
-      <div class="page-title" style="margin-bottom: 8px"><LineIcon name="monitor" :size="19" /> 个人控制台</div>
+      <div class="page-title" style="margin-bottom: 8px"><LineIcon name="monitor" :size="19" /> {{ $t('个人控制台') }}</div>
       <div class="console-sub text-muted">
         {{ auth.user?.username }}
-        <template v-if="auth.user?.studentNo">· 学号 {{ auth.user.studentNo }}</template>
-        · {{ auth.user?.roleName || '普通用户' }} · 欢迎回来，今天也要好好学习
+        <template v-if="auth.user?.studentNo">· {{ $t('学号') }} {{ auth.user.studentNo }}</template>
+        · {{ auth.user?.roleName || $t('普通用户') }} · {{ $t('欢迎回来，今天也要好好学习') }}
       </div>
     </div>
 
@@ -63,26 +63,27 @@ onMounted(async () => {
     <template v-if="study">
       <div class="study-grid">
         <div class="study-card">
-          <div class="sc-label">今日学习</div>
-          <div class="sc-value">{{ study.todayMinutes }}<span class="sc-unit">分钟</span></div>
-          <div class="sc-sub text-muted">累计 {{ study.totalMinutes }} 分钟</div>
+          <div class="sc-label">{{ $t('今日学习') }}</div>
+          <div class="sc-value">{{ study.todayMinutes }}<span class="sc-unit">{{ $t('分钟') }}</span></div>
+          <div class="sc-sub text-muted">{{ $t('累计 {n} 分钟', { n: study.totalMinutes }) }}</div>
         </div>
         <div class="study-card">
-          <div class="sc-label">连续学习</div>
-          <div class="sc-value flame"><LineIcon name="flame" :size="24" /> {{ study.streakDays }}<span class="sc-unit">天</span></div>
-          <div class="sc-sub text-muted">坚持就是胜利</div>
+          <div class="sc-label">{{ $t('连续学习') }}</div>
+          <div class="sc-value flame"><LineIcon name="flame" :size="24" /> {{ study.streakDays }}<span class="sc-unit">{{ $t('天') }}</span></div>
+          <div class="sc-sub text-muted">{{ $t('坚持就是胜利') }}</div>
         </div>
         <div class="study-card" :class="{ online: study.isStudying }">
-          <div class="sc-label">学习状态</div>
+          <div class="sc-label">{{ $t('学习状态') }}</div>
           <div class="sc-value sc-state">
-            {{ study.isStudying ? '● 正在学习' : '○ 空闲' }}
+            <template v-if="study.isStudying">● {{ $t('正在学习') }}</template>
+            <template v-else>○ {{ $t('空闲') }}</template>
           </div>
           <div class="sc-sub text-muted">
-            {{ study.isStudying && study.currentResourceTitle ? `《${study.currentResourceTitle}》` : '去学习页开始计时吧' }}
+            {{ study.isStudying && study.currentResourceTitle ? `《${study.currentResourceTitle}》` : $t('去学习页开始计时吧') }}
           </div>
         </div>
         <div class="study-card week-card">
-          <div class="sc-label">本周学习（分钟）</div>
+          <div class="sc-label">{{ $t('本周学习（分钟）') }}</div>
           <div class="week-bars">
             <div v-for="d in study.week" :key="d.date" class="week-col">
               <div class="week-bar-wrap">
@@ -101,69 +102,69 @@ onMounted(async () => {
         <div v-for="s in stats" :key="s.key" class="stat-card">
           <div class="stat-value">
             {{ s.precision ? Number(data[s.key] || 0).toFixed(s.precision) : (data[s.key] ?? 0) }}
-            <span class="stat-suffix">{{ s.suffix }}</span>
+            <span class="stat-suffix">{{ $t(s.suffix) }}</span>
           </div>
-          <div class="stat-label text-muted">{{ s.label }}</div>
+          <div class="stat-label text-muted">{{ $t(s.label) }}</div>
         </div>
       </div>
 
-      <div class="section-title"><LineIcon name="sparkle" :size="15" /> 快捷入口</div>
+      <div class="section-title"><LineIcon name="sparkle" :size="15" /> {{ $t('快捷入口') }}</div>
       <div class="quick-grid">
         <button v-for="q in quickEntries" :key="q.path" class="quick-item" @click="router.push(q.path)">
           <span class="quick-icon"><LineIcon :name="q.icon" :size="22" /></span>
-          <span class="quick-label">{{ q.label }}</span>
+          <span class="quick-label">{{ $t(q.label) }}</span>
         </button>
       </div>
 
-      <div class="section-title"><LineIcon name="clock" :size="15" /> 最近学习</div>
+      <div class="section-title"><LineIcon name="clock" :size="15" /> {{ $t('最近学习') }}</div>
       <el-card>
         <el-table v-if="data.recentRecords?.length" :data="data.recentRecords" size="small">
-          <el-table-column label="资源" min-width="220">
+          <el-table-column :label="$t('资源')" min-width="220">
             <template #default="{ row }">
               <el-link type="primary" @click="router.push(`/resources/${row.resourceId}`)">{{ row.title }}</el-link>
             </template>
           </el-table-column>
-          <el-table-column label="状态" width="100" align="center">
+          <el-table-column :label="$t('状态')" width="100" align="center">
             <template #default="{ row }">{{ LEARNING_STATUS[row.status] || row.status }}</template>
           </el-table-column>
-          <el-table-column label="进度" width="120" align="center">
+          <el-table-column :label="$t('进度')" width="120" align="center">
             <template #default="{ row }">
               <el-progress :percentage="Math.round(row.progress || 0)" :stroke-width="8" />
             </template>
           </el-table-column>
-          <el-table-column label="开始时间" width="150">
+          <el-table-column :label="$t('开始时间')" width="150">
             <template #default="{ row }">{{ formatDate(row.startTime) }}</template>
           </el-table-column>
         </el-table>
-        <el-empty v-else description="还没有学习记录，快去学习资源看看吧" :image-size="80" />
+        <el-empty v-else :description="$t('还没有学习记录，快去学习资源看看吧')" :image-size="80" />
       </el-card>
 
       <template v-if="auth.isAuditorOrAdmin">
-        <div class="section-title"><LineIcon name="settings" :size="15" /> 管理入口</div>
+        <div class="section-title"><LineIcon name="settings" :size="15" /> {{ $t('管理入口') }}</div>
         <div class="quick-grid">
           <button v-if="auth.isAdmin" class="quick-item" @click="router.push('/admin')">
-            <span class="quick-icon"><LineIcon name="monitor" :size="22" /></span><span class="quick-label">管理后台</span>
+            <span class="quick-icon"><LineIcon name="monitor" :size="22" /></span><span class="quick-label">{{ $t('管理后台') }}</span>
           </button>
           <button v-if="auth.isAdmin" class="quick-item" @click="router.push('/admin/dashboard')">
-            <span class="quick-icon"><LineIcon name="chart" :size="22" /></span><span class="quick-label">数据看板</span>
+            <span class="quick-icon"><LineIcon name="chart" :size="22" /></span><span class="quick-label">{{ $t('数据看板') }}</span>
           </button>
           <button v-if="auth.isAdmin" class="quick-item" @click="router.push('/admin/users')">
-            <span class="quick-icon"><LineIcon name="user" :size="22" /></span><span class="quick-label">用户管理</span>
+            <span class="quick-icon"><LineIcon name="user" :size="22" /></span><span class="quick-label">{{ $t('用户管理') }}</span>
           </button>
           <button v-if="auth.isAdmin" class="quick-item" @click="router.push('/admin/resources')">
-            <span class="quick-icon"><LineIcon name="book" :size="22" /></span><span class="quick-label">资源管理</span>
+            <span class="quick-icon"><LineIcon name="book" :size="22" /></span><span class="quick-label">{{ $t('资源管理') }}</span>
           </button>
           <button v-if="auth.isAdmin" class="quick-item" @click="router.push('/admin/models')">
-            <span class="quick-icon"><LineIcon name="cube" :size="22" /></span><span class="quick-label">模型管理</span>
+            <span class="quick-icon"><LineIcon name="cube" :size="22" /></span><span class="quick-label">{{ $t('模型管理') }}</span>
           </button>
           <button v-if="auth.isAdmin" class="quick-item" @click="router.push('/admin/orders')">
-            <span class="quick-icon"><LineIcon name="box" :size="22" /></span><span class="quick-label">订单管理</span>
+            <span class="quick-icon"><LineIcon name="box" :size="22" /></span><span class="quick-label">{{ $t('订单管理') }}</span>
           </button>
           <button v-if="auth.isAdmin" class="quick-item" @click="router.push('/admin/categories')">
-            <span class="quick-icon"><LineIcon name="layers" :size="22" /></span><span class="quick-label">分类管理</span>
+            <span class="quick-icon"><LineIcon name="layers" :size="22" /></span><span class="quick-label">{{ $t('分类管理') }}</span>
           </button>
           <button v-if="auth.isAuditorOrAdmin" class="quick-item" @click="router.push('/audit')">
-            <span class="quick-icon"><LineIcon name="check" :size="22" /></span><span class="quick-label">审核工作台</span>
+            <span class="quick-icon"><LineIcon name="check" :size="22" /></span><span class="quick-label">{{ $t('审核工作台') }}</span>
           </button>
         </div>
       </template>

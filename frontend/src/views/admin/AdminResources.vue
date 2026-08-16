@@ -2,11 +2,13 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { adminApi } from '@/api/admin'
 import { formatDate, formatPrice } from '@/utils/format'
 import LineIcon from '@/components/LineIcon.vue'
 
 const router = useRouter()
+const { t } = useI18n()
 
 const rows = ref([])
 const total = ref(0)
@@ -17,9 +19,9 @@ const search = ref('')
 const status = ref('all')
 
 function statusInfo(r) {
-  if (r.isApproved) return { text: '已通过', type: 'success' }
-  if (r.rejectionReason) return { text: '已驳回', type: 'danger' }
-  return { text: '待审核', type: 'warning' }
+  if (r.isApproved) return { text: t('已通过'), type: 'success' }
+  if (r.rejectionReason) return { text: t('已驳回'), type: 'danger' }
+  return { text: t('待审核'), type: 'warning' }
 }
 
 async function load() {
@@ -50,22 +52,22 @@ function onStatusChange() {
 
 async function togglePublic(r) {
   await adminApi.toggleResourcePublic(r.id, !r.isPublic)
-  ElMessage.success(r.isPublic ? '已下架' : '已上架')
+  ElMessage.success(t(r.isPublic ? '已下架' : '已上架'))
   load()
 }
 
 async function remove(r) {
   try {
-    await ElMessageBox.confirm(`确定删除资源「${r.title}」吗？删除后不可恢复`, '删除资源', { type: 'warning' })
+    await ElMessageBox.confirm(t('确定删除资源「{title}」吗？删除后不可恢复', { title: r.title }), t('删除资源'), { type: 'warning' })
   } catch {
     return // 用户取消
   }
   try {
     await adminApi.deleteResource(r.id)
-    ElMessage.success('已删除')
+    ElMessage.success(t('已删除'))
     load()
   } catch (e) {
-    ElMessage.error(e?.message || '删除失败')
+    ElMessage.error(e?.message || t('删除失败'))
   }
 }
 
@@ -74,73 +76,73 @@ onMounted(load)
 
 <template>
   <div class="page-container">
-    <div class="page-title"><LineIcon name="book" :size="19" /> 资源管理</div>
+    <div class="page-title"><LineIcon name="book" :size="19" /> {{ $t('资源管理') }}</div>
 
     <div class="toolbar">
       <el-radio-group v-model="status" @change="onStatusChange">
-        <el-radio-button value="all">全部</el-radio-button>
-        <el-radio-button value="pending">待审核</el-radio-button>
-        <el-radio-button value="approved">已通过</el-radio-button>
-        <el-radio-button value="rejected">已驳回</el-radio-button>
+        <el-radio-button value="all">{{ $t('全部') }}</el-radio-button>
+        <el-radio-button value="pending">{{ $t('待审核') }}</el-radio-button>
+        <el-radio-button value="approved">{{ $t('已通过') }}</el-radio-button>
+        <el-radio-button value="rejected">{{ $t('已驳回') }}</el-radio-button>
       </el-radio-group>
       <div class="toolbar-right">
         <el-input
           v-model="search"
-          placeholder="按标题搜索…"
+          :placeholder="$t('按标题搜索…')"
           clearable
           style="width: 240px"
           @keyup.enter="onSearch"
           @clear="onSearch"
         >
           <template #append>
-            <el-button @click="onSearch" aria-label="搜索"><LineIcon name="search" :size="14" /></el-button>
+            <el-button @click="onSearch" :aria-label="$t('搜索')"><LineIcon name="search" :size="14" /></el-button>
           </template>
         </el-input>
       </div>
     </div>
 
     <el-table v-loading="loading" :data="rows" size="small">
-      <el-table-column label="编号" width="80">
+      <el-table-column :label="$t('编号')" width="80">
         <template #default="{ row }">#{{ row.id }}</template>
       </el-table-column>
-      <el-table-column label="标题" min-width="200" show-overflow-tooltip>
+      <el-table-column :label="$t('标题')" min-width="200" show-overflow-tooltip>
         <template #default="{ row }">
           <el-link type="primary" @click="router.push(`/resources/${row.id}`)">{{ row.title }}</el-link>
         </template>
       </el-table-column>
-      <el-table-column label="作者" width="120" show-overflow-tooltip>
-        <template #default="{ row }">{{ row.author || '未知' }}</template>
+      <el-table-column :label="$t('作者')" width="120" show-overflow-tooltip>
+        <template #default="{ row }">{{ row.author || $t('未知') }}</template>
       </el-table-column>
-      <el-table-column label="分类" width="110" show-overflow-tooltip>
+      <el-table-column :label="$t('分类')" width="110" show-overflow-tooltip>
         <template #default="{ row }">{{ row.categoryName || '—' }}</template>
       </el-table-column>
-      <el-table-column label="价格" width="90" align="right">
+      <el-table-column :label="$t('价格')" width="90" align="right">
         <template #default="{ row }">
-          <span v-if="row.isFree" class="free">免费</span>
+          <span v-if="row.isFree" class="free">{{ $t('免费') }}</span>
           <span v-else>{{ formatPrice(row.price) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="审核状态" width="90" align="center">
+      <el-table-column :label="$t('审核状态')" width="90" align="center">
         <template #default="{ row }">
           <el-tag size="small" :type="statusInfo(row).type" effect="plain">{{ statusInfo(row).text }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="上架状态" width="90" align="center">
+      <el-table-column :label="$t('上架状态')" width="90" align="center">
         <template #default="{ row }">
           <el-tag size="small" :type="row.isPublic ? 'success' : 'info'" effect="plain">
-            {{ row.isPublic ? '已上架' : '已下架' }}
+            {{ row.isPublic ? $t('已上架') : $t('已下架') }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="提交时间" width="150">
+      <el-table-column :label="$t('提交时间')" width="150">
         <template #default="{ row }">{{ formatDate(row.createDate) }}</template>
       </el-table-column>
-      <el-table-column label="操作" width="180" align="center">
+      <el-table-column :label="$t('操作')" width="180" align="center">
         <template #default="{ row }">
           <el-button size="small" :type="row.isPublic ? 'warning' : 'success'" plain @click="togglePublic(row)">
-            {{ row.isPublic ? '下架' : '上架' }}
+            {{ row.isPublic ? $t('下架') : $t('上架') }}
           </el-button>
-          <el-button size="small" type="danger" plain @click="remove(row)">删除</el-button>
+          <el-button size="small" type="danger" plain @click="remove(row)">{{ $t('删除') }}</el-button>
         </template>
       </el-table-column>
     </el-table>

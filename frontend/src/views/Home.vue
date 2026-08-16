@@ -174,24 +174,21 @@ function onPortalLeave(e) {
         <div class="hero-body">
           <div class="hero-text">
             <h1 class="hero-title">
-              从一条线开始<br />
-              <span class="hero-title-2">构建一方世界</span>
+              {{ $t('从一条线开始') }}<br />
+              <span class="hero-title-2">{{ $t('构建一方世界') }}</span>
             </h1>
-            <p class="hero-slogan">
-              面向三维建模与图形开发学习者的校园学习平台。系统化教程逐章可读，
-              学习路径规划成长路线，模型资源库让灵感落地。
-            </p>
+            <p class="hero-slogan">{{ $t('面向三维建模与图形开发学习者的校园学习平台。系统化教程逐章可读，学习路径规划成长路线，模型资源库让灵感落地。') }}</p>
 
             <div class="hero-search">
               <el-input
                 v-model="searchText"
                 size="large"
-                placeholder="搜索课程、路径或 3D 模型…"
+                :placeholder="$t('搜索课程、路径或 3D 模型…')"
                 clearable
                 @keyup.enter="onSearch"
               >
                 <template #append>
-                  <el-button class="search-btn" @click="onSearch">搜索</el-button>
+                  <el-button class="search-btn" @click="onSearch">{{ $t('搜索') }}</el-button>
                 </template>
               </el-input>
             </div>
@@ -204,10 +201,10 @@ function onPortalLeave(e) {
                 @mouseleave="onNeonLeave"
               >
                 <span class="neon-glow" />
-                <span class="neon-text">开始学习</span>
+                <span class="neon-text">{{ $t('开始学习') }}</span>
               </button>
-              <button class="hero-btn" @click="router.push('/paths')">学习路径</button>
-              <button class="hero-btn" @click="router.push('/market')">模型资源库</button>
+              <button class="hero-btn" @click="router.push('/paths')">{{ $t('学习路径') }}</button>
+              <button class="hero-btn" @click="router.push('/market')">{{ $t('模型资源库') }}</button>
             </div>
           </div>
 
@@ -231,19 +228,19 @@ function onPortalLeave(e) {
               <span class="crosshair ch-1" /><span class="crosshair ch-2" />
               <span class="crosshair ch-3" /><span class="crosshair ch-4" />
             </div>
-            <span class="cube-label"><ScrambleText text="WIREFRAME · 线框是世界的起点" /></span>
-            <span class="cube-hint">拖拽旋转 · DRAG TO ROTATE</span>
+            <span class="cube-label"><ScrambleText :text="$t('WIREFRAME · 线框是世界的起点')" /></span>
+            <span class="cube-hint">{{ $t('拖拽旋转 · DRAG TO ROTATE') }}</span>
           </div>
         </div>
 
         <div class="hero-stats">
-          <button class="hstat" @click="router.push('/resources')"><span class="hnum">{{ stats.resources }}</span><span class="hlabel">门课程</span></button>
+          <button class="hstat" @click="router.push('/resources')"><span class="hnum">{{ stats.resources }}</span><span class="hlabel">{{ $t('门课程') }}</span></button>
           <div class="hstat-line" />
-          <button class="hstat" @click="router.push('/paths')"><span class="hnum">{{ stats.paths }}</span><span class="hlabel">条路径</span></button>
+          <button class="hstat" @click="router.push('/paths')"><span class="hnum">{{ stats.paths }}</span><span class="hlabel">{{ $t('条路径') }}</span></button>
           <div class="hstat-line" />
-          <button class="hstat" @click="router.push('/market')"><span class="hnum">{{ stats.models }}</span><span class="hlabel">个模型</span></button>
+          <button class="hstat" @click="router.push('/market')"><span class="hnum">{{ stats.models }}</span><span class="hlabel">{{ $t('个模型') }}</span></button>
           <div class="hstat-line" />
-          <button class="hstat" @click="router.push('/paths')"><span class="hnum">3</span><span class="hlabel">步进阶法</span></button>
+          <button class="hstat" @click="router.push('/paths')"><span class="hnum">3</span><span class="hlabel">{{ $t('步进阶法') }}</span></button>
         </div>
       </div>
     </section>
@@ -252,20 +249,20 @@ function onPortalLeave(e) {
     <section class="manifesto">
       <div class="mani-row" @click="router.push('/resources')">
         <span class="mani-en">LEARN</span>
-        <h2 class="mani-title">学</h2>
-        <p class="mani-desc">系统化教程逐章可读，像翻阅图纸一样学习，随时答疑解惑。</p>
+        <h2 class="mani-title">{{ $t('学') }}</h2>
+        <p class="mani-desc">{{ $t('系统化教程逐章可读，像翻阅图纸一样学习，随时答疑解惑。') }}</p>
         <span class="mani-arrow">→</span>
       </div>
       <div class="mani-row" @click="router.push('/resources/my')">
         <span class="mani-en">PRACTICE</span>
-        <h2 class="mani-title">练</h2>
-        <p class="mani-desc">步骤打卡、学习计时与连续记录，每一步进步都有迹可循。</p>
+        <h2 class="mani-title">{{ $t('练') }}</h2>
+        <p class="mani-desc">{{ $t('步骤打卡、学习计时与连续记录，每一步进步都有迹可循。') }}</p>
         <span class="mani-arrow">→</span>
       </div>
       <div class="mani-row" @click="router.push('/market')">
         <span class="mani-en">CREATE</span>
-        <h2 class="mani-title">创</h2>
-        <p class="mani-desc">模型资源库在线预览 3D 作品，让灵感直接落地。</p>
+        <h2 class="mani-title">{{ $t('创') }}</h2>
+        <p class="mani-desc">{{ $t('模型资源库在线预览 3D 作品，让灵感直接落地。') }}</p>
         <span class="mani-arrow">→</span>
       </div>
     </section>
@@ -275,9 +272,9 @@ function onPortalLeave(e) {
       <div class="block-head">
         <div class="block-head-left">
           <span class="block-en"><ScrambleText text="PORTALS" /></span>
-          <h2 class="block-title">学习入口</h2>
+          <h2 class="block-title">{{ $t('学习入口') }}</h2>
         </div>
-        <span class="portal-hint">点击方块直达</span>
+        <span class="portal-hint">{{ $t('点击方块直达') }}</span>
       </div>
       <div class="portal-grid" @mousemove="onPortalMove" @mouseleave="onPortalLeave">
         <button v-for="(p, i) in portals" :key="p.en" class="portal-tile" @click="router.push(p.route)">
@@ -287,7 +284,7 @@ function onPortalLeave(e) {
           </span>
           <span class="pt-icon"><LineIcon :name="p.icon" :size="30" /></span>
           <span class="pt-bottom">
-            <span class="pt-label">{{ p.label }}</span>
+            <span class="pt-label">{{ $t(p.label) }}</span>
             <span v-if="p.count" class="pt-num">{{ stats[p.count] ?? '—' }}</span>
             <span v-else class="pt-arrow">→</span>
           </span>
@@ -301,9 +298,9 @@ function onPortalLeave(e) {
         <div class="block-head">
           <div class="block-head-left">
             <span class="block-en"><ScrambleText text="COURSES" /></span>
-            <h2 class="block-title">课程</h2>
+            <h2 class="block-title">{{ $t('课程') }}</h2>
           </div>
-          <button class="more-link" @click="router.push('/resources')">全部课程 →</button>
+          <button class="more-link" @click="router.push('/resources')">{{ $t('全部课程 →') }}</button>
         </div>
         <div class="list-rows">
           <button v-for="(r, i) in resources" :key="r.id" class="list-row" @click="router.push(`/resources/${r.id}`)">
@@ -312,7 +309,7 @@ function onPortalLeave(e) {
             <span class="row-meta">
               <template v-if="r.categoryName">{{ r.categoryName }}</template>
               <template v-if="r.difficultyLevel"> · {{ r.difficultyLevel }}</template>
-              <template v-if="r.completionCount"> · {{ formatCount(r.completionCount) }} 人学过</template>
+              <template v-if="r.completionCount"> · {{ formatCount(r.completionCount) }} {{ $t('人学过') }}</template>
             </span>
             <span class="row-arrow">→</span>
           </button>
@@ -324,9 +321,9 @@ function onPortalLeave(e) {
         <div class="block-head">
           <div class="block-head-left">
             <span class="block-en"><ScrambleText text="MODELS" /></span>
-            <h2 class="block-title">模型精选</h2>
+            <h2 class="block-title">{{ $t('模型精选') }}</h2>
           </div>
-          <button class="more-link" @click="router.push('/market')">进入模型资源库 →</button>
+          <button class="more-link" @click="router.push('/market')">{{ $t('进入模型资源库 →') }}</button>
         </div>
         <div class="model-row">
           <button v-for="m in models" :key="m.id" class="model-item" @click="router.push(`/market/${m.id}`)">
@@ -335,7 +332,7 @@ function onPortalLeave(e) {
             </div>
             <span class="model-name">{{ m.name }}</span>
             <span class="model-meta">
-              {{ m.categoryName || '模型' }} · {{ Number(m.price) === 0 ? '免费' : formatPrice(m.price) }}
+              {{ m.categoryName || $t('模型') }} · {{ Number(m.price) === 0 ? $t('免费') : formatPrice(m.price) }}
             </span>
           </button>
         </div>
@@ -347,14 +344,14 @@ function onPortalLeave(e) {
           <div class="block-head">
             <div class="block-head-left">
               <span class="block-en"><ScrambleText text="PATHS" /></span>
-              <h2 class="block-title">学习路径</h2>
+              <h2 class="block-title">{{ $t('学习路径') }}</h2>
             </div>
-            <button class="more-link" @click="router.push('/paths')">全部 →</button>
+            <button class="more-link" @click="router.push('/paths')">{{ $t('全部 →') }}</button>
           </div>
           <div class="list-rows slim">
             <button v-for="p in paths" :key="p.id" class="list-row" @click="router.push(`/paths/${p.id}`)">
               <span class="row-title">{{ p.name }}</span>
-              <span class="row-meta">{{ p.resourceCount || 0 }} 个资源 · {{ p.enrollmentCount }} 人报名</span>
+              <span class="row-meta">{{ p.resourceCount || 0 }} {{ $t('个资源') }} · {{ p.enrollmentCount }} {{ $t('人报名') }}</span>
               <span class="row-arrow">→</span>
             </button>
           </div>
@@ -363,7 +360,7 @@ function onPortalLeave(e) {
           <div class="block-head">
             <div class="block-head-left">
               <span class="block-en"><ScrambleText text="CATEGORIES" /></span>
-              <h2 class="block-title">学习分类</h2>
+              <h2 class="block-title">{{ $t('学习分类') }}</h2>
             </div>
           </div>
           <div class="cat-chips">
@@ -381,8 +378,8 @@ function onPortalLeave(e) {
 
       <!-- ============ 收尾 CTA ============ -->
       <section class="closing">
-        <p class="closing-text">学习路上，答疑随行。</p>
-        <button class="closing-btn" @click="router.push('/resources')">从今天开始你的第一课 →</button>
+        <p class="closing-text">{{ $t('学习路上，答疑随行。') }}</p>
+        <button class="closing-btn" @click="router.push('/resources')">{{ $t('从今天开始你的第一课 →') }}</button>
       </section>
     </div>
   </div>

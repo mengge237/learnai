@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import { pathApi } from '@/api/paths'
 import { useAuthStore } from '@/stores/auth'
@@ -11,6 +12,7 @@ import PageBreadcrumb from '@/components/PageBreadcrumb.vue'
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
+const { t } = useI18n()
 
 const id = Number(route.params.id)
 const path = ref(null)
@@ -38,7 +40,7 @@ async function enroll() {
   try {
     const mine = await pathApi.enroll(id)
     myPaths.value = [mine, ...myPaths.value.filter((m) => m.pathId !== id)]
-    ElMessage.success('报名成功！开始你的学习之旅吧')
+    ElMessage.success(t('报名成功！开始你的学习之旅吧'))
   } finally {
     enrollBusy.value = false
   }
@@ -50,8 +52,8 @@ async function enroll() {
     <PageBreadcrumb
       v-if="path"
       :items="[
-        { label: '首页', to: '/' },
-        { label: '学习路径', to: '/paths' },
+        { label: $t('首页'), to: '/' },
+        { label: $t('学习路径'), to: '/paths' },
         { label: path.name },
       ]"
     />
@@ -63,23 +65,23 @@ async function enroll() {
             <h2 class="title">
               <LineIcon name="layers" :size="16" /> {{ path.name }}
               <el-tag v-if="enrolled" :type="PATH_TAG[enrolled.status] || 'info'">
-                {{ PATH_STATUS[enrolled.status] || enrolled.status }}
+                {{ $t(PATH_STATUS[enrolled.status] || enrolled.status) }}
               </el-tag>
             </h2>
             <p class="desc">{{ path.description }}</p>
             <div class="meta">
-              <span><LineIcon name="clock" :size="14" /> 适合人群：{{ path.targetAudience || '不限' }}</span>
-              <span>难度：{{ PATH_DIFFICULTY[path.difficultyLevel] || '入门' }}</span>
-              <span><LineIcon name="clock" :size="14" /> 预计 {{ path.estimatedHours }} 小时</span>
-              <span><LineIcon name="user" :size="14" /> {{ formatCount(path.viewCount) }} 浏览</span>
-              <span><LineIcon name="user" :size="14" /> {{ formatCount(path.enrollmentCount) }} 人已报名</span>
-              <span><LineIcon name="clock" :size="14" /> 创建于 {{ formatDate(path.createDate) }}</span>
+              <span><LineIcon name="clock" :size="14" /> {{ $t('适合人群：{a}', { a: path.targetAudience || $t('不限') }) }}</span>
+              <span>{{ $t('难度：{l}', { l: $t(PATH_DIFFICULTY[path.difficultyLevel] || '入门') }) }}</span>
+              <span><LineIcon name="clock" :size="14" /> {{ $t('预计 {n} 小时', { n: path.estimatedHours }) }}</span>
+              <span><LineIcon name="user" :size="14" /> {{ formatCount(path.viewCount) }} {{ $t('浏览') }}</span>
+              <span><LineIcon name="user" :size="14" /> {{ $t('{n} 人已报名', { n: formatCount(path.enrollmentCount) }) }}</span>
+              <span><LineIcon name="clock" :size="14" /> {{ $t('创建于 {d}', { d: formatDate(path.createDate) }) }}</span>
             </div>
             <div class="actions">
               <el-button type="primary" size="large" :loading="enrollBusy" @click="enroll">
-                <LineIcon name="arrowRight" :size="15" /> {{ enrolled ? '再次确认报名' : '立即报名' }}
+                <LineIcon name="arrowRight" :size="15" /> {{ enrolled ? $t('再次确认报名') : $t('立即报名') }}
               </el-button>
-              <el-button v-if="enrolled" size="large" @click="router.push('/paths/my')">查看我的学习</el-button>
+              <el-button v-if="enrolled" size="large" @click="router.push('/paths/my')">{{ $t('查看我的学习') }}</el-button>
             </div>
           </div>
           <el-image v-if="path.coverImageUrl" :src="path.coverImageUrl" fit="cover" class="cover" />
@@ -88,7 +90,7 @@ async function enroll() {
       </el-card>
 
       <el-card class="resources-card">
-        <div class="section-label"><LineIcon name="book" :size="15" /> 路径资源（{{ path.resources.length }} 个）</div>
+        <div class="section-label"><LineIcon name="book" :size="15" /> {{ $t('路径资源（{n} 个）', { n: path.resources.length }) }}</div>
         <div v-for="(r, i) in path.resources" :key="r.id" class="resource-row" @click="router.push(`/resources/${r.id}`)">
           <span class="seq">{{ String(i + 1).padStart(2, '0') }}</span>
           <el-image v-if="r.previewUrl || r.thumbnailUrl" :src="r.previewUrl || r.thumbnailUrl" fit="cover" class="thumb" />
@@ -96,11 +98,11 @@ async function enroll() {
           <div class="r-info">
             <div class="r-title">{{ r.title }}</div>
             <div class="text-muted">
-              {{ r.difficultyLevel }} · {{ r.durationMinutes }} 分钟 · {{ r.learningType }} · {{ r.categoryName }}
+              {{ r.difficultyLevel }} · {{ r.durationMinutes }} {{ $t('分钟') }} · {{ r.learningType }} · {{ r.categoryName }}
             </div>
           </div>
           <div class="r-right">
-            <el-tag v-if="r.isFree" type="success" effect="plain">免费</el-tag>
+            <el-tag v-if="r.isFree" type="success" effect="plain">{{ $t('免费') }}</el-tag>
             <el-tag v-else type="danger" effect="plain">{{ formatPrice(r.price) }}</el-tag>
             <span class="text-muted"><LineIcon name="heart" :size="14" /> {{ r.likeCount }}</span>
           </div>

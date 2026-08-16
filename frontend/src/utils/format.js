@@ -1,3 +1,5 @@
+import i18n from '@/i18n'
+
 /** 格式化后端 LocalDateTime（"yyyy-MM-dd HH:mm:ss"）为 "YYYY-MM-DD HH:mm" */
 export function formatDate(str) {
   if (!str) return '-'
@@ -11,10 +13,11 @@ export function formatPrice(v) {
   return n === Math.floor(n) ? `¥${n}` : `¥${n.toFixed(2)}`
 }
 
-/** 大数字缩写：3560 → 3.6k */
+/** 大数字缩写：3560 → 3.6k；中文模式 12345 → 1.2万，英文模式 12345 → 12.3k */
 export function formatCount(n) {
   const num = Number(n ?? 0)
-  if (num >= 10000) return `${(num / 10000).toFixed(1)}万`
+  const en = i18n.global.locale.value === 'en-US'
+  if (num >= 10000) return en ? `${(num / 1000).toFixed(1)}k` : `${(num / 10000).toFixed(1)}万`
   if (num >= 1000) return `${(num / 1000).toFixed(1)}k`
   return String(num)
 }

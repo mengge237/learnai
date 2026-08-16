@@ -1,27 +1,29 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { adminApi } from '@/api/admin'
 import { formatPrice } from '@/utils/format'
 import LineIcon from '@/components/LineIcon.vue'
 
 const router = useRouter()
+const { t } = useI18n()
 const stats = ref(null)
 const loading = ref(true)
 
-const cards = [
-  { key: 'userCount', label: '注册用户', icon: 'user' },
-  { key: 'resourceCount', label: '学习资源', icon: 'book' },
-  { key: 'pendingResourceCount', label: '待审资源', icon: 'clock', warn: true },
-  { key: 'modelCount', label: '3D 模型', icon: 'cube' },
-  { key: 'pendingModelCount', label: '待审模型', icon: 'clock', warn: true },
-  { key: 'orderCount', label: '订单总数', icon: 'box' },
-  { key: 'pendingOrderCount', label: '待处理订单', icon: 'clock', warn: true },
-  { key: 'completedOrderCount', label: '已完成订单', icon: 'check' },
-  { key: 'commentCount', label: '评论数', icon: 'chat' },
-  { key: 'favoriteCount', label: '收藏数', icon: 'star' },
-  { key: 'downloadCount', label: '下载数', icon: 'download' },
-]
+const cards = computed(() => [
+  { key: 'userCount', label: t('注册用户'), icon: 'user' },
+  { key: 'resourceCount', label: t('学习资源'), icon: 'book' },
+  { key: 'pendingResourceCount', label: t('待审资源'), icon: 'clock', warn: true },
+  { key: 'modelCount', label: t('3D 模型'), icon: 'cube' },
+  { key: 'pendingModelCount', label: t('待审模型'), icon: 'clock', warn: true },
+  { key: 'orderCount', label: t('订单总数'), icon: 'box' },
+  { key: 'pendingOrderCount', label: t('待处理订单'), icon: 'clock', warn: true },
+  { key: 'completedOrderCount', label: t('已完成订单'), icon: 'check' },
+  { key: 'commentCount', label: t('评论数'), icon: 'chat' },
+  { key: 'favoriteCount', label: t('收藏数'), icon: 'star' },
+  { key: 'downloadCount', label: t('下载数'), icon: 'download' },
+])
 
 onMounted(async () => {
   try {
@@ -34,7 +36,7 @@ onMounted(async () => {
 
 <template>
   <div class="page-container" v-loading="loading">
-    <div class="page-title"><LineIcon name="chart" :size="19" /> 平台数据总览</div>
+    <div class="page-title"><LineIcon name="chart" :size="19" /> {{ $t('平台数据总览') }}</div>
 
     <template v-if="stats">
       <el-row :gutter="16">
@@ -49,7 +51,7 @@ onMounted(async () => {
           <el-card class="stat-card sales">
             <div class="icon"><LineIcon name="chart" :size="20" /></div>
             <div class="value">{{ formatPrice(stats.totalSalesAmount) }}</div>
-            <div class="label text-muted">总销售额</div>
+            <div class="label text-muted">{{ $t('总销售额') }}</div>
           </el-card>
         </el-col>
       </el-row>
@@ -57,12 +59,12 @@ onMounted(async () => {
       <el-row :gutter="16" class="quick-row">
         <el-col :span="12">
           <el-card shadow="hover" @click="router.push('/admin/users')">
-            <div class="quick"><LineIcon name="user" :size="15" /> 用户管理</div>
+            <div class="quick"><LineIcon name="user" :size="15" /> {{ $t('用户管理') }}</div>
           </el-card>
         </el-col>
         <el-col :span="12">
           <el-card shadow="hover" @click="router.push('/audit')">
-            <div class="quick"><LineIcon name="check" :size="15" /> 内容审核</div>
+            <div class="quick"><LineIcon name="check" :size="15" /> {{ $t('内容审核') }}</div>
           </el-card>
         </el-col>
       </el-row>

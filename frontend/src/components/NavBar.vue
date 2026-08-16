@@ -2,6 +2,8 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
+import { useI18n } from 'vue-i18n'
+import { setLocale } from '@/i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/cart'
 import { interactionApi } from '@/api/interaction'
@@ -12,6 +14,7 @@ const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
 const cart = useCartStore()
+const { t, locale } = useI18n()
 
 const searchText = ref('')
 const favCount = ref(0)
@@ -19,7 +22,11 @@ const favCount = ref(0)
 // 我的学习 hover 面板：打开时实时拉取
 const studyList = ref([])
 const studyLoading = ref(false)
-const STUDY_STATUS = { NotStarted: '未开始', InProgress: '学习中', Completed: '已完成' }
+const STUDY_STATUS = computed(() => ({
+  NotStarted: t('未开始'),
+  InProgress: t('学习中'),
+  Completed: t('已完成'),
+}))
 
 async function loadMyLearning() {
   if (!auth.isLoggedIn || studyLoading.value) return
@@ -55,12 +62,13 @@ const activeMenu = computed(() => {
   return seg === '' ? '/' : `/${seg}`
 })
 
-const menus = [
-  { index: '/', label: '首页' },
-  { index: '/resources', label: '学习资源' },
-  { index: '/paths', label: '学习路径' },
-  { index: '/market', label: '模型资源库' },
-]
+const menus = computed(() => [
+  { index: '/', label: t('首页') },
+  { index: '/resources', label: t('学习资源') },
+  { index: '/paths', label: t('学习路径') },
+  { index: '/market', label: t('模型资源库') },
+  { index: '/guide', label: t('操作指南') },
+])
 
 function onSearch() {
   const kw = searchText.value.trim()
@@ -68,10 +76,15 @@ function onSearch() {
   router.push({ path: '/search', query: { q: kw } })
 }
 
+/** 中英文切换（本地生效，不依赖后端） */
+function toggleLang() {
+  setLocale(locale.value === 'en-US' ? 'zh-CN' : 'en-US')
+}
+
 async function handleCommand(cmd) {
   if (cmd === 'logout') {
     try {
-      await ElMessageBox.confirm('确定要退出登录吗？', '提示', { type: 'warning' })
+      await ElMessageBox.confirm(t('确定要退出登录吗？'), t('提示'), { type: 'warning' })
     } catch {
       return // 用户取消
     }
@@ -89,34 +102,41 @@ async function handleCommand(cmd) {
     <div class="navbar-inner">
       <router-link to="/" class="logo">
         <span class="logo-mark">◈</span>
-        <span class="logo-text">AI智学<span class="logo-sub">校园学习平台</span></span>
+        <span class="logo-text">AI智学<span class="logo-sub">{{ $t('校园学习平台') }}</span></span>
       </router-link>
 
       <!-- ellipsis=true：宽度不足时收起溢出项到「…」子菜单，避免与右侧搜索框重叠 -->
       <el-menu :default-active="activeMenu" mode="horizontal" :ellipsis="true" router class="nav-menu">
         <el-menu-item v-for="m in menus" :key="m.index" :index="m.index">{{ m.label }}</el-menu-item>
-        <el-menu-item v-if="auth.isLoggedIn" index="/console">控制台</el-menu-item>
-        <el-menu-item v-if="auth.isAuditorOrAdmin" index="/audit">审核工作台</el-menu-item>
-        <el-menu-item v-if="auth.isAdmin" index="/admin">管理后台</el-menu-item>
+        <el-menu-item v-if="auth.isLoggedIn" index="/console">{{ $t('控制台') }}</el-menu-item>
+        <el-menu-item v-if="auth.isAuditorOrAdmin" index="/audit">{{ $t('审核工作台') }}</el-menu-item>
+        <el-menu-item v-if="auth.isAdmin" index="/admin">{{ $t('管理后台') }}</el-menu-item>
       </el-menu>
 
       <div class="navbar-right">
         <el-input
           v-model="searchText"
           class="search-input"
-          placeholder="全局搜索：课程 / 路径 / 模型…"
+          :placeholder="$t('全局搜索：课程 / 路径 / 模型…')"
           clearable
           @keyup.enter="onSearch"
         >
           <template #append>
-            <el-button class="search-btn" @click="onSearch" aria-label="搜索">
+            <el-button class="search-btn" @click="onSearch" :aria-label="$t('搜索')">
               <LineIcon name="search" :size="15" />
             </el-button>
           </template>
         </el-input>
 
-        <el-tooltip content="个性化设置">
-          <button class="icon-btn" @click="router.push('/user/settings')" title="个性化设置">
+        <!-- 语言切换：显示目标语言（中文界面显示 EN，英文界面显示 中） -->
+        <el-tooltip :content="$t('切换语言 / Switch language')">
+          <button class="icon-btn lang-btn" @click="toggleLang" :title="$t('切换语言')">
+            {{ locale === 'en-US' ? '中' : 'EN' }}
+          </button>
+        </el-tooltip>
+
+        <el-tooltip :content="$t('个性化设置')">
+          <button class="icon-btn" @click="router.push('/user/settings')" :title="$t('个性化设置')">
             <LineIcon name="settings" :size="19" />
           </button>
         </el-tooltip>
@@ -137,13 +157,13 @@ async function handleCommand(cmd) {
               :class="{ active: route.path.startsWith('/resources/my') }"
               @click="router.push('/resources/my')"
             >
-              我的学习
+              {{ $t('我的学习') }}
             </span>
           </template>
           <div class="study-panel" v-loading="studyLoading">
             <div class="study-panel-head">
-              <span class="sp-title">我的学习</span>
-              <span class="sp-sub text-muted">最近进度 · 实时更新</span>
+              <span class="sp-title">{{ $t('我的学习') }}</span>
+              <span class="sp-sub text-muted">{{ $t('最近进度 · 实时更新') }}</span>
             </div>
             <template v-if="studyList.length">
               <div v-for="r in studyList" :key="r.resourceId" class="sp-item" @click="router.push(`/resources/${r.resourceId}/learn`)">
@@ -158,16 +178,16 @@ async function handleCommand(cmd) {
               </div>
             </template>
             <div v-else-if="!studyLoading" class="sp-empty">
-              还没有学习记录，去<a @click="router.push('/resources')">学习资源</a>开始学习吧
+              {{ $t('还没有学习记录，去') }}<a @click="router.push('/resources')">{{ $t('学习资源') }}</a>{{ $t('开始学习吧') }}
             </div>
             <div class="sp-foot">
-              <router-link to="/resources/my">查看全部学习记录 <LineIcon name="arrowRight" :size="13" /></router-link>
+              <router-link to="/resources/my">{{ $t('查看全部学习记录') }} <LineIcon name="arrowRight" :size="13" /></router-link>
             </div>
           </div>
         </el-popover>
 
         <el-badge :value="favCount" :hidden="favCount === 0">
-          <button class="text-btn" @click="router.push('/user/favorites')" title="我的收藏">我的收藏</button>
+          <button class="text-btn" @click="router.push('/user/favorites')" :title="$t('我的收藏')">{{ $t('我的收藏') }}</button>
         </el-badge>
 
         <template v-if="auth.isLoggedIn">
@@ -178,32 +198,32 @@ async function handleCommand(cmd) {
             </span>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item command="/console">个人控制台</el-dropdown-item>
-                <el-dropdown-item command="/ai/analytics">学习分析</el-dropdown-item>
-                <el-dropdown-item command="/ai/recommend">智能推荐</el-dropdown-item>
-                <el-dropdown-item command="/user/profile" divided>个人资料</el-dropdown-item>
-                <el-dropdown-item command="/user/settings">个性化设置</el-dropdown-item>
-                <el-dropdown-item command="/user/favorites">我的收藏</el-dropdown-item>
-                <el-dropdown-item command="/user/downloads">下载历史</el-dropdown-item>
-                <el-dropdown-item command="/market/orders">我的订单</el-dropdown-item>
-                <el-dropdown-item v-if="auth.isAdmin" command="/admin" divided>管理后台</el-dropdown-item>
-                <el-dropdown-item v-if="auth.isAdmin" command="/admin/dashboard">数据看板</el-dropdown-item>
-                <el-dropdown-item v-if="auth.isAdmin" command="/admin/users">用户管理</el-dropdown-item>
-                <el-dropdown-item v-if="auth.isAdmin" command="/admin/resources">资源管理</el-dropdown-item>
-                <el-dropdown-item v-if="auth.isAdmin" command="/admin/models">模型管理</el-dropdown-item>
-                <el-dropdown-item v-if="auth.isAdmin" command="/admin/orders">订单管理</el-dropdown-item>
-                <el-dropdown-item v-if="auth.isAdmin" command="/admin/categories">分类管理</el-dropdown-item>
-                <el-dropdown-item v-if="auth.isAuditorOrAdmin" command="/audit" divided>审核工作台</el-dropdown-item>
-                <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
+                <el-dropdown-item command="/console">{{ $t('个人控制台') }}</el-dropdown-item>
+                <el-dropdown-item command="/ai/analytics">{{ $t('学习分析') }}</el-dropdown-item>
+                <el-dropdown-item command="/ai/recommend">{{ $t('智能推荐') }}</el-dropdown-item>
+                <el-dropdown-item command="/user/profile" divided>{{ $t('个人资料') }}</el-dropdown-item>
+                <el-dropdown-item command="/user/settings">{{ $t('个性化设置') }}</el-dropdown-item>
+                <el-dropdown-item command="/user/favorites">{{ $t('我的收藏') }}</el-dropdown-item>
+                <el-dropdown-item command="/user/downloads">{{ $t('下载历史') }}</el-dropdown-item>
+                <el-dropdown-item command="/market/orders">{{ $t('我的订单') }}</el-dropdown-item>
+                <el-dropdown-item v-if="auth.isAdmin" command="/admin" divided>{{ $t('管理后台') }}</el-dropdown-item>
+                <el-dropdown-item v-if="auth.isAdmin" command="/admin/dashboard">{{ $t('数据看板') }}</el-dropdown-item>
+                <el-dropdown-item v-if="auth.isAdmin" command="/admin/users">{{ $t('用户管理') }}</el-dropdown-item>
+                <el-dropdown-item v-if="auth.isAdmin" command="/admin/resources">{{ $t('资源管理') }}</el-dropdown-item>
+                <el-dropdown-item v-if="auth.isAdmin" command="/admin/models">{{ $t('模型管理') }}</el-dropdown-item>
+                <el-dropdown-item v-if="auth.isAdmin" command="/admin/orders">{{ $t('订单管理') }}</el-dropdown-item>
+                <el-dropdown-item v-if="auth.isAdmin" command="/admin/categories">{{ $t('分类管理') }}</el-dropdown-item>
+                <el-dropdown-item v-if="auth.isAuditorOrAdmin" command="/audit" divided>{{ $t('审核工作台') }}</el-dropdown-item>
+                <el-dropdown-item command="logout" divided>{{ $t('退出登录') }}</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
         </template>
         <template v-else>
           <el-button type="primary" @click="router.push({ name: 'login', query: { redirect: route.fullPath } })">
-            登录
+            {{ $t('登录') }}
           </el-button>
-          <el-button @click="router.push('/register')">注册</el-button>
+          <el-button @click="router.push('/register')">{{ $t('注册') }}</el-button>
         </template>
       </div>
     </div>
@@ -285,6 +305,19 @@ async function handleCommand(cmd) {
 }
 .icon-btn:hover {
   color: var(--theme-color);
+}
+/* 语言切换按钮：等宽字体小徽标 */
+.lang-btn {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+  padding: 3px 7px;
+}
+.lang-btn:hover {
+  border-color: var(--theme-color);
 }
 .text-btn {
   border: none;

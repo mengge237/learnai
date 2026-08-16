@@ -20,16 +20,16 @@ onMounted(async () => {
 
 <template>
   <div class="page-container">
-    <div class="page-title"><LineIcon name="book" :size="19" /> 我的学习</div>
+    <div class="page-title"><LineIcon name="book" :size="19" /> {{ $t('我的学习') }}</div>
 
     <div class="quick-row">
-      <el-button size="small" @click="router.push('/ai/analytics')"><LineIcon name="chart" :size="14" /> 学习分析</el-button>
-      <el-button size="small" @click="router.push('/ai/recommend')"><LineIcon name="sparkle" :size="14" /> 智能推荐</el-button>
-      <el-button size="small" @click="router.push('/console')"><LineIcon name="monitor" :size="14" /> 个人控制台</el-button>
+      <el-button size="small" @click="router.push('/ai/analytics')"><LineIcon name="chart" :size="14" /> {{ $t('学习分析') }}</el-button>
+      <el-button size="small" @click="router.push('/ai/recommend')"><LineIcon name="sparkle" :size="14" /> {{ $t('智能推荐') }}</el-button>
+      <el-button size="small" @click="router.push('/console')"><LineIcon name="monitor" :size="14" /> {{ $t('个人控制台') }}</el-button>
     </div>
 
-    <el-empty v-if="!loading && records.length === 0" description="还没有学习记录，快去挑一门课程吧">
-      <el-button type="primary" @click="router.push('/resources')">浏览学习资源</el-button>
+    <el-empty v-if="!loading && records.length === 0" :description="$t('还没有学习记录，快去挑一门课程吧')">
+      <el-button type="primary" @click="router.push('/resources')">{{ $t('浏览学习资源') }}</el-button>
     </el-empty>
 
     <el-card v-for="r in records" :key="r.resourceId" class="record-card" shadow="hover"
@@ -40,17 +40,17 @@ onMounted(async () => {
         <div class="info">
           <div class="title-row">
             <span class="title">{{ r.title }}</span>
-            <el-tag size="small" :type="LEARNING_TAG[r.status] || 'info'">{{ LEARNING_STATUS[r.status] || r.status }}</el-tag>
-            <el-tag v-if="r.difficultyLevel" size="small" effect="plain">{{ r.difficultyLevel }}</el-tag>
+            <el-tag size="small" :type="LEARNING_TAG[r.status] || 'info'">{{ $t(LEARNING_STATUS[r.status] || r.status) }}</el-tag>
+            <el-tag v-if="r.difficultyLevel" size="small" effect="plain">{{ $t(r.difficultyLevel) }}</el-tag>
           </div>
-          <div class="text-muted">{{ r.categoryName }} · 开始于 {{ formatDate(r.startTime) }}</div>
+          <div class="text-muted">{{ r.categoryName }} · {{ $t('开始于') }} {{ formatDate(r.startTime) }}</div>
           <el-progress :percentage="Math.round(r.progress || 0)" :stroke-width="10" class="bar" />
           <div class="text-muted">
-            学习 {{ r.durationMinutes || 0 }} 分钟
-            <template v-if="r.score != null"> · <LineIcon name="star" :size="13" /> 得分 {{ r.score }}</template>
+            {{ $t('学习 {n} 分钟', { n: r.durationMinutes || 0 }) }}
+            <template v-if="r.score != null"> · <LineIcon name="star" :size="13" /> {{ $t('得分') }} {{ r.score }}</template>
           </div>
         </div>
-        <el-button type="primary" plain>{{ r.status === 'Completed' ? '查看详情' : '继续学习' }}</el-button>
+        <el-button type="primary" plain>{{ r.status === 'Completed' ? $t('查看详情') : $t('继续学习') }}</el-button>
       </div>
     </el-card>
   </div>

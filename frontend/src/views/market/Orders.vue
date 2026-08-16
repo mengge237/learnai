@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { marketApi } from '@/api/market'
 import { ORDER_STATUS, ORDER_TAG, formatDate, formatPrice } from '@/utils/format'
 import LineIcon from '@/components/LineIcon.vue'
@@ -9,6 +10,7 @@ import LineIcon from '@/components/LineIcon.vue'
 const router = useRouter()
 const orders = ref([])
 const loading = ref(true)
+const { t } = useI18n()
 
 async function load() {
   loading.value = true
@@ -21,18 +23,18 @@ async function load() {
 
 async function pay(order) {
   await marketApi.pay(order.id)
-  ElMessage.success('支付成功！等待管理员处理')
+  ElMessage.success(t('支付成功！等待管理员处理'))
   load()
 }
 
 async function cancel(order) {
   try {
-    await ElMessageBox.confirm(`确定取消订单 #${order.id} 吗？`, '提示', { type: 'warning' })
+    await ElMessageBox.confirm(t('确定取消订单 #{id} 吗？', { id: order.id }), t('提示'), { type: 'warning' })
   } catch {
     return // 用户取消
   }
   await marketApi.cancel(order.id)
-  ElMessage.success('订单已取消')
+  ElMessage.success(t('订单已取消'))
   load()
 }
 
@@ -41,36 +43,36 @@ onMounted(load)
 
 <template>
   <div class="page-container narrow">
-    <div class="page-title"><LineIcon name="box" :size="19" /> 我的订单</div>
+    <div class="page-title"><LineIcon name="box" :size="19" /> {{ $t('我的订单') }}</div>
 
-    <el-empty v-if="!loading && orders.length === 0" description="还没有订单，去商城逛逛吧">
-      <el-button type="primary" @click="router.push('/market')">去逛逛</el-button>
+    <el-empty v-if="!loading && orders.length === 0" :description="$t('还没有订单，去商城逛逛吧')">
+      <el-button type="primary" @click="router.push('/market')">{{ $t('去逛逛') }}</el-button>
     </el-empty>
 
     <el-card v-for="o in orders" :key="o.id" class="order-card" shadow="hover">
       <div class="head-row">
         <div>
-          <span class="order-id">订单 #{{ o.id }}</span>
+          <span class="order-id">{{ $t('订单') }} #{{ o.id }}</span>
           <span class="text-muted"> · {{ formatDate(o.orderDate) }}</span>
         </div>
-        <el-tag :type="ORDER_TAG[o.status] || 'info'">{{ ORDER_STATUS[o.status] || o.status }}</el-tag>
+        <el-tag :type="ORDER_TAG[o.status] || 'info'">{{ $t(ORDER_STATUS[o.status] || o.status) }}</el-tag>
       </div>
       <div v-for="it in o.items" :key="it.orderItemId" class="item-row">
         <el-image v-if="it.previewUrl" :src="it.previewUrl" fit="cover" class="thumb" />
         <div v-else class="thumb thumb-fallback" />
         <el-link type="primary" @click="router.push(`/market/${it.modelId}`)">{{ it.modelName }}</el-link>
-        <span class="text-muted">{{ it.licenseType }}授权 × {{ it.quantity }}</span>
+        <span class="text-muted">{{ $t(it.licenseType + '授权') }} × {{ it.quantity }}</span>
         <span class="subtotal">{{ formatPrice(it.subtotal) }}</span>
       </div>
       <div class="foot-row">
         <div class="actions">
-          <el-button v-if="o.status === 'PendingPayment'" type="danger" size="small" @click="pay(o)">立即支付</el-button>
-          <el-button v-if="['PendingPayment', 'Pending'].includes(o.status)" size="small" @click="cancel(o)">取消订单</el-button>
+          <el-button v-if="o.status === 'PendingPayment'" type="danger" size="small" @click="pay(o)">{{ $t('立即支付') }}</el-button>
+          <el-button v-if="['PendingPayment', 'Pending'].includes(o.status)" size="small" @click="cancel(o)">{{ $t('取消订单') }}</el-button>
         </div>
         <div>
-          <span class="text-muted">合计：</span>
+          <span class="text-muted">{{ $t('合计：') }}</span>
           <b class="total">{{ formatPrice(o.totalAmount) }}</b>
-          <el-button type="primary" plain size="small" class="detail-btn" @click="router.push(`/orders/${o.id}`)">查看详情</el-button>
+          <el-button type="primary" plain size="small" class="detail-btn" @click="router.push(`/orders/${o.id}`)">{{ $t('查看详情') }}</el-button>
         </div>
       </div>
     </el-card>

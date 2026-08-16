@@ -1,10 +1,13 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { adminApi } from '@/api/admin'
 import { marketApi } from '@/api/market'
 import { formatDate, formatPrice, ORDER_STATUS } from '@/utils/format'
 import LineIcon from '@/components/LineIcon.vue'
+
+const { t } = useI18n()
 
 const rows = ref([])
 const total = ref(0)
@@ -25,10 +28,10 @@ const STATUS_TAG = {
   Cancelled: 'info',
 }
 
-const statusOptions = [
-  { value: '', label: '全部状态' },
-  ...Object.keys(ORDER_STATUS).map((k) => ({ value: k, label: ORDER_STATUS[k] })),
-]
+const statusOptions = computed(() => [
+  { value: '', label: t('全部状态') },
+  ...Object.keys(ORDER_STATUS).map((k) => ({ value: k, label: t(ORDER_STATUS[k]) })),
+])
 
 async function load() {
   loading.value = true
@@ -55,15 +58,19 @@ async function advance(o) {
   if (!next) return
   try {
     await ElMessageBox.confirm(
-      `确定将订单 #${o.id} 从「${ORDER_STATUS[o.status]}」推进为「${ORDER_STATUS[next]}」吗？`,
-      '推进订单状态',
+      t('确定将订单 #{id} 从「{from}」推进为「{to}」吗？', {
+        id: o.id,
+        from: t(ORDER_STATUS[o.status]),
+        to: t(ORDER_STATUS[next]),
+      }),
+      t('推进订单状态'),
       { type: 'warning' },
     )
   } catch {
     return // 用户取消
   }
   await marketApi.updateStatus(o.id, { status: next })
-  ElMessage.success('已推进至 ' + ORDER_STATUS[next])
+  ElMessage.success(t('已推进至 {status}', { status: t(ORDER_STATUS[next]) }))
   load()
 }
 
@@ -72,13 +79,13 @@ onMounted(load)
 
 <template>
   <div class="page-container">
-    <div class="page-title"><LineIcon name="box" :size="19" /> 订单管理</div>
+    <div class="page-title"><LineIcon name="box" :size="19" /> {{ $t('订单管理') }}</div>
 
     <div class="toolbar">
       <el-select v-model="status" style="width: 180px" @change="onStatusChange">
         <el-option v-for="s in statusOptions" :key="s.value" :label="s.label" :value="s.value" />
       </el-select>
-      <span class="text-muted tip">共 {{ total }} 笔订单</span>
+      <span class="text-muted tip">{{ $t('共 {n} 笔订单', { n: total }) }}</span>
     </div>
 
     <el-table v-loading="loading" :data="rows" size="small">
@@ -87,38 +94,38 @@ onMounted(load)
           <div class="expand-box">
             <div v-for="i in row.items" :key="i.orderItemId" class="expand-item">
               <span class="expand-name">{{ i.modelName }}</span>
-              <span class="text-muted">{{ i.licenseType }} × {{ i.quantity }} · 单价 {{ formatPrice(i.unitPrice) }}</span>
+              <span class="text-muted">{{ $t(i.licenseType) }} × {{ i.quantity }} · {{ $t('单价') }} {{ formatPrice(i.unitPrice) }}</span>
               <span class="expand-subtotal">{{ formatPrice(i.subtotal) }}</span>
             </div>
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="订单号" width="100">
+      <el-table-column :label="$t('订单号')" width="100">
         <template #default="{ row }">#{{ row.id }}</template>
       </el-table-column>
-      <el-table-column label="下单用户" width="130" show-overflow-tooltip>
+      <el-table-column :label="$t('下单用户')" width="130" show-overflow-tooltip>
         <template #default="{ row }">{{ row.username }}</template>
       </el-table-column>
-      <el-table-column label="收货人" width="110" show-overflow-tooltip>
+      <el-table-column :label="$t('收货人')" width="110" show-overflow-tooltip>
         <template #default="{ row }">{{ row.recipientName || '—' }}</template>
       </el-table-column>
-      <el-table-column label="金额" width="110" align="right">
+      <el-table-column :label="$t('金额')" width="110" align="right">
         <template #default="{ row }">{{ formatPrice(row.totalAmount) }}</template>
       </el-table-column>
-      <el-table-column label="状态" width="100" align="center">
+      <el-table-column :label="$t('状态')" width="100" align="center">
         <template #default="{ row }">
           <el-tag size="small" :type="STATUS_TAG[row.status] || 'info'" effect="plain">
-            {{ ORDER_STATUS[row.status] || row.status }}
+            {{ $t(ORDER_STATUS[row.status] || row.status) }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="下单时间" width="160">
+      <el-table-column :label="$t('下单时间')" width="160">
         <template #default="{ row }">{{ formatDate(row.orderDate) }}</template>
       </el-table-column>
-      <el-table-column label="操作" width="140" align="center">
+      <el-table-column :label="$t('操作')" width="140" align="center">
         <template #default="{ row }">
           <el-button v-if="NEXT_STATUS[row.status]" size="small" type="primary" plain @click="advance(row)">
-            推进状态
+            {{ $t('推进状态') }}
           </el-button>
           <span v-else class="text-muted">—</span>
         </template>

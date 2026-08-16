@@ -2,10 +2,12 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { interactionApi } from '@/api/interaction'
 import { formatDate, formatPrice } from '@/utils/format'
 import LineIcon from '@/components/LineIcon.vue'
 
+const { t } = useI18n()
 const router = useRouter()
 const items = ref([])
 const loading = ref(true)
@@ -27,7 +29,7 @@ async function remove(it) {
   await interactionApi.toggleFavorite(
     it.type === 'resource' ? { resourceId: it.targetId } : { modelId: it.targetId },
   )
-  ElMessage.success('已取消收藏')
+  ElMessage.success(t('已取消收藏'))
   load()
 }
 
@@ -36,10 +38,10 @@ onMounted(load)
 
 <template>
   <div class="page-container">
-    <div class="page-title"><LineIcon name="star" :size="19" /> 我的收藏</div>
+    <div class="page-title"><LineIcon name="star" :size="19" /> {{ $t('我的收藏') }}</div>
 
-    <el-empty v-if="!loading && items.length === 0" description="还没有收藏任何内容">
-      <el-button type="primary" @click="router.push('/resources')">去发现</el-button>
+    <el-empty v-if="!loading && items.length === 0" :description="$t('还没有收藏任何内容')">
+      <el-button type="primary" @click="router.push('/resources')">{{ $t('去发现') }}</el-button>
     </el-empty>
 
     <div class="fav-grid">
@@ -48,7 +50,7 @@ onMounted(load)
           <el-image v-if="it.cover" :src="it.cover" fit="cover" class="cover" />
           <div v-else class="cover cover-fallback" />
           <el-tag size="small" class="type-tag" :type="it.type === 'resource' ? 'success' : 'warning'" effect="dark">
-            {{ it.type === 'resource' ? '资源' : '模型' }}
+            {{ it.type === 'resource' ? $t('资源') : $t('模型') }}
           </el-tag>
         </div>
         <div class="body">
@@ -57,7 +59,7 @@ onMounted(load)
             <span class="text-muted">{{ formatDate(it.addedDate) }}</span>
             <span v-if="it.price != null && Number(it.price) > 0" class="price">{{ formatPrice(it.price) }}</span>
           </div>
-          <el-button type="danger" size="small" plain class="remove-btn" @click.stop="remove(it)">取消收藏</el-button>
+          <el-button type="danger" size="small" plain class="remove-btn" @click.stop="remove(it)">{{ $t('取消收藏') }}</el-button>
         </div>
       </el-card>
     </div>

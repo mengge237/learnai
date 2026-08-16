@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import { resourceApi } from '@/api/resources'
 import { interactionApi } from '@/api/interaction'
@@ -13,6 +14,7 @@ import PageBreadcrumb from '@/components/PageBreadcrumb.vue'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const auth = useAuthStore()
 
 const resource = ref(null)
@@ -35,7 +37,7 @@ async function toggleFavorite() {
   if (!auth.isLoggedIn) return router.push({ name: 'login', query: { redirect: route.fullPath } })
   const { favorited: f } = await interactionApi.toggleFavorite({ resourceId: id })
   favorited.value = f
-  ElMessage.success(f ? '已加入收藏' : '已取消收藏')
+  ElMessage.success(f ? t('已加入收藏') : t('已取消收藏'))
 }
 
 async function like() {
@@ -45,7 +47,7 @@ async function like() {
   try {
     await resourceApi.like(id)
     resource.value.likeCount = (resource.value.likeCount || 0) + 1
-    ElMessage.success('点赞成功！')
+    ElMessage.success(t('点赞成功！'))
   } finally {
     likeBusy.value = false
   }
@@ -68,8 +70,8 @@ onMounted(load)
   <div class="page-container" v-loading="loading">
     <PageBreadcrumb
       :items="[
-        { label: '首页', to: '/' },
-        { label: '学习资源', to: '/resources' },
+        { label: $t('首页'), to: '/' },
+        { label: $t('学习资源'), to: '/resources' },
         ...(resource ? [{ label: resource.title }] : []),
       ]"
     />
@@ -83,29 +85,29 @@ onMounted(load)
         <div class="info">
           <h2 class="title">
             {{ resource.title }}
-            <el-tag v-if="resource.isFree" type="success">免费</el-tag>
+            <el-tag v-if="resource.isFree" type="success">{{ $t('免费') }}</el-tag>
             <el-tag v-else type="danger">{{ formatPrice(resource.price) }}</el-tag>
-            <el-tag v-if="resource.isApproved === false" type="warning">待审核</el-tag>
+            <el-tag v-if="resource.isApproved === false" type="warning">{{ $t('待审核') }}</el-tag>
           </h2>
           <p class="desc">{{ resource.description }}</p>
           <div class="meta-grid">
-            <div><span class="text-muted">作者：</span>{{ resource.author || '未知' }}</div>
-            <div><span class="text-muted">分类：</span>{{ resource.categoryName }}</div>
-            <div><span class="text-muted">难度：</span>{{ resource.difficultyLevel }}</div>
-            <div><span class="text-muted">时长：</span>{{ resource.durationMinutes }} 分钟</div>
-            <div><span class="text-muted">类型：</span>{{ resource.learningType }}</div>
-            <div><span class="text-muted">发布时间：</span>{{ formatDate(resource.createDate) }}</div>
+            <div><span class="text-muted">{{ $t('作者：') }}</span>{{ resource.author || $t('未知') }}</div>
+            <div><span class="text-muted">{{ $t('分类：') }}</span>{{ resource.categoryName }}</div>
+            <div><span class="text-muted">{{ $t('难度：') }}</span>{{ $t(resource.difficultyLevel) }}</div>
+            <div><span class="text-muted">{{ $t('时长：') }}</span>{{ resource.durationMinutes }} {{ $t('分钟') }}</div>
+            <div><span class="text-muted">{{ $t('类型：') }}</span>{{ $t(resource.learningType) }}</div>
+            <div><span class="text-muted">{{ $t('发布时间：') }}</span>{{ formatDate(resource.createDate) }}</div>
           </div>
           <div class="stats">
-            <span>{{ formatCount(resource.viewCount) }} 浏览</span>
-            <span>{{ formatCount(resource.likeCount) }} 点赞</span>
-            <span><LineIcon name="user" :size="14" /> {{ formatCount(resource.completionCount) }} 人学完</span>
+            <span>{{ $t('{n} 次浏览', { n: formatCount(resource.viewCount) }) }}</span>
+            <span>{{ $t('{n} 点赞', { n: formatCount(resource.likeCount) }) }}</span>
+            <span><LineIcon name="user" :size="14" /> {{ $t('{n} 人学完', { n: formatCount(resource.completionCount) }) }}</span>
           </div>
           <div class="actions">
-            <el-button type="primary" size="large" @click="startLearn"><LineIcon name="book" :size="14" /> 开始学习</el-button>
-            <el-button size="large" :loading="likeBusy" @click="like">点赞</el-button>
-            <el-button size="large" @click="toggleFavorite">{{ favorited ? '已收藏' : '收藏' }}</el-button>
-            <el-button size="large" @click="download"><LineIcon name="download" :size="14" /> 下载资料</el-button>
+            <el-button type="primary" size="large" @click="startLearn"><LineIcon name="book" :size="14" /> {{ $t('开始学习') }}</el-button>
+            <el-button size="large" :loading="likeBusy" @click="like">{{ $t('点赞') }}</el-button>
+            <el-button size="large" @click="toggleFavorite">{{ favorited ? $t('已收藏') : $t('收藏') }}</el-button>
+            <el-button size="large" @click="download"><LineIcon name="download" :size="14" /> {{ $t('下载资料') }}</el-button>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 <script setup>
-import { onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { searchApi } from '@/api/search'
 import LineIcon from '@/components/LineIcon.vue'
 
@@ -9,16 +10,17 @@ import LineIcon from '@/components/LineIcon.vue'
  */
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 const keyword = ref('')
 const loading = ref(false)
 const result = reactive({ resources: [], paths: [], models: [], resourceTotal: 0, pathTotal: 0, modelTotal: 0 })
 
-const GROUPS = [
-  { key: 'resources', totalKey: 'resourceTotal', label: '学习资源', icon: 'book', route: (i) => `/resources/${i.id}`, more: '/resources' },
-  { key: 'paths', totalKey: 'pathTotal', label: '学习路径', icon: 'layers', route: (i) => `/paths/${i.id}`, more: '/paths' },
-  { key: 'models', totalKey: 'modelTotal', label: '3D 模型', icon: 'cube', route: (i) => `/market/${i.id}`, more: '/market' },
-]
+const GROUPS = computed(() => [
+  { key: 'resources', totalKey: 'resourceTotal', label: t('学习资源'), icon: 'book', route: (i) => `/resources/${i.id}`, more: '/resources' },
+  { key: 'paths', totalKey: 'pathTotal', label: t('学习路径'), icon: 'layers', route: (i) => `/paths/${i.id}`, more: '/paths' },
+  { key: 'models', totalKey: 'modelTotal', label: t('3D 模型'), icon: 'cube', route: (i) => `/market/${i.id}`, more: '/market' },
+])
 
 async function doSearch() {
   const kw = keyword.value.trim()
@@ -57,20 +59,20 @@ onMounted(() => {
 
 <template>
   <div class="page-container">
-    <div class="page-title"><LineIcon name="search" :size="19" /> 全局搜索</div>
+    <div class="page-title"><LineIcon name="search" :size="19" /> {{ $t('全局搜索') }}</div>
 
     <div class="search-bar">
       <el-input
         v-model="keyword"
         size="large"
-        placeholder="搜索课程、学习路径、3D 模型…"
+        :placeholder="$t('搜索课程、学习路径、3D 模型…')"
         clearable
         @keyup.enter="submit"
         @clear="() => {}"
       >
         <template #prefix><LineIcon name="search" :size="16" /></template>
         <template #append>
-          <el-button :loading="loading" @click="submit">搜索</el-button>
+          <el-button :loading="loading" @click="submit">{{ $t('搜索') }}</el-button>
         </template>
       </el-input>
     </div>
@@ -79,7 +81,7 @@ onMounted(() => {
       <template v-if="route.query.q">
         <el-empty
           v-if="result.resourceTotal + result.pathTotal + result.modelTotal === 0 && !loading"
-          :description="`没有找到与「${route.query.q}」相关的内容，换个关键词试试`"
+          :description="$t('没有找到与「{q}」相关的内容，换个关键词试试', { q: route.query.q })"
         />
         <section v-for="g in GROUPS" :key="g.key" class="group" :class="{ hidden: result[g.totalKey] === 0 }">
           <div class="group-head">
@@ -90,7 +92,7 @@ onMounted(() => {
             </span>
             <span class="group-line" />
             <router-link v-if="result[g.totalKey] > result[g.key].length" :to="{ path: g.more, query: { search: route.query.q } }" class="group-more">
-              查看全部 {{ result[g.totalKey] }} 条 <LineIcon name="arrowRight" :size="12" />
+              {{ $t('查看全部 {n} 条', { n: result[g.totalKey] }) }} <LineIcon name="arrowRight" :size="12" />
             </router-link>
           </div>
           <div class="hit-grid">
@@ -110,7 +112,7 @@ onMounted(() => {
           </div>
         </section>
       </template>
-      <el-empty v-else description="在顶部输入关键词，搜索全站的课程、路径与模型" />
+      <el-empty v-else :description="$t('在顶部输入关键词，搜索全站的课程、路径与模型')" />
     </div>
   </div>
 </template>

@@ -1,8 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import i18n from '@/i18n'
 
 const routes = [
   { path: '/', name: 'home', component: () => import('@/views/Home.vue') },
+  { path: '/guide', name: 'guide', meta: { title: '操作指南' }, component: () => import('@/views/Guide.vue') },
   { path: '/login', name: 'login', component: () => import('@/views/Login.vue') },
   { path: '/register', name: 'register', component: () => import('@/views/Register.vue') },
   { path: '/search', name: 'search', meta: { title: '全局搜索' }, component: () => import('@/views/Search.vue') },
@@ -72,7 +74,8 @@ router.beforeEach((to) => {
   if ((to.name === 'login' || to.name === 'register') && auth.isLoggedIn) {
     return { name: 'home' }
   }
-  document.title = to.meta.title ? `${to.meta.title} - AI智学 校园学习平台` : 'AI智学 校园学习平台'
+  const site = i18n.global.t('AI智学 校园学习平台')
+  document.title = to.meta.title ? `${i18n.global.t(to.meta.title)} - ${site}` : site
 })
 
 export default router

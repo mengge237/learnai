@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { interactionApi } from '@/api/interaction'
 import { useAuthStore } from '@/stores/auth'
 import { formatDate } from '@/utils/format'
@@ -14,6 +15,7 @@ const props = defineProps({
 
 const auth = useAuthStore()
 const router = useRouter()
+const { t } = useI18n()
 const comments = ref([])
 const loading = ref(false)
 const replyTo = ref(null) // 回复目标 { id, username }
@@ -42,7 +44,7 @@ async function submit() {
       parentCommentId: replyTo.value?.id,
       content: content.value.trim(),
     })
-    ElMessage.success('评论成功')
+    ElMessage.success(t('评论成功'))
     content.value = ''
     replyTo.value = null
     load()
@@ -62,7 +64,7 @@ function startReply(c) {
 
 <template>
   <div class="comment-section" v-loading="loading">
-    <div class="comment-count"><LineIcon name="chat" :size="15" /> 评论（{{ comments.length }}）</div>
+    <div class="comment-count"><LineIcon name="chat" :size="15" /> {{ $t('评论（{n}）', { n: comments.length }) }}</div>
 
     <!-- 输入区 -->
     <div class="input-area">
@@ -70,13 +72,13 @@ function startReply(c) {
         v-model="content"
         type="textarea"
         :rows="3"
-        :placeholder="replyTo ? `回复 @${replyTo.username}：` : '友善发言，分享你的学习心得…'"
+        :placeholder="replyTo ? t('回复 @{name}：', { name: replyTo.username }) : t('友善发言，分享你的学习心得…')"
         maxlength="500"
         show-word-limit
       />
       <div class="input-actions">
-        <el-button v-if="replyTo" size="small" @click="replyTo = null">取消回复</el-button>
-        <el-button type="primary" size="small" :loading="submitting" @click="submit">发表评论</el-button>
+        <el-button v-if="replyTo" size="small" @click="replyTo = null">{{ $t('取消回复') }}</el-button>
+        <el-button type="primary" size="small" :loading="submitting" @click="submit">{{ $t('发表评论') }}</el-button>
       </div>
     </div>
 
@@ -89,7 +91,7 @@ function startReply(c) {
       </div>
       <div class="comment-body">{{ c.content }}</div>
       <div class="comment-actions">
-        <el-link type="primary" :underline="false" @click="startReply(c)">回复</el-link>
+        <el-link type="primary" :underline="false" @click="startReply(c)">{{ $t('回复') }}</el-link>
       </div>
       <div v-for="r in c.replies || []" :key="r.id" class="comment reply">
         <div class="comment-head">
@@ -101,7 +103,7 @@ function startReply(c) {
       </div>
     </div>
 
-    <el-empty v-if="!loading && comments.length === 0" description="还没有评论，来抢沙发～" :image-size="60" />
+    <el-empty v-if="!loading && comments.length === 0" :description="$t('还没有评论，来抢沙发～')" :image-size="60" />
   </div>
 </template>
 

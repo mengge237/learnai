@@ -58,29 +58,29 @@ watch(sort, () => {
 
 <template>
   <div class="page-container">
-    <div class="page-title"><LineIcon name="cube" :size="19" /> 模型资源库</div>
+    <div class="page-title"><LineIcon name="cube" :size="19" /> {{ $t('模型资源库') }}</div>
 
     <div class="toolbar">
-      <el-input v-model="search" placeholder="搜索模型名称 / 创作者" clearable class="search" @keyup.enter="doSearch" @clear="doSearch">
+      <el-input v-model="search" :placeholder="$t('搜索模型名称 / 创作者')" clearable class="search" @keyup.enter="doSearch" @clear="doSearch">
         <template #append>
-          <el-button @click="doSearch">搜索</el-button>
+          <el-button @click="doSearch">{{ $t('搜索') }}</el-button>
         </template>
       </el-input>
-      <el-select v-model="categoryId" placeholder="全部分类" clearable class="cat" @change="page = 1; load()">
+      <el-select v-model="categoryId" :placeholder="$t('全部分类')" clearable class="cat" @change="page = 1; load()">
         <el-option v-for="c in categories" :key="c.id" :label="c.name" :value="c.id" />
       </el-select>
       <el-select v-model="sort" class="sort">
-        <el-option label="最新上架" value="newest" />
-        <el-option label="价格从低到高" value="priceAsc" />
-        <el-option label="价格从高到低" value="priceDesc" />
+        <el-option :label="$t('最新上架')" value="newest" />
+        <el-option :label="$t('价格从低到高')" value="priceAsc" />
+        <el-option :label="$t('价格从高到低')" value="priceDesc" />
       </el-select>
-      <el-button class="cart-btn" @click="router.push('/market/cart')"><LineIcon name="box" :size="14" /> 购物车（{{ cart.totalCount }}）</el-button>
+      <el-button class="cart-btn" @click="router.push('/market/cart')"><LineIcon name="box" :size="14" /> {{ $t('购物车（{n}）', { n: cart.totalCount }) }}</el-button>
     </div>
 
     <div v-loading="loading" class="model-grid">
       <ModelCard v-for="m in models" :key="m.id" :model="m" />
     </div>
-    <el-empty v-if="!loading && models.length === 0" description="没有找到相关模型" />
+    <el-empty v-if="!loading && models.length === 0" :description="$t('没有找到相关模型')" />
 
     <PaginationBar v-if="total > 0" v-model:page="page" v-model:size="size" :total="total" @change="load" />
   </div>

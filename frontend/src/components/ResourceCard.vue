@@ -14,7 +14,7 @@ const router = useRouter()
     <div class="cover-wrap">
       <el-image v-if="resource.previewUrl" :src="resource.previewUrl" fit="cover" class="cover" lazy />
       <div v-else class="cover cover-fallback" :style="{ background: `linear-gradient(135deg, hsl(${(resource.id || 0) * 37 % 360} 60% 62%), hsl(${(resource.id || 0) * 37 % 360 + 40} 60% 42%))` }" />
-      <span v-if="resource.isFree" class="badge badge-free">免费</span>
+      <span v-if="resource.isFree" class="badge badge-free">{{ $t('免费') }}</span>
       <span v-else class="badge badge-paid">{{ formatPrice(resource.price) }}</span>
     </div>
     <div class="body">
@@ -24,9 +24,9 @@ const router = useRouter()
         <el-tag v-if="resource.difficultyLevel" size="small" effect="plain">{{ resource.difficultyLevel }}</el-tag>
       </div>
       <div class="stats text-muted">
-        <span>浏览 {{ formatCount(resource.viewCount) }}</span>
+        <span>{{ formatCount(resource.viewCount) }} {{ $t('浏览') }}</span>
         <span><LineIcon name="heart" :size="13" /> {{ formatCount(resource.likeCount) }}</span>
-        <span><LineIcon name="user" :size="13" /> {{ formatCount(resource.completionCount) }} 人学过</span>
+        <span><LineIcon name="user" :size="13" /> {{ formatCount(resource.completionCount) }} {{ $t('人学过') }}</span>
       </div>
     </div>
   </el-card>

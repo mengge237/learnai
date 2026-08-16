@@ -25,20 +25,20 @@ onMounted(async () => {
 
 <template>
   <div class="page-container" v-loading="loading">
-    <div class="page-title"><LineIcon name="chart" :size="19" /> 学习分析</div>
+    <div class="page-title"><LineIcon name="chart" :size="19" /> {{ $t('学习分析') }}</div>
 
     <template v-if="data">
       <el-row :gutter="16" class="stat-row">
-        <el-col :span="8"><el-card><el-statistic title="学习资源总数" :value="data.totalLearningResources" /></el-card></el-col>
-        <el-col :span="8"><el-card><el-statistic title="已完成" :value="data.totalCompleted" /></el-card></el-col>
-        <el-col :span="8"><el-card><el-statistic title="进行中" :value="data.totalInProgress" /></el-card></el-col>
-        <el-col :span="8"><el-card><el-statistic title="答疑互动" :value="data.totalInteractions" suffix="次" /></el-card></el-col>
-        <el-col :span="8"><el-card><el-statistic title="平均进度" :value="data.averageProgress" suffix="%" :precision="1" /></el-card></el-col>
-        <el-col :span="8"><el-card><el-statistic title="累计学习时长" :value="data.totalLearningMinutes" suffix="分钟" /></el-card></el-col>
+        <el-col :span="8"><el-card><el-statistic :title="$t('学习资源总数')" :value="data.totalLearningResources" /></el-card></el-col>
+        <el-col :span="8"><el-card><el-statistic :title="$t('已完成')" :value="data.totalCompleted" /></el-card></el-col>
+        <el-col :span="8"><el-card><el-statistic :title="$t('进行中')" :value="data.totalInProgress" /></el-card></el-col>
+        <el-col :span="8"><el-card><el-statistic :title="$t('答疑互动')" :value="data.totalInteractions" :suffix="$t('次')" /></el-card></el-col>
+        <el-col :span="8"><el-card><el-statistic :title="$t('平均进度')" :value="data.averageProgress" suffix="%" :precision="1" /></el-card></el-col>
+        <el-col :span="8"><el-card><el-statistic :title="$t('累计学习时长')" :value="data.totalLearningMinutes" :suffix="$t('分钟')" /></el-card></el-col>
       </el-row>
 
       <el-card class="block">
-        <div class="section-label"><LineIcon name="clock" :size="15" /> 近 7 天学习情况</div>
+        <div class="section-label"><LineIcon name="clock" :size="15" /> {{ $t('近 7 天学习情况') }}</div>
         <div class="week-chart">
           <div v-for="w in data.weeklyStats" :key="w.date" class="week-col">
             <div class="week-value text-muted">{{ w.totalLearning }}</div>
@@ -52,20 +52,20 @@ onMounted(async () => {
           </div>
         </div>
         <div class="legend text-muted">
-          <span><i class="dot learn" /> 学习次数</span>
-          <span><i class="dot done" /> 完成次数</span>
+          <span><i class="dot learn" /> {{ $t('学习次数') }}</span>
+          <span><i class="dot done" /> {{ $t('完成次数') }}</span>
         </div>
       </el-card>
 
       <el-row :gutter="16">
         <el-col :xs="24" :md="10">
           <el-card class="block">
-            <div class="section-label"><LineIcon name="layers" :size="15" /> 分类统计</div>
+            <div class="section-label"><LineIcon name="layers" :size="15" /> {{ $t('分类统计') }}</div>
             <el-table :data="data.categoryStats" size="small">
-              <el-table-column prop="categoryName" label="分类" />
-              <el-table-column prop="totalResources" label="资源数" width="80" align="center" />
-              <el-table-column prop="completedResources" label="已完成" width="80" align="center" />
-              <el-table-column label="平均进度" width="110" align="center">
+              <el-table-column prop="categoryName" :label="$t('分类')" />
+              <el-table-column prop="totalResources" :label="$t('资源数')" width="80" align="center" />
+              <el-table-column prop="completedResources" :label="$t('已完成')" width="80" align="center" />
+              <el-table-column :label="$t('平均进度')" width="110" align="center">
                 <template #default="{ row }">
                   <el-progress :percentage="Math.round(row.avgProgress)" :stroke-width="8" />
                 </template>
@@ -75,22 +75,22 @@ onMounted(async () => {
         </el-col>
         <el-col :xs="24" :md="14">
           <el-card class="block">
-            <div class="section-label"><LineIcon name="clock" :size="15" /> 最近学习记录</div>
+            <div class="section-label"><LineIcon name="clock" :size="15" /> {{ $t('最近学习记录') }}</div>
             <el-table :data="data.recentRecords" size="small">
-              <el-table-column label="资源" min-width="180">
+              <el-table-column :label="$t('资源')" min-width="180">
                 <template #default="{ row }">
                   <el-link type="primary" @click="router.push(`/resources/${row.resourceId}`)">{{ row.title }}</el-link>
                 </template>
               </el-table-column>
-              <el-table-column label="状态" width="90" align="center">
-                <template #default="{ row }">{{ LEARNING_STATUS[row.status] || row.status }}</template>
+              <el-table-column :label="$t('状态')" width="90" align="center">
+                <template #default="{ row }">{{ $t(LEARNING_STATUS[row.status] || row.status) }}</template>
               </el-table-column>
-              <el-table-column label="进度" width="100" align="center">
+              <el-table-column :label="$t('进度')" width="100" align="center">
                 <template #default="{ row }">
                   <el-progress :percentage="Math.round(row.progress || 0)" :stroke-width="8" />
                 </template>
               </el-table-column>
-              <el-table-column label="开始时间" width="140">
+              <el-table-column :label="$t('开始时间')" width="140">
                 <template #default="{ row }">{{ formatDate(row.startTime) }}</template>
               </el-table-column>
             </el-table>

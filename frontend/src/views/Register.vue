@@ -1,11 +1,13 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
 const auth = useAuthStore()
+const { t } = useI18n()
 
 const formRef = ref()
 const loading = ref(false)
@@ -19,35 +21,36 @@ const form = reactive({
   gender: '男',
 })
 
-const rules = {
+// 校验提示随语言切换（用 computed 重新生成 rules）
+const rules = computed(() => ({
   username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 4, max: 20, message: '用户名长度需在 4-20 个字符之间', trigger: 'blur' },
+    { required: true, message: t('请输入用户名'), trigger: 'blur' },
+    { min: 4, max: 20, message: t('用户名长度需在 4-20 个字符之间'), trigger: 'blur' },
   ],
-  studentNo: [{ max: 30, message: '学号长度不能超过 30 个字符', trigger: 'blur' }],
+  studentNo: [{ max: 30, message: t('学号长度不能超过 30 个字符'), trigger: 'blur' }],
   password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 50, message: '密码长度需在 6-50 个字符之间', trigger: 'blur' },
+    { required: true, message: t('请输入密码'), trigger: 'blur' },
+    { min: 6, max: 50, message: t('密码长度需在 6-50 个字符之间'), trigger: 'blur' },
   ],
   confirmPassword: [
-    { required: true, message: '请再次输入密码', trigger: 'blur' },
+    { required: true, message: t('请再次输入密码'), trigger: 'blur' },
     {
       validator: (rule, value, callback) => {
-        value === form.password ? callback() : callback(new Error('两次输入的密码不一致'))
+        value === form.password ? callback() : callback(new Error(t('两次输入的密码不一致')))
       },
       trigger: 'blur',
     },
   ],
-  email: [{ type: 'email', message: '邮箱格式不正确', trigger: 'blur' }],
-  phone: [{ pattern: /^$|^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }],
-}
+  email: [{ type: 'email', message: t('邮箱格式不正确'), trigger: 'blur' }],
+  phone: [{ pattern: /^$|^1[3-9]\d{9}$/, message: t('手机号格式不正确'), trigger: 'blur' }],
+}))
 
 async function onSubmit() {
   await formRef.value.validate()
   loading.value = true
   try {
     await auth.register({ ...form })
-    ElMessage.success('注册成功，请登录')
+    ElMessage.success(t('注册成功，请登录'))
     router.push({ name: 'login', query: { username: form.username } })
   } finally {
     loading.value = false
@@ -61,43 +64,43 @@ async function onSubmit() {
       <div class="auth-head">
         <div class="auth-brand">
           <span class="brand-mark">◈</span>
-          <span class="brand-name">AI智学</span>
-          <span class="campus-badge">校园特供版</span>
+          <span class="brand-name">{{ $t('AI智学') }}</span>
+          <span class="campus-badge">{{ $t('校园特供版') }}</span>
         </div>
-        <div class="auth-sub text-muted">注册校园账号 · 开启学习之旅</div>
+        <div class="auth-sub text-muted">{{ $t('注册校园账号 · 开启学习之旅') }}</div>
       </div>
 
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top" @submit.prevent="onSubmit">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="form.username" placeholder="4-20 个字符" size="large" />
+        <el-form-item :label="$t('用户名')" prop="username">
+          <el-input v-model="form.username" :placeholder="$t('4-20 个字符')" size="large" />
         </el-form-item>
-        <el-form-item label="学号（校园特供版）" prop="studentNo">
-          <el-input v-model="form.studentNo" placeholder="选填，如 2026010016" size="large" />
+        <el-form-item :label="$t('学号（校园特供版）')" prop="studentNo">
+          <el-input v-model="form.studentNo" :placeholder="$t('选填，如 2026010016')" size="large" />
         </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input v-model="form.password" type="password" placeholder="至少 6 位" show-password size="large" />
+        <el-form-item :label="$t('密码')" prop="password">
+          <el-input v-model="form.password" type="password" :placeholder="$t('至少 6 位')" show-password size="large" />
         </el-form-item>
-        <el-form-item label="确认密码" prop="confirmPassword">
+        <el-form-item :label="$t('确认密码')" prop="confirmPassword">
           <el-input v-model="form.confirmPassword" type="password" show-password size="large" />
         </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="form.email" placeholder="选填" size="large" />
+        <el-form-item :label="$t('邮箱')" prop="email">
+          <el-input v-model="form.email" :placeholder="$t('选填')" size="large" />
         </el-form-item>
-        <el-form-item label="手机号" prop="phone">
-          <el-input v-model="form.phone" placeholder="选填" size="large" />
+        <el-form-item :label="$t('手机号')" prop="phone">
+          <el-input v-model="form.phone" :placeholder="$t('选填')" size="large" />
         </el-form-item>
-        <el-form-item label="性别">
+        <el-form-item :label="$t('性别')">
           <el-radio-group v-model="form.gender">
-            <el-radio value="男">男</el-radio>
-            <el-radio value="女">女</el-radio>
+            <el-radio value="男">{{ $t('男') }}</el-radio>
+            <el-radio value="女">{{ $t('女') }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-button type="primary" size="large" class="submit" :loading="loading" @click="onSubmit">
-          注 册
+          {{ $t('注 册') }}
         </el-button>
       </el-form>
       <div class="auth-foot">
-        已有账号？<el-link type="primary" @click="router.push('/login')">去登录</el-link>
+        {{ $t('已有账号？') }}<el-link type="primary" @click="router.push('/login')">{{ $t('去登录') }}</el-link>
       </div>
     </el-card>
   </div>

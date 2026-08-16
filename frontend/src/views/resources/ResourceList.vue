@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import ResourceCard from '@/components/ResourceCard.vue'
 import PaginationBar from '@/components/PaginationBar.vue'
 import LineIcon from '@/components/LineIcon.vue'
@@ -9,6 +10,7 @@ import http from '@/api/http'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 
 const loading = ref(false)
 const resources = ref([])
@@ -23,11 +25,11 @@ const query = reactive({
   size: 12,
 })
 
-const sortOptions = [
-  { value: 'newest', label: '最新发布' },
-  { value: 'popular', label: '最受欢迎' },
-  { value: 'views', label: '最多浏览' },
-]
+const sortOptions = computed(() => [
+  { value: 'newest', label: t('最新发布') },
+  { value: 'popular', label: t('最受欢迎') },
+  { value: 'views', label: t('最多浏览') },
+])
 
 /** 全部公开课程数 = 各根分类（含子分类）资源数之和 */
 const totalCourses = computed(() => catTree.value.reduce((sum, c) => sum + (c.resourceCount || 0), 0))
@@ -97,7 +99,7 @@ onMounted(async () => {
 
 <template>
   <div class="page-container wide">
-    <div class="page-title"><LineIcon name="book" :size="19" /> 学习资源</div>
+    <div class="page-title"><LineIcon name="book" :size="19" /> {{ $t('学习资源') }}</div>
 
     <div class="res-layout">
       <!-- ============ 侧边栏：搜索 + 分类树 ============ -->
@@ -105,21 +107,21 @@ onMounted(async () => {
         <div class="side-search">
           <el-input
             v-model="query.search"
-            placeholder="搜索课程、教程关键词…"
+            :placeholder="$t('搜索课程、教程关键词…')"
             clearable
             @keyup.enter="onSideSearch"
             @clear="onSideSearch"
           >
             <template #prefix><LineIcon name="search" :size="14" /></template>
           </el-input>
-          <el-button class="side-search-btn" @click="onSideSearch">搜索</el-button>
+          <el-button class="side-search-btn" @click="onSideSearch">{{ $t('搜索') }}</el-button>
         </div>
 
         <nav class="cat-nav">
-          <div class="cat-nav-title">课程分类</div>
+          <div class="cat-nav-title">{{ $t('课程分类') }}</div>
 
           <button class="cat-row all" :class="{ active: !query.categoryId }" @click="pickCategory(null)">
-            <span class="cat-name">全部课程</span>
+            <span class="cat-name">{{ $t('全部课程') }}</span>
             <span class="cat-count">{{ totalCourses }}</span>
           </button>
 
@@ -144,7 +146,7 @@ onMounted(async () => {
         </nav>
 
         <div class="side-note text-muted">
-          分类后数字为该分类下<br />全部公开课程数量
+          {{ $t('分类后数字为该分类下') }}<br />{{ $t('全部公开课程数量') }}
         </div>
       </aside>
 
@@ -152,9 +154,9 @@ onMounted(async () => {
       <main class="res-main">
         <div class="main-bar">
           <div class="main-title">
-            <template v-if="query.search">搜索「{{ query.search }}」</template>
-            <template v-else>{{ activeCategoryName || '全部课程' }}</template>
-            <span class="main-total text-muted">共 {{ total }} 门课程</span>
+            <template v-if="query.search">{{ $t('搜索「{q}」', { q: query.search }) }}</template>
+            <template v-else>{{ activeCategoryName || $t('全部课程') }}</template>
+            <span class="main-total text-muted">{{ $t('共 {n} 门课程', { n: total }) }}</span>
           </div>
           <el-radio-group v-model="query.sort" @change="onFilterChange">
             <el-radio-button v-for="s in sortOptions" :key="s.value" :value="s.value">{{ s.label }}</el-radio-button>
@@ -162,7 +164,7 @@ onMounted(async () => {
         </div>
 
         <div v-loading="loading" class="main-list">
-          <el-empty v-if="!loading && resources.length === 0" description="没有找到相关资源" />
+          <el-empty v-if="!loading && resources.length === 0" :description="$t('没有找到相关资源')" />
           <div v-else class="card-grid">
             <ResourceCard v-for="r in resources" :key="r.id" :resource="r" />
           </div>

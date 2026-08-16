@@ -5,6 +5,6 @@ const route = useRoute()
 
 <template>
   <div class="page-container">
-    <el-empty :description="`「${route.meta.title || '该模块'}」正在开发中，敬请期待`" />
+    <el-empty :description="$t('「{name}」正在开发中，敬请期待', { name: $t(route.meta.title || '该模块') })" />
   </div>
 </template>

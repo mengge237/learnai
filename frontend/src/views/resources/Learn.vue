@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
 import { resourceApi } from '@/api/resources'
 import { studyApi } from '@/api/study'
@@ -11,6 +12,7 @@ import PageBreadcrumb from '@/components/PageBreadcrumb.vue'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const id = Number(route.params.id)
 
 const progress = ref(null)
@@ -26,7 +28,7 @@ watch(currentStep, () => tts.stop())
 
 function readAloud(step) {
   if (!step?.stepContent) {
-    ElMessage.info('本章内容正在编写中，暂无正文可朗读')
+    ElMessage.info(t('本章内容正在编写中，暂无正文可朗读'))
     return
   }
   tts.speak(step.stepContent)
@@ -86,8 +88,8 @@ function startTimer() {
     if (m > 0 && m % 25 === 0 && notifiedAt !== m) {
       notifiedAt = m
       ElNotification({
-        title: '学习提醒',
-        message: `已连续学习 ${m} 分钟，起来活动一下，眺望远处放松眼睛～`,
+        title: t('学习提醒'),
+        message: t('已连续学习 {m} 分钟，起来活动一下，眺望远处放松眼睛～', { m }),
         type: 'success',
         duration: 4000,
       })
@@ -142,7 +144,7 @@ async function start() {
   try {
     progress.value = await resourceApi.startLearn(id)
     sliderProgress.value = 0
-    ElMessage.success('开始学习！先完成第一步吧')
+    ElMessage.success(t('开始学习！先完成第一步吧'))
     startTimer()
   } finally {
     busy.value = false
@@ -157,7 +159,7 @@ async function saveProgress() {
       notes: progress.value.notes,
       durationMinutes: progress.value.durationMinutes,
     })
-    ElMessage.success('进度已保存')
+    ElMessage.success(t('进度已保存'))
   } finally {
     busy.value = false
   }
@@ -169,7 +171,7 @@ async function setStep(step, status) {
     progress.value = await resourceApi.updateStep(id, step.stepNumber, { status })
     const allDone = progress.value.steps.every((s) => s.status === 'Completed')
     if (status === 'Completed' && allDone) {
-      ElMessage.success('所有步骤都完成了！可以提交完成学习～')
+      ElMessage.success(t('所有步骤都完成了！可以提交完成学习～'))
     }
   } finally {
     busy.value = false
@@ -179,9 +181,9 @@ async function setStep(step, status) {
 async function complete() {
   let value
   try {
-    ;({ value } = await ElMessageBox.prompt('给自己本次学习打个分吧（0-100）', '完成学习', {
+    ;({ value } = await ElMessageBox.prompt(t('给自己本次学习打个分吧（0-100）'), t('完成学习'), {
       inputPattern: /^$|^\d{1,3}$/,
-      inputErrorMessage: '请输入 0-100 的整数',
+      inputErrorMessage: t('请输入 0-100 的整数'),
       inputValue: progress.value.score != null ? String(progress.value.score) : '',
     }))
   } catch {
@@ -194,13 +196,13 @@ async function complete() {
       notes: progress.value.notes,
     })
     stopTimer()
-    ElMessage.success('恭喜完成学习！')
+    ElMessage.success(t('恭喜完成学习！'))
   } finally {
     busy.value = false
   }
 }
 
-const stepIcon = (s) => STEP_STATUS[s] || s
+const stepIcon = (s) => (STEP_STATUS[s] ? t(STEP_STATUS[s]) : s)
 
 onMounted(load)
 onBeforeUnmount(() => {
@@ -215,16 +217,16 @@ onBeforeUnmount(() => {
       <!-- 面包屑：首页 / 学习资源 / 当前课程 -->
       <PageBreadcrumb
         :items="[
-          { label: '首页', to: '/' },
-          { label: '学习资源', to: '/resources' },
+          { label: $t('首页'), to: '/' },
+          { label: $t('学习资源'), to: '/resources' },
           { label: progress.resourceTitle },
         ]"
       />
 
       <!-- 未开始 -->
       <el-card v-if="progress.recordId == null" class="box">
-        <el-empty description="还没有开始学习这个资源">
-          <el-button type="primary" size="large" :loading="busy" @click="start"><LineIcon name="arrowRight" :size="14" /> 开始学习</el-button>
+        <el-empty :description="$t('还没有开始学习这个资源')">
+          <el-button type="primary" size="large" :loading="busy" @click="start"><LineIcon name="arrowRight" :size="14" /> {{ $t('开始学习') }}</el-button>
         </el-empty>
       </el-card>
 
@@ -238,31 +240,31 @@ onBeforeUnmount(() => {
 
           <div class="side-status">
             <el-tag :type="LEARNING_TAG[progress.status] || 'info'" size="small">
-              {{ LEARNING_STATUS[progress.status] || progress.status }}
+              {{ $t(LEARNING_STATUS[progress.status] || progress.status) }}
             </el-tag>
-            <span v-if="progress.score != null" class="score"><LineIcon name="star" :size="13" /> {{ progress.score }} 分</span>
+            <span v-if="progress.score != null" class="score"><LineIcon name="star" :size="13" /> {{ progress.score }} {{ $t('分') }}</span>
           </div>
 
           <!-- 学习计时与激励 -->
           <div class="side-study">
             <div class="study-row">
-              <span class="study-label">本次学习</span>
-              <span class="study-value">{{ pomodoroMinutes }} 分钟</span>
+              <span class="study-label">{{ $t('本次学习') }}</span>
+              <span class="study-value">{{ pomodoroMinutes }} {{ $t('分钟') }}</span>
             </div>
             <div class="study-row">
-              <span class="study-label">今日累计</span>
-              <span class="study-value">{{ study?.todayMinutes ?? 0 }} 分钟</span>
+              <span class="study-label">{{ $t('今日累计') }}</span>
+              <span class="study-value">{{ study?.todayMinutes ?? 0 }} {{ $t('分钟') }}</span>
             </div>
             <div class="study-row">
-              <span class="study-label">连续学习</span>
-              <span class="study-value flame"><LineIcon name="flame" :size="18" /> {{ study?.streakDays ?? 0 }} 天</span>
+              <span class="study-label">{{ $t('连续学习') }}</span>
+              <span class="study-value flame"><LineIcon name="flame" :size="18" /> {{ study?.streakDays ?? 0 }} {{ $t('天') }}</span>
             </div>
           </div>
 
           <el-progress :percentage="sliderProgress" :stroke-width="8" class="side-progress" />
 
           <div class="side-steps">
-            <div class="side-steps-label">教程目录</div>
+            <div class="side-steps-label">{{ $t('教程目录') }}</div>
             <button
               v-for="step in progress.steps"
               :key="step.stepNumber"
@@ -272,7 +274,7 @@ onBeforeUnmount(() => {
             >
               <span class="side-step-icon">{{ stepIcon(step.status) }}</span>
               <span class="side-step-text">
-                <span class="side-step-no">步骤 {{ step.stepNumber }}</span>
+                <span class="side-step-no">{{ $t('步骤') }} {{ step.stepNumber }}</span>
                 <span class="side-step-name">{{ step.stepTitle }}</span>
               </span>
             </button>
@@ -280,9 +282,9 @@ onBeforeUnmount(() => {
 
           <div class="side-foot">
             <el-button v-if="progress.status !== 'Completed'" type="success" size="small" :loading="busy" @click="complete">
-              提交完成
+              {{ $t('提交完成') }}
             </el-button>
-            <span v-else class="text-muted side-done">已完成 · {{ formatDate(progress.endTime) }}</span>
+            <span v-else class="text-muted side-done">{{ $t('已完成') }} · {{ formatDate(progress.endTime) }}</span>
           </div>
         </aside>
 
@@ -291,55 +293,55 @@ onBeforeUnmount(() => {
           <el-card class="box reader">
             <template v-if="current">
               <div class="reader-head">
-                <span class="reader-no">步骤 {{ current.stepNumber }}</span>
+                <span class="reader-no">{{ $t('步骤') }} {{ current.stepNumber }}</span>
                 <h2 class="reader-title">{{ current.stepTitle }}</h2>
-                <el-tag size="small" effect="plain">{{ STEP_STATUS[current.status] || current.status }}</el-tag>
+                <el-tag size="small" effect="plain">{{ $t(STEP_STATUS[current.status] || current.status) }}</el-tag>
 
                 <!-- 语音朗读：支持播放/暂停/继续/停止 -->
                 <div v-if="tts.supported" class="speak-ctrl">
                   <template v-if="!tts.speaking">
                     <el-button size="small" plain @click="readAloud(current)">
-                      <LineIcon name="volume" :size="14" /> 朗读本步骤
+                      <LineIcon name="volume" :size="14" /> {{ $t('朗读本步骤') }}
                     </el-button>
                   </template>
                   <template v-else>
                     <el-button size="small" plain @click="tts.paused ? tts.resume() : tts.pause()">
-                      <LineIcon :name="tts.paused ? 'play' : 'pause'" :size="13" /> {{ tts.paused ? '继续' : '暂停' }}
+                      <LineIcon :name="tts.paused ? 'play' : 'pause'" :size="13" /> {{ tts.paused ? $t('继续') : $t('暂停') }}
                     </el-button>
                     <el-button size="small" plain @click="tts.stop()">
-                      <LineIcon name="stop" :size="13" /> 停止
+                      <LineIcon name="stop" :size="13" /> {{ $t('停止') }}
                     </el-button>
                   </template>
                   <span v-if="tts.speaking" class="speak-indicator" :class="{ paused: tts.paused }">
-                    {{ tts.paused ? '· 已暂停' : '· 正在朗读' }}
+                    {{ tts.paused ? $t('· 已暂停') : $t('· 正在朗读') }}
                   </span>
                 </div>
               </div>
               <div class="reader-meta text-muted">
-                <span v-if="current.completedTime">完成于 {{ formatDate(current.completedTime) }}</span>
-                <span v-else>正在阅读</span>
+                <span v-if="current.completedTime">{{ $t('完成于') }} {{ formatDate(current.completedTime) }}</span>
+                <span v-else>{{ $t('正在阅读') }}</span>
               </div>
-              <div class="reader-content">{{ current.stepContent || '本章内容正在编写中，敬请期待。' }}</div>
+              <div class="reader-content">{{ current.stepContent || $t('本章内容正在编写中，敬请期待。') }}</div>
 
               <div class="reader-actions">
                 <el-button v-if="current.status === 'NotStarted'" type="primary" :loading="busy" @click="setStep(current, 'InProgress')">
-                  开始本步骤
+                  {{ $t('开始本步骤') }}
                 </el-button>
                 <el-button v-if="current.status !== 'Completed'" type="success" plain :loading="busy" @click="setStep(current, 'Completed')">
-                  标记完成
+                  {{ $t('标记完成') }}
                 </el-button>
               </div>
             </template>
-            <el-empty v-else description="暂无步骤" />
+            <el-empty v-else :description="$t('暂无步骤')" />
           </el-card>
 
           <!-- 进度调整 -->
           <el-card class="box progress-card">
             <div class="progress-row">
-              <span class="text-muted">学习进度</span>
+              <span class="text-muted">{{ $t('学习进度') }}</span>
               <el-slider v-model="sliderProgress" :disabled="progress.status === 'Completed'" class="slider" :step="5" show-stops />
               <el-button type="primary" plain :loading="busy" :disabled="progress.status === 'Completed'" @click="saveProgress">
-                保存进度
+                {{ $t('保存进度') }}
               </el-button>
             </div>
           </el-card>
@@ -347,10 +349,10 @@ onBeforeUnmount(() => {
           <!-- 上下步 -->
           <div class="step-nav">
             <el-button size="large" :disabled="!prevStep" @click="goStep(prevStep)">
-              ← 上一步<span v-if="prevStep" class="nav-step">：{{ prevStep.stepTitle }}</span>
+              ← {{ $t('上一步') }}<span v-if="prevStep" class="nav-step">：{{ prevStep.stepTitle }}</span>
             </el-button>
             <el-button size="large" type="primary" :disabled="!nextStep" @click="goStep(nextStep)">
-              下一步<span v-if="nextStep" class="nav-step">：{{ nextStep.stepTitle }}</span> →
+              {{ $t('下一步') }}<span v-if="nextStep" class="nav-step">：{{ nextStep.stepTitle }}</span> →
             </el-button>
           </div>
         </main>

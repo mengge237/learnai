@@ -45,6 +45,7 @@ const ICONS = {
   play: '<path d="M7 4l14 8-14 8V4z"/>',
   pause: '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>',
   stop: '<rect x="6" y="6" width="12" height="12" rx="1"/>',
+  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.7 4 5.7 4 9s-1.4 6.3-4 9c-2.6-2.7-4-5.7-4-9s1.4-6.3 4-9z"/>',
 }
 
 const icon = computed(() => ICONS[props.name] ?? ICONS.settings)

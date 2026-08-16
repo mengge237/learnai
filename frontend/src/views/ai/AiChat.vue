@@ -5,7 +5,7 @@ import LineIcon from '@/components/LineIcon.vue'
 
 <template>
   <div class="page-container">
-    <div class="page-title"><LineIcon name="chat" :size="19" /> 在线答疑</div>
+    <div class="page-title"><LineIcon name="chat" :size="19" /> {{ $t('在线答疑') }}</div>
     <el-card class="chat-card" body-style="padding: 0">
       <AiChatPanel />
     </el-card>

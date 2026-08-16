@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { marketApi } from '@/api/market'
 import { interactionApi } from '@/api/interaction'
 import { downloadFile } from '@/api/http'
@@ -17,6 +18,7 @@ const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
 const cart = useCartStore()
+const { t } = useI18n()
 
 const id = Number(route.params.id)
 const model = ref(null)
@@ -61,12 +63,12 @@ async function toggleFavorite() {
   if (!auth.isLoggedIn) return router.push({ name: 'login', query: { redirect: route.fullPath } })
   const { favorited: f } = await interactionApi.toggleFavorite({ modelId: id })
   favorited.value = f
-  ElMessage.success(f ? '已加入收藏' : '已取消收藏')
+  ElMessage.success(f ? t('已加入收藏') : t('已取消收藏'))
 }
 
 function addToCart() {
   cart.add(model.value, quantity.value, licenseType.value)
-  ElMessage.success('已加入购物车')
+  ElMessage.success(t('已加入购物车'))
 }
 
 function buyNow() {
@@ -86,8 +88,8 @@ onMounted(load)
   <div class="page-container" v-loading="loading">
     <PageBreadcrumb
       :items="[
-        { label: '首页', to: '/' },
-        { label: '模型资源库', to: '/market' },
+        { label: $t('首页'), to: '/' },
+        { label: $t('模型资源库'), to: '/market' },
         ...(model ? [{ label: model.name }] : []),
       ]"
     />
@@ -105,31 +107,31 @@ onMounted(load)
           <div class="info">
             <h2 class="title">
               {{ model.name }}
-              <el-tag v-if="Number(model.price) === 0" type="success">免费</el-tag>
+              <el-tag v-if="Number(model.price) === 0" type="success">{{ $t('免费') }}</el-tag>
               <el-tag v-else type="danger">{{ formatPrice(model.price) }}</el-tag>
-              <el-tag v-if="model.isApproved === false" type="warning">待审核</el-tag>
+              <el-tag v-if="model.isApproved === false" type="warning">{{ $t('待审核') }}</el-tag>
             </h2>
             <div class="meta-grid">
-              <div><span class="text-muted">创作者：</span>{{ model.creator || '未知' }}</div>
-              <div><span class="text-muted">分类：</span>{{ model.categoryName }}</div>
-              <div><span class="text-muted">编号：</span>{{ model.modelCode }}</div>
-              <div><span class="text-muted">上架时间：</span>{{ formatDate(model.createDate) }}</div>
+              <div><span class="text-muted">{{ $t('创作者：') }}</span>{{ model.creator || $t('未知') }}</div>
+              <div><span class="text-muted">{{ $t('分类：') }}</span>{{ model.categoryName }}</div>
+              <div><span class="text-muted">{{ $t('编号：') }}</span>{{ model.modelCode }}</div>
+              <div><span class="text-muted">{{ $t('上架时间：') }}</span>{{ formatDate(model.createDate) }}</div>
             </div>
             <div class="license-row">
-              <span class="text-muted">授权类型：</span>
+              <span class="text-muted">{{ $t('授权类型：') }}</span>
               <el-select v-model="licenseType" style="width: 140px">
-                <el-option v-for="t in LICENSE_TYPES" :key="t" :label="t" :value="t" />
+                <el-option v-for="lic in LICENSE_TYPES" :key="lic" :label="$t(lic)" :value="lic" />
               </el-select>
-              <span class="text-muted">数量：</span>
+              <span class="text-muted">{{ $t('数量：') }}</span>
               <el-input-number v-model="quantity" :min="1" :max="99" />
             </div>
             <div class="actions">
-              <el-button type="primary" size="large" :disabled="model.isApproved === false" @click="addToCart"><LineIcon name="box" :size="14" /> 加入购物车</el-button>
-              <el-button type="danger" size="large" plain :disabled="model.isApproved === false" @click="buyNow">立即购买</el-button>
-              <el-button size="large" @click="toggleFavorite">{{ favorited ? '已收藏' : '收藏' }}</el-button>
-              <el-button size="large" @click="download"><LineIcon name="download" :size="14" /> 下载模型文件</el-button>
+              <el-button type="primary" size="large" :disabled="model.isApproved === false" @click="addToCart"><LineIcon name="box" :size="14" /> {{ $t('加入购物车') }}</el-button>
+              <el-button type="danger" size="large" plain :disabled="model.isApproved === false" @click="buyNow">{{ $t('立即购买') }}</el-button>
+              <el-button size="large" @click="toggleFavorite">{{ favorited ? $t('已收藏') : $t('收藏') }}</el-button>
+              <el-button size="large" @click="download"><LineIcon name="download" :size="14" /> {{ $t('下载模型文件') }}</el-button>
             </div>
-            <div v-if="!viewerSrc" class="viewer-tip text-muted">该格式暂不支持在线预览，可下载后用本地软件（Blender / 3ds Max 等）打开</div>
+            <div v-if="!viewerSrc" class="viewer-tip text-muted">{{ $t('该格式暂不支持在线预览，可下载后用本地软件（Blender / 3ds Max 等）打开') }}</div>
           </div>
         </div>
       </el-card>

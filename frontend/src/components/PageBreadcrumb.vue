@@ -12,7 +12,7 @@ defineProps({
 </script>
 
 <template>
-  <nav class="page-breadcrumb" aria-label="面包屑">
+  <nav class="page-breadcrumb" :aria-label="$t('面包屑')">
     <template v-for="(it, i) in items" :key="i">
       <span v-if="i > 0" class="bc-sep"><LineIcon name="arrowRight" :size="11" /></span>
       <router-link v-if="it.to && i < items.length - 1" :to="it.to" class="bc-item">

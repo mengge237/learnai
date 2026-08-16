@@ -96,7 +96,8 @@ function onLoaded(obj) {
 
 function onError(err) {
   console.error('[ModelViewer] 加载失败:', err)
-  errorMsg.value = '模型文件加载失败'
+  // 存中文原文作为 i18n key，模板里 $t 渲染，语言切换后即时更新
+  errorMsg.value = '模型文件加载失败，请下载后在本地软件中打开'
   status.value = 'error'
 }
 
@@ -157,12 +158,12 @@ onUnmounted(dispose)
     <div ref="container" class="canvas" />
     <div v-if="status === 'loading'" class="overlay">
       <span class="spinner" />
-      <span class="text-muted">模型加载中…</span>
+      <span class="text-muted">{{ $t('模型加载中…') }}</span>
     </div>
     <div v-if="status === 'error'" class="overlay">
-      <span class="text-muted">{{ errorMsg }}，请下载后在本地软件中打开</span>
+      <span class="text-muted">{{ $t(errorMsg) }}</span>
     </div>
-    <div v-if="status === 'ready'" class="hint text-muted">拖拽旋转 · 滚轮缩放 · 右键平移</div>
+    <div v-if="status === 'ready'" class="hint text-muted">{{ $t('拖拽旋转 · 滚轮缩放 · 右键平移') }}</div>
   </div>
 </template>
 

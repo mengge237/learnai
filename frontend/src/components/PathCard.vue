@@ -1,5 +1,6 @@
 <script setup>
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { PATH_DIFFICULTY } from '@/utils/format'
 import LineIcon from './LineIcon.vue'
 
@@ -7,6 +8,7 @@ const props = defineProps({
   path: { type: Object, required: true },
 })
 const router = useRouter()
+const { t } = useI18n()
 </script>
 
 <template>
@@ -16,14 +18,14 @@ const router = useRouter()
       <div>
         <div class="title">{{ path.name }}</div>
         <div class="text-muted">
-          {{ PATH_DIFFICULTY[path.difficultyLevel] || '入门' }} · 约 {{ path.estimatedHours }} 小时
+          {{ t(PATH_DIFFICULTY[path.difficultyLevel] || '入门') }} · {{ $t('约 {n} 小时', { n: path.estimatedHours }) }}
         </div>
       </div>
     </div>
     <div class="desc text-muted">{{ path.description }}</div>
     <div class="foot">
-      <span class="text-muted">{{ path.resourceCount || 0 }} 个资源</span>
-      <span class="text-muted"><LineIcon name="user" :size="13" /> {{ path.enrollmentCount }} 人已报名</span>
+      <span class="text-muted">{{ $t('{n} 个资源', { n: path.resourceCount || 0 }) }}</span>
+      <span class="text-muted"><LineIcon name="user" :size="13" /> {{ $t('{n} 人已报名', { n: path.enrollmentCount }) }}</span>
     </div>
   </el-card>
 </template>

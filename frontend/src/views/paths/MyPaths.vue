@@ -20,10 +20,10 @@ onMounted(async () => {
 
 <template>
   <div class="page-container">
-    <div class="page-title"><LineIcon name="layers" :size="19" /> 我的学习路径</div>
+    <div class="page-title"><LineIcon name="layers" :size="19" /> {{ $t('我的学习路径') }}</div>
 
-    <el-empty v-if="!loading && paths.length === 0" description="还没有报名任何学习路径">
-      <el-button type="primary" @click="router.push('/paths')">浏览学习路径</el-button>
+    <el-empty v-if="!loading && paths.length === 0" :description="$t('还没有报名任何学习路径')">
+      <el-button type="primary" @click="router.push('/paths')">{{ $t('浏览学习路径') }}</el-button>
     </el-empty>
 
     <el-card v-for="p in paths" :key="p.userPathId" class="path-card" shadow="hover"
@@ -34,15 +34,15 @@ onMounted(async () => {
         <div class="info">
           <div class="title-row">
             <span class="title">{{ p.pathName }}</span>
-            <el-tag size="small" :type="PATH_TAG[p.status] || 'info'">{{ PATH_STATUS[p.status] || p.status }}</el-tag>
-            <el-tag size="small" effect="plain">约 {{ p.estimatedHours }} 小时</el-tag>
+            <el-tag size="small" :type="PATH_TAG[p.status] || 'info'">{{ $t(PATH_STATUS[p.status] || p.status) }}</el-tag>
+            <el-tag size="small" effect="plain">{{ $t('约 {n} 小时', { n: p.estimatedHours }) }}</el-tag>
           </div>
-          <div class="text-muted">报名于 {{ formatDate(p.enrollDate) }}
-            <template v-if="p.completedDate"> · 完成于 {{ formatDate(p.completedDate) }}</template>
+          <div class="text-muted">{{ $t('报名于 {d}', { d: formatDate(p.enrollDate) }) }}
+            <template v-if="p.completedDate"> · {{ $t('完成于 {d}', { d: formatDate(p.completedDate) }) }}</template>
           </div>
           <el-progress :percentage="Math.round(p.progress || 0)" :stroke-width="10" class="bar" />
         </div>
-        <el-button type="primary" plain>{{ p.status === 'Completed' ? '查看路径' : '继续学习' }}</el-button>
+        <el-button type="primary" plain>{{ p.status === 'Completed' ? $t('查看路径') : $t('继续学习') }}</el-button>
       </div>
     </el-card>
   </div>

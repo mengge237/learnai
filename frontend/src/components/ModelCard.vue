@@ -1,6 +1,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { useCartStore } from '@/stores/cart'
 import { formatPrice } from '@/utils/format'
 import LineIcon from './LineIcon.vue'
@@ -10,15 +11,16 @@ const props = defineProps({
 })
 const router = useRouter()
 const cart = useCartStore()
+const { t } = useI18n()
 
 function addToCart(e) {
   e.stopPropagation()
   if (props.model.isApproved === false) {
-    ElMessage.warning('该模型尚未通过审核')
+    ElMessage.warning(t('该模型尚未通过审核'))
     return
   }
   cart.add(props.model)
-  ElMessage.success('已加入购物车')
+  ElMessage.success(t('已加入购物车'))
 }
 </script>
 
@@ -27,7 +29,7 @@ function addToCart(e) {
     <div class="cover-wrap">
       <el-image v-if="model.previewUrl" :src="model.previewUrl" fit="cover" class="cover" lazy />
       <div v-else class="cover cover-fallback" :style="{ background: `linear-gradient(135deg, hsl(${(model.id || 0) * 53 % 360} 55% 60%), hsl(${(model.id || 0) * 53 % 360 + 50} 55% 38%))` }" />
-      <span v-if="Number(model.price) === 0" class="badge badge-free">免费</span>
+      <span v-if="Number(model.price) === 0" class="badge badge-free">{{ $t('免费') }}</span>
       <span v-else class="badge badge-paid">{{ formatPrice(model.price) }}</span>
     </div>
     <div class="body">
@@ -37,8 +39,8 @@ function addToCart(e) {
         <span v-if="model.creator">· {{ model.creator }}</span>
       </div>
       <div class="actions">
-        <el-button size="small" type="primary" plain @click="addToCart"><LineIcon name="box" :size="14" /> 加入购物车</el-button>
-        <el-button size="small" @click.stop="router.push(`/market/${model.id}`)">详情</el-button>
+        <el-button size="small" type="primary" plain @click="addToCart"><LineIcon name="box" :size="14" /> {{ $t('加入购物车') }}</el-button>
+        <el-button size="small" @click.stop="router.push(`/market/${model.id}`)">{{ $t('详情') }}</el-button>
       </div>
     </div>
   </el-card>

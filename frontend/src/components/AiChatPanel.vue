@@ -1,6 +1,7 @@
 <script setup>
-import { nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import { aiApi } from '@/api/ai'
 import { resourceApi } from '@/api/resources'
 import { formatDate } from '@/utils/format'
@@ -22,8 +23,9 @@ const loading = ref(false)
 const listRef = ref()
 const learningResources = ref([])
 const contextResourceId = ref(null)
+const { t } = useI18n()
 
-const quickQuestions = ['你好', '给我推荐一些学习资源', '我的学习进度怎么样', '如何学习 Blender？', '谢谢']
+const quickQuestions = computed(() => [t('你好'), t('给我推荐一些学习资源'), t('我的学习进度怎么样'), t('如何学习 Blender？'), t('谢谢')])
 
 // 语音输入：识别结果填入输入框并直接发送（仅 Chrome/Edge 支持）
 const voice = useVoiceInput((text) => {
@@ -65,7 +67,7 @@ async function send(text) {
     scrollToBottom()
   } catch {
     messages.value.pop()
-    ElMessage.error('服务暂时开小差了，请稍后再试')
+    ElMessage.error(t('服务暂时开小差了，请稍后再试'))
   } finally {
     sending.value = false
   }
@@ -88,16 +90,16 @@ defineExpose({ loadHistory })
     <div ref="listRef" v-loading="loading" class="msg-list">
       <el-empty
         v-if="!loading && messages.length === 0"
-        description="我是你的学习助手，试试问我学习问题吧～"
+        :description="$t('我是你的学习助手，试试问我学习问题吧～')"
         :image-size="80"
       />
       <div v-for="(m, i) in messages" :key="i" class="msg" :class="m.userMessage ? 'from-user' : 'from-ai'">
-        <div class="avatar">{{ m.userMessage ? '我' : '助手' }}</div>
+        <div class="avatar">{{ m.userMessage ? $t('我') : $t('助手') }}</div>
         <div class="bubble">
           <div class="text">{{ m.aiMessage }}</div>
           <div class="time text-muted">
-            <span v-if="m.provider === 'llm'" class="prov">大模型</span>
-            <span v-else-if="m.provider === 'rule'" class="prov prov-rule">演示模式</span>
+            <span v-if="m.provider === 'llm'" class="prov">{{ $t('大模型') }}</span>
+            <span v-else-if="m.provider === 'rule'" class="prov prov-rule">{{ $t('演示模式') }}</span>
             {{ m.interactionTime ? formatDate(m.interactionTime) : '…' }}
           </div>
         </div>
@@ -106,10 +108,10 @@ defineExpose({ loadHistory })
 
     <div class="input-area">
       <div v-if="!props.compact" class="toolbar">
-        <el-select v-model="contextResourceId" placeholder="关联学习资源（可选）" clearable size="small" style="width: 260px">
+        <el-select v-model="contextResourceId" :placeholder="$t('关联学习资源（可选）')" clearable size="small" style="width: 260px">
           <el-option v-for="r in learningResources" :key="r.resourceId" :label="r.title" :value="r.resourceId" />
         </el-select>
-        <span class="text-muted">选择正在学习的资源，回答更有针对性</span>
+        <span class="text-muted">{{ $t('选择正在学习的资源，回答更有针对性') }}</span>
       </div>
       <div class="quick">
         <el-tag v-for="q in quickQuestions" :key="q" class="quick-tag" @click="send(q)">{{ q }}</el-tag>
@@ -119,11 +121,11 @@ defineExpose({ loadHistory })
           v-model="input"
           type="textarea"
           :rows="props.compact ? 2 : 2"
-          placeholder="输入你的问题…（Enter 发送，Shift+Enter 换行）"
+          :placeholder="$t('输入你的问题…（Enter 发送，Shift+Enter 换行）')"
           maxlength="500"
           @keydown.enter.exact.prevent="send()"
         />
-        <el-tooltip :content="voice.listening ? '正在聆听，再次点击结束' : '语音输入（仅 Chrome/Edge）'" placement="top">
+        <el-tooltip :content="voice.listening ? t('正在聆听，再次点击结束') : t('语音输入（仅 Chrome/Edge）')" placement="top">
           <button
             v-if="voice.supported"
             class="mic-btn"
@@ -134,9 +136,9 @@ defineExpose({ loadHistory })
             <LineIcon name="mic" :size="16" />
           </button>
         </el-tooltip>
-        <el-button type="primary" :loading="sending" @click="send()">发送</el-button>
+        <el-button type="primary" :loading="sending" @click="send()">{{ $t('发送') }}</el-button>
       </div>
-      <div v-if="voice.listening" class="listening-hint">正在聆听，请说话…（说完自动发送）</div>
+      <div v-if="voice.listening" class="listening-hint">{{ $t('正在聆听，请说话…（说完自动发送）') }}</div>
     </div>
   </div>
 </template>
