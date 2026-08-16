@@ -89,7 +89,9 @@ const sections = [
   <div class="guide-page">
     <!-- ============ 顶部标题区（深色对撞 + 工程网格 + 玻璃条） ============ -->
     <section class="guide-hero">
-      <div class="guide-hero-inner">
+      <div class="hazard" />
+      <span class="scanline" />
+      <div class="guide-hero-inner tech-frame" style="--cfc: color-mix(in srgb, currentColor 38%, transparent)">
         <div class="gh-top">
           <span class="gh-en"><ScrambleText text="OPERATION MANUAL · USER GUIDE" auto /></span>
           <span class="gh-en">{{ $t('版本 2026 · 校园版') }}</span>
@@ -104,11 +106,12 @@ const sections = [
           <span class="gh-stat">{{ $t('创作') }}<b>{{ $t('创') }}</b></span>
         </div>
       </div>
+      <div class="hazard" />
     </section>
 
     <!-- ============ 指南章节 ============ -->
     <div class="page-container blueprint-grid guide-main">
-      <section v-for="s in sections" :key="s.no" class="guide-card glass">
+      <section v-for="s in sections" :key="s.no" class="guide-card glass corner-brackets">
         <div class="blueprint-section">
           <span class="bp-no">{{ s.no }}</span>
           <span class="bp-title">{{ $t(s.title) }}</span>
@@ -146,6 +149,8 @@ const sections = [
   background-size: 32px 32px;
   color: var(--el-bg-color);
   border-bottom: 1px solid var(--line-color);
+  position: relative;
+  overflow: hidden;
 }
 .guide-hero-inner {
   max-width: 1200px;
@@ -215,6 +220,16 @@ const sections = [
   margin-bottom: 22px;
   padding: 22px 26px 24px;
   border-radius: 2px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  --cf-color: var(--theme-color);
+  --cf-opacity: 0;
+  --cf-inset: -7px;
+  --cf-size: 15px;
+}
+.guide-card:hover {
+  transform: translateY(-3px);
+  --cf-opacity: 1;
+  box-shadow: 7px 7px 0 color-mix(in srgb, var(--line-color) 55%, transparent);
 }
 .guide-card .blueprint-section {
   margin: 0 0 12px;
@@ -248,6 +263,14 @@ const sections = [
   color: var(--theme-color);
   flex-shrink: 0;
 }
+.g-step-no::before {
+  content: '[';
+  opacity: 0.6;
+}
+.g-step-no::after {
+  content: ']';
+  opacity: 0.6;
+}
 .g-cta {
   margin-top: 18px;
   display: inline-flex;
@@ -261,10 +284,13 @@ const sections = [
   letter-spacing: 2px;
   padding: 9px 20px;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: all 0.15s;
+  box-shadow: 4px 4px 0 color-mix(in srgb, var(--line-color) 55%, transparent);
 }
 .g-cta:hover {
   background: var(--theme-color);
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 color-mix(in srgb, var(--line-color) 55%, transparent);
 }
 /* 收尾 */
 .g-end {

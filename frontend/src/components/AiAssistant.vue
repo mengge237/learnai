@@ -76,7 +76,9 @@ const open = ref(false)
   background: var(--el-color-primary);
   color: var(--el-bg-color);
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  /* 铭牌斜切角 + 印刷硬阴影 */
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  box-shadow: 4px 4px 0 color-mix(in srgb, var(--line-color) 60%, transparent);
   transition: transform 0.2s;
 }
 .fab:hover {

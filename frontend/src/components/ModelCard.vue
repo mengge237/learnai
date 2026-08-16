@@ -25,7 +25,7 @@ function addToCart(e) {
 </script>
 
 <template>
-  <el-card class="model-card" shadow="hover" :body-style="{ padding: 0 }" @click="router.push(`/market/${model.id}`)">
+  <el-card class="model-card corner-brackets" shadow="hover" :body-style="{ padding: 0 }" @click="router.push(`/market/${model.id}`)">
     <div class="cover-wrap">
       <el-image v-if="model.previewUrl" :src="model.previewUrl" fit="cover" class="cover" lazy />
       <div v-else class="cover cover-fallback" :style="{ background: `linear-gradient(135deg, hsl(${(model.id || 0) * 53 % 360} 55% 60%), hsl(${(model.id || 0) * 53 % 360 + 50} 55% 38%))` }" />
@@ -49,10 +49,16 @@ function addToCart(e) {
 <style scoped>
 .model-card {
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
+  --cf-color: var(--theme-color);
+  --cf-opacity: 0;
+  --cf-inset: -5px;
+  --cf-size: 12px;
 }
 .model-card:hover {
   transform: translateY(-4px);
+  --cf-opacity: 1;
+  box-shadow: 6px 6px 0 color-mix(in srgb, var(--line-color) 70%, transparent);
 }
 .cover-wrap {
   position: relative;

@@ -12,7 +12,7 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <el-card class="path-card" shadow="hover" @click="router.push(`/paths/${path.id}`)">
+  <el-card class="path-card corner-brackets" shadow="hover" @click="router.push(`/paths/${path.id}`)">
     <div class="head">
       <span class="icon"><LineIcon name="layers" :size="22" /></span>
       <div>
@@ -33,6 +33,16 @@ const { t } = useI18n()
 <style scoped>
 .path-card {
   cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  --cf-color: var(--theme-color);
+  --cf-opacity: 0;
+  --cf-inset: -5px;
+  --cf-size: 12px;
+}
+.path-card:hover {
+  transform: translateY(-4px);
+  --cf-opacity: 1;
+  box-shadow: 6px 6px 0 color-mix(in srgb, var(--line-color) 70%, transparent);
 }
 .head {
   display: flex;

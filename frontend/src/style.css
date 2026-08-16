@@ -78,6 +78,23 @@ a {
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px 16px 48px;
+  position: relative;
+}
+/* 制图纸注册标记：页面容器四角的十字定位线（全站工程图纸感） */
+.page-container::before {
+  --m: color-mix(in srgb, var(--line-color) 26%, transparent);
+  content: '';
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--m), var(--m)), linear-gradient(var(--m), var(--m)),
+    linear-gradient(var(--m), var(--m)), linear-gradient(var(--m), var(--m)),
+    linear-gradient(var(--m), var(--m)), linear-gradient(var(--m), var(--m)),
+    linear-gradient(var(--m), var(--m)), linear-gradient(var(--m), var(--m));
+  background-size: 13px 1px, 1px 13px, 13px 1px, 1px 13px, 13px 1px, 1px 13px, 13px 1px, 1px 13px;
+  background-position: left top, left top, right top, right top, left bottom, left bottom, right bottom, right bottom;
+  background-repeat: no-repeat;
 }
 
 /* 工业风标题：左侧强调色竖条 + 加大字距 */
@@ -156,31 +173,25 @@ html[data-animation='off'] * {
   background-size: 32px 32px;
 }
 
-/* 技术图纸角标框：四角括号像制图框线 */
+/* 技术图纸角标框：四角括号像制图框线（颜色可用 --cfc 覆盖） */
 .tech-frame {
   position: relative;
 }
-.tech-frame::before,
-.tech-frame::after {
+.tech-frame::before {
+  --f: var(--cfc, var(--line-color));
   content: '';
   position: absolute;
-  width: 16px;
-  height: 16px;
-  border: 2px solid var(--line-color);
+  inset: 5px;
   pointer-events: none;
   opacity: 0.85;
-}
-.tech-frame::before {
-  top: 6px;
-  left: 6px;
-  border-right: none;
-  border-bottom: none;
-}
-.tech-frame::after {
-  bottom: 6px;
-  right: 6px;
-  border-left: none;
-  border-top: none;
+  background-image:
+    linear-gradient(var(--f), var(--f)), linear-gradient(var(--f), var(--f)),
+    linear-gradient(var(--f), var(--f)), linear-gradient(var(--f), var(--f)),
+    linear-gradient(var(--f), var(--f)), linear-gradient(var(--f), var(--f)),
+    linear-gradient(var(--f), var(--f)), linear-gradient(var(--f), var(--f));
+  background-size: 18px 2px, 2px 18px, 18px 2px, 2px 18px, 18px 2px, 2px 18px, 18px 2px, 2px 18px;
+  background-position: left top, left top, right top, right top, left bottom, left bottom, right bottom, right bottom;
+  background-repeat: no-repeat;
 }
 
 /* 虚线辅助线边框 */
@@ -341,5 +352,180 @@ html.dark .glass-soft {
   .glass-soft {
     background: rgba(255, 255, 255, 0.9);
   }
+}
+
+/* ============================================================
+   工业强化 v2：警示斜纹 / 硬阴影 / 四角视框 / 描边字 / LED / 铭牌
+   ============================================================ */
+
+/* 警示斜纹条：工业橙黑警示带（高度可用 --hz-h 覆盖） */
+.hazard {
+  --hz-h: 6px;
+  height: var(--hz-h);
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--theme-color) 0 10px,
+    #141518 10px 20px
+  );
+}
+
+/* 硬阴影：无模糊的印刷偏移阴影（工业海报感） */
+.hard-shadow {
+  box-shadow: 4px 4px 0 color-mix(in srgb, var(--line-color) 75%, transparent);
+}
+
+/* 四角视框（取景框式裁切标记）：默认隐藏、hover 显现；
+   颜色/透明度/内外位置可经 --cf-color / --cf-opacity / --cf-inset 定制 */
+.corner-brackets {
+  position: relative;
+  --cf-color: var(--theme-color);
+  --cf-opacity: 0;
+  --cf-inset: -6px;
+  --cf-size: 14px;
+  --cf-thick: 2px;
+}
+.corner-brackets::before {
+  --c: var(--cf-color);
+  content: '';
+  position: absolute;
+  inset: var(--cf-inset);
+  pointer-events: none;
+  z-index: 2;
+  opacity: var(--cf-opacity);
+  transition: opacity 0.2s;
+  background-image:
+    linear-gradient(var(--c), var(--c)), linear-gradient(var(--c), var(--c)),
+    linear-gradient(var(--c), var(--c)), linear-gradient(var(--c), var(--c)),
+    linear-gradient(var(--c), var(--c)), linear-gradient(var(--c), var(--c)),
+    linear-gradient(var(--c), var(--c)), linear-gradient(var(--c), var(--c));
+  background-size:
+    var(--cf-size) var(--cf-thick), var(--cf-thick) var(--cf-size),
+    var(--cf-size) var(--cf-thick), var(--cf-thick) var(--cf-size),
+    var(--cf-size) var(--cf-thick), var(--cf-thick) var(--cf-size),
+    var(--cf-size) var(--cf-thick), var(--cf-thick) var(--cf-size);
+  background-position: left top, left top, right top, right top, left bottom, left bottom, right bottom, right bottom;
+  background-repeat: no-repeat;
+}
+
+/* 描边空心字（蓝图标题字）：透明填充 + 描边，描边色用 --hollow-c 指定 */
+@supports (-webkit-text-stroke: 1px #000) {
+  .hollow {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--hollow-c, currentColor);
+  }
+}
+
+/* 模板字（仅对拉丁字符生效，中文自动回退常规粗体） */
+.stencil {
+  font-family: Impact, 'Arial Narrow Bold', 'Arial Black', 'Helvetica Neue', sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+/* LED 指示灯（状态闪烁，颜色随 currentColor） */
+.led {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+  animation: led-blink 2.2s ease-in-out infinite;
+}
+@keyframes led-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* 扫描线：宽光束水平往返扫过（置于 position:relative + overflow:hidden 容器内） */
+.scanline {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 130px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, currentColor 5%, transparent),
+    color-mix(in srgb, currentColor 14%, transparent),
+    color-mix(in srgb, currentColor 5%, transparent),
+    transparent
+  );
+  animation: scan-sweep 8s linear infinite alternate;
+  pointer-events: none;
+}
+@keyframes scan-sweep {
+  from {
+    left: -15%;
+  }
+  to {
+    left: 105%;
+  }
+}
+
+/* 条形码装饰（条纹颜色随 currentColor） */
+.barcode {
+  display: block;
+  height: 30px;
+  background: repeating-linear-gradient(
+    90deg,
+    currentColor 0 2px,
+    transparent 2px 4px,
+    currentColor 4px 7px,
+    transparent 7px 10px,
+    currentColor 10px 11px,
+    transparent 11px 15px,
+    currentColor 15px 18px,
+    transparent 18px 21px
+  );
+}
+
+/* 四角铆钉（叠加在纯色面板上，铆钉颜色随 currentColor） */
+.rivets {
+  background-image:
+    radial-gradient(circle 3px at 12px 12px, color-mix(in srgb, currentColor 32%, transparent) 98%, transparent),
+    radial-gradient(circle 3px at calc(100% - 12px) 12px, color-mix(in srgb, currentColor 32%, transparent) 98%, transparent),
+    radial-gradient(circle 3px at 12px calc(100% - 12px), color-mix(in srgb, currentColor 32%, transparent) 98%, transparent),
+    radial-gradient(circle 3px at calc(100% - 12px) calc(100% - 12px), color-mix(in srgb, currentColor 32%, transparent) 98%, transparent);
+  background-repeat: no-repeat;
+}
+
+/* 全局按钮工业强化：主按钮橙色硬阴影（hover 抬升位移） */
+.el-button--primary {
+  box-shadow: 3px 3px 0 color-mix(in srgb, var(--theme-color) 78%, transparent);
+  transition: all 0.15s;
+}
+.el-button--primary:hover {
+  box-shadow: 4px 4px 0 color-mix(in srgb, var(--theme-color) 90%, transparent);
+  transform: translate(-1px, -1px);
+}
+
+/* 工业滚动条 */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track {
+  background: var(--el-bg-color-page, #f5f5f3);
+  border-left: 1px solid var(--border-color);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line-soft);
+  border: 3px solid var(--el-bg-color-page, #f5f5f3);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-color);
+}
+
+/* 选中文本：工业橙底白字 */
+::selection {
+  background: var(--theme-color);
+  color: #fff;
 }
 

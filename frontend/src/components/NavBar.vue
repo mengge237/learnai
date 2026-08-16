@@ -101,13 +101,16 @@ async function handleCommand(cmd) {
   <header class="navbar">
     <div class="navbar-inner">
       <router-link to="/" class="logo">
-        <span class="logo-mark">◈</span>
+        <span class="logo-mark" />
         <span class="logo-text">AI智学<span class="logo-sub">{{ $t('校园学习平台') }}</span></span>
+        <span class="sys-status"><i class="led" />ONLINE</span>
       </router-link>
 
       <!-- ellipsis=true：宽度不足时收起溢出项到「…」子菜单，避免与右侧搜索框重叠 -->
       <el-menu :default-active="activeMenu" mode="horizontal" :ellipsis="true" router class="nav-menu">
-        <el-menu-item v-for="m in menus" :key="m.index" :index="m.index">{{ m.label }}</el-menu-item>
+        <el-menu-item v-for="(m, i) in menus" :key="m.index" :index="m.index">
+          <span class="mi-no">{{ String(i + 1).padStart(2, '0') }}</span>{{ m.label }}
+        </el-menu-item>
         <el-menu-item v-if="auth.isLoggedIn" index="/console">{{ $t('控制台') }}</el-menu-item>
         <el-menu-item v-if="auth.isAuditorOrAdmin" index="/audit">{{ $t('审核工作台') }}</el-menu-item>
         <el-menu-item v-if="auth.isAdmin" index="/admin">{{ $t('管理后台') }}</el-menu-item>
@@ -227,6 +230,8 @@ async function handleCommand(cmd) {
         </template>
       </div>
     </div>
+    <!-- 工业警示条：导航底部橙色斜纹带 -->
+    <div class="hazard nav-hazard" />
   </header>
 </template>
 
@@ -261,14 +266,35 @@ async function handleCommand(cmd) {
   color: var(--theme-color);
   white-space: nowrap;
 }
+/* 工业警示方块标识：橙黑斜纹（替代原符号） */
 .logo-mark {
-  font-size: 24px;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background: repeating-linear-gradient(-45deg, var(--theme-color) 0 5px, #141518 5px 10px);
+  border: 1px solid var(--line-color);
+  flex-shrink: 0;
 }
 .logo-sub {
   font-size: 12px;
   font-weight: 400;
   color: var(--el-text-color-secondary);
   margin-left: 4px;
+}
+/* 系统状态徽标：LED + ONLINE */
+.sys-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 10px;
+  padding: 2px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--el-color-success);
 }
 .nav-menu {
   flex: 1;
@@ -277,6 +303,28 @@ async function handleCommand(cmd) {
   /* 菜单自身透明，避免盖住导航条的毛玻璃效果 */
   background: transparent;
   --el-menu-bg-color: transparent;
+}
+/* 菜单项编号（机箱目录感） */
+.nav-menu :deep(.mi-no) {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 10px;
+  letter-spacing: 0;
+  color: var(--theme-color);
+  opacity: 0.75;
+  margin-right: 4px;
+}
+/* 激活态：橙色粗下划线 */
+.nav-menu :deep(.el-menu-item.is-active) {
+  border-bottom: 3px solid var(--theme-color) !important;
+  color: var(--theme-color) !important;
+  font-weight: 700;
+}
+.nav-menu :deep(.el-menu-item:hover) {
+  color: var(--theme-color);
+}
+/* 导航底部警示斜纹 */
+.nav-hazard {
+  --hz-h: 4px;
 }
 .navbar-right {
   display: flex;
@@ -306,7 +354,7 @@ async function handleCommand(cmd) {
 .icon-btn:hover {
   color: var(--theme-color);
 }
-/* 语言切换按钮：等宽字体小徽标 */
+/* 语言切换按钮：等宽字体小徽标 + 印刷硬阴影 */
 .lang-btn {
   font-family: 'Consolas', 'Courier New', monospace;
   font-size: 13px;
@@ -315,6 +363,7 @@ async function handleCommand(cmd) {
   border: 1px solid var(--border-color);
   border-radius: 2px;
   padding: 3px 7px;
+  box-shadow: 2px 2px 0 color-mix(in srgb, var(--line-color) 25%, transparent);
 }
 .lang-btn:hover {
   border-color: var(--theme-color);
@@ -479,7 +528,8 @@ async function handleCommand(cmd) {
   }
   .logo-sub,
   .user-name,
-  .icon-btn {
+  .icon-btn,
+  .sys-status {
     display: none;
   }
   .logo-text {

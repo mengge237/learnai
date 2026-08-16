@@ -165,7 +165,10 @@ function onPortalLeave(e) {
   <div class="home">
     <!-- ============ HERO：深色对撞区 ============ -->
     <section class="hero">
-      <div class="hero-inner">
+      <div class="hazard" />
+      <span class="scanline" />
+      <span class="hero-watermark" aria-hidden="true">AIZHIXUE</span>
+      <div class="hero-inner tech-frame" style="--cfc: color-mix(in srgb, currentColor 38%, transparent)">
         <div class="hero-top">
           <span class="hero-en"><ScrambleText text="AIZHIXUE · CAMPUS LEARNING PLATFORM" auto /></span>
           <span class="hero-en"><ScrambleText text="EST. 2026" /></span>
@@ -175,7 +178,7 @@ function onPortalLeave(e) {
           <div class="hero-text">
             <h1 class="hero-title">
               {{ $t('从一条线开始') }}<br />
-              <span class="hero-title-2">{{ $t('构建一方世界') }}</span>
+              <span class="hero-title-2 hollow" style="--hollow-c: var(--theme-color)">{{ $t('构建一方世界') }}</span>
             </h1>
             <p class="hero-slogan">{{ $t('面向三维建模与图形开发学习者的校园学习平台。系统化教程逐章可读，学习路径规划成长路线，模型资源库让灵感落地。') }}</p>
 
@@ -243,25 +246,26 @@ function onPortalLeave(e) {
           <button class="hstat" @click="router.push('/paths')"><span class="hnum">3</span><span class="hlabel">{{ $t('步进阶法') }}</span></button>
         </div>
       </div>
+      <div class="hazard" />
     </section>
 
     <!-- ============ 理念三行 ============ -->
     <section class="manifesto">
       <div class="mani-row" @click="router.push('/resources')">
         <span class="mani-en">LEARN</span>
-        <h2 class="mani-title">{{ $t('学') }}</h2>
+        <h2 class="mani-title hollow" style="--hollow-c: var(--line-color)">{{ $t('学') }}</h2>
         <p class="mani-desc">{{ $t('系统化教程逐章可读，像翻阅图纸一样学习，随时答疑解惑。') }}</p>
         <span class="mani-arrow">→</span>
       </div>
       <div class="mani-row" @click="router.push('/resources/my')">
         <span class="mani-en">PRACTICE</span>
-        <h2 class="mani-title">{{ $t('练') }}</h2>
+        <h2 class="mani-title hollow" style="--hollow-c: var(--line-color)">{{ $t('练') }}</h2>
         <p class="mani-desc">{{ $t('步骤打卡、学习计时与连续记录，每一步进步都有迹可循。') }}</p>
         <span class="mani-arrow">→</span>
       </div>
       <div class="mani-row" @click="router.push('/market')">
         <span class="mani-en">CREATE</span>
-        <h2 class="mani-title">{{ $t('创') }}</h2>
+        <h2 class="mani-title hollow" style="--hollow-c: var(--line-color)">{{ $t('创') }}</h2>
         <p class="mani-desc">{{ $t('模型资源库在线预览 3D 作品，让灵感直接落地。') }}</p>
         <span class="mani-arrow">→</span>
       </div>
@@ -378,6 +382,7 @@ function onPortalLeave(e) {
 
       <!-- ============ 收尾 CTA ============ -->
       <section class="closing">
+        <div class="hazard" />
         <p class="closing-text">{{ $t('学习路上，答疑随行。') }}</p>
         <button class="closing-btn" @click="router.push('/resources')">{{ $t('从今天开始你的第一课 →') }}</button>
       </section>
@@ -395,6 +400,23 @@ function onPortalLeave(e) {
   background-size: 32px 32px;
   color: var(--el-bg-color);
   border-bottom: 1px solid var(--line-color);
+  position: relative;
+  overflow: hidden;
+}
+/* 巨型描边水印：垂直排布的侧面标签（蓝图零件编号感） */
+.hero-watermark {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  writing-mode: vertical-rl;
+  font-family: Impact, 'Arial Narrow Bold', 'Arial Black', sans-serif;
+  font-size: 92px;
+  letter-spacing: 16px;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in srgb, currentColor 15%, transparent);
+  pointer-events: none;
+  user-select: none;
 }
 .hero-inner {
   max-width: 1200px;
@@ -435,6 +457,13 @@ function onPortalLeave(e) {
 }
 .hero-title-2 {
   color: var(--theme-color);
+}
+/* 第二行标题描边空心化（蓝图字），不支持描边时保持橙色填充 */
+@supports (-webkit-text-stroke: 1px #000) {
+  .hero-title-2 {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--theme-color);
+  }
 }
 .hero-slogan {
   font-size: 15px;
@@ -482,10 +511,14 @@ function onPortalLeave(e) {
   cursor: pointer;
   border-radius: 2px;
   transition: all 0.15s;
+  /* 印刷硬阴影（颜色随当前文字色，明暗主题自适应） */
+  box-shadow: 3px 3px 0 color-mix(in srgb, currentColor 32%, transparent);
 }
 .hero-btn:hover {
   border-color: var(--theme-color);
   color: var(--theme-color);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 color-mix(in srgb, currentColor 40%, transparent);
 }
 .hero-btn-primary {
   background: var(--theme-color);
@@ -732,6 +765,11 @@ function onPortalLeave(e) {
   margin: 0;
   width: 90px;
   flex-shrink: 0;
+  transition: color 0.2s;
+}
+/* hover 时描边字被橙色填充（蓝图上色感） */
+.mani-row:hover .mani-title {
+  color: var(--theme-color);
 }
 .mani-desc {
   flex: 1;
@@ -784,6 +822,21 @@ function onPortalLeave(e) {
   color: var(--el-bg-color);
   transform: translateY(-3px);
 }
+/* hover 顶部滑出警示斜纹带 */
+.portal-tile::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: repeating-linear-gradient(-45deg, var(--theme-color) 0 8px, transparent 8px 16px);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.portal-tile:hover::after {
+  opacity: 1;
+}
 .pt-top {
   display: flex;
   justify-content: space-between;
@@ -799,6 +852,17 @@ function onPortalLeave(e) {
   font-family: 'Consolas', 'Courier New', monospace;
   font-size: 12px;
   color: var(--el-text-color-secondary);
+}
+/* 编号加制图括号：[01] */
+.pt-no::before {
+  content: '[';
+  margin-right: 1px;
+  opacity: 0.6;
+}
+.pt-no::after {
+  content: ']';
+  margin-left: 1px;
+  opacity: 0.6;
 }
 .portal-tile:hover .pt-en,
 .portal-tile:hover .pt-no {
@@ -848,6 +912,17 @@ function onPortalLeave(e) {
   padding-bottom: 14px;
   border-bottom: 2px solid var(--line-color);
   margin-bottom: 20px;
+  position: relative;
+}
+/* 分隔线左端橙色斜纹刻度（机箱铭牌刻度感） */
+.block-head::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 72px;
+  height: 4px;
+  background: repeating-linear-gradient(-45deg, var(--theme-color) 0 8px, transparent 8px 16px);
 }
 .block-en {
   display: block;
@@ -1018,7 +1093,7 @@ function onPortalLeave(e) {
 /* 收尾 CTA */
 .closing {
   margin-top: 88px;
-  padding: 48px 24px;
+  padding: 0 24px 48px;
   background: var(--el-color-primary);
   color: var(--el-bg-color);
   text-align: center;
@@ -1026,7 +1101,7 @@ function onPortalLeave(e) {
 .closing-text {
   font-size: 20px;
   letter-spacing: 8px;
-  margin: 0 0 18px;
+  margin: 40px 0 18px;
   opacity: 0.85;
 }
 .closing-btn {
@@ -1038,16 +1113,22 @@ function onPortalLeave(e) {
   padding: 12px 28px;
   cursor: pointer;
   border-radius: 2px;
-  transition: background 0.15s;
+  transition: all 0.15s;
+  box-shadow: 5px 5px 0 color-mix(in srgb, currentColor 28%, transparent);
 }
 .closing-btn:hover {
   background: #d14f07;
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 color-mix(in srgb, currentColor 28%, transparent);
 }
 
 /* ================= 响应式 ================= */
 @media (max-width: 960px) {
   .hero-title {
     font-size: 40px;
+  }
+  .hero-watermark {
+    display: none;
   }
   .hero-body {
     flex-direction: column;
