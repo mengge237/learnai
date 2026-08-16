@@ -14,6 +14,7 @@ import com.learnai.exception.ApiException;
 import com.learnai.repository.LearningRecordRepository;
 import com.learnai.repository.LearningResourceRepository;
 import com.learnai.repository.LearningStepRepository;
+import com.learnai.service.factory.StepContentLibrary;
 import com.learnai.service.factory.StepTemplateFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -45,14 +46,17 @@ public class LearningProgressService {
                     rec.setStatus(LearningStatus.InProgress);
                     rec.setProgress(0.0);
                     rec = recordRepository.save(rec);
-                    // 步骤模板统一由 StepTemplateFactory 提供（模板只定义一处）
+                    // 步骤内容优先取 StepContentLibrary（按资源编码的真实教程），
+                    // 未收录的资源回退 StepTemplateFactory 通用模板
                     int number = 1;
                     for (StepTemplateFactory.StepTemplate t : StepTemplateFactory.all()) {
+                        StepContentLibrary.LessonStep lesson =
+                                StepContentLibrary.lesson(r.getResourceCode(), number, r.getResourceTitle());
                         LearningStep s = new LearningStep();
                         s.setRecordId(rec.getRecordId());
                         s.setStepNumber(number++);
-                        s.setStepTitle(t.title());
-                        s.setStepContent(t.render(r.getResourceTitle()));
+                        s.setStepTitle(lesson.title());
+                        s.setStepContent(lesson.content());
                         s.setStatus(StepStatus.NotStarted);
                         stepRepository.save(s);
                     }

@@ -40,6 +40,11 @@ const ICONS = {
   check: '<path d="M20 6L9 17l-5-5"/>',
   box: '<path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
+  volume: '<path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"/>',
+  mic: '<path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v4M8 22h8"/>',
+  play: '<path d="M7 4l14 8-14 8V4z"/>',
+  pause: '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>',
+  stop: '<rect x="6" y="6" width="12" height="12" rx="1"/>',
 }
 
 const icon = computed(() => ICONS[props.name] ?? ICONS.settings)

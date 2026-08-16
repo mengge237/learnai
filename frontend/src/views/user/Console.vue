@@ -49,7 +49,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="page-container" v-loading="loading">
+  <div class="page-container blueprint-grid" v-loading="loading">
     <div class="console-head">
       <div class="page-title" style="margin-bottom: 8px"><LineIcon name="monitor" :size="19" /> 个人控制台</div>
       <div class="console-sub text-muted">
@@ -192,7 +192,11 @@ onMounted(async () => {
   border: 1px solid var(--border-color);
   border-top: 3px solid var(--line-color);
   border-radius: 2px;
+  /* 玻璃卡片：工程网格透过半透明背景若隐若现 */
   background: var(--el-bg-color);
+  background: color-mix(in srgb, var(--el-bg-color) 62%, transparent);
+  -webkit-backdrop-filter: blur(8px) saturate(1.2);
+  backdrop-filter: blur(8px) saturate(1.2);
   padding: 14px 16px;
 }
 .study-card.online {
@@ -286,7 +290,11 @@ onMounted(async () => {
   border: 1px solid var(--border-color);
   border-left: 4px solid var(--theme-color);
   border-radius: 2px;
+  /* 玻璃卡片：工程网格透过半透明背景若隐若现 */
   background: var(--el-bg-color);
+  background: color-mix(in srgb, var(--el-bg-color) 62%, transparent);
+  -webkit-backdrop-filter: blur(8px) saturate(1.2);
+  backdrop-filter: blur(8px) saturate(1.2);
   padding: 14px 16px;
 }
 .stat-value {

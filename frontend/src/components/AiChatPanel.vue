@@ -4,6 +4,8 @@ import { ElMessage } from 'element-plus'
 import { aiApi } from '@/api/ai'
 import { resourceApi } from '@/api/resources'
 import { formatDate } from '@/utils/format'
+import { useVoiceInput } from '@/composables/useSpeech'
+import LineIcon from '@/components/LineIcon.vue'
 
 /**
  * AI 聊天面板：整页（AiChat 页）与悬浮助手抽屉共用。
@@ -22,6 +24,12 @@ const learningResources = ref([])
 const contextResourceId = ref(null)
 
 const quickQuestions = ['你好', '给我推荐一些学习资源', '我的学习进度怎么样', '如何学习 Blender？', '谢谢']
+
+// 语音输入：识别结果填入输入框并直接发送（仅 Chrome/Edge 支持）
+const voice = useVoiceInput((text) => {
+  input.value = text
+  send()
+})
 
 async function loadHistory() {
   loading.value = true
@@ -115,8 +123,20 @@ defineExpose({ loadHistory })
           maxlength="500"
           @keydown.enter.exact.prevent="send()"
         />
+        <el-tooltip :content="voice.listening ? '正在聆听，再次点击结束' : '语音输入（仅 Chrome/Edge）'" placement="top">
+          <button
+            v-if="voice.supported"
+            class="mic-btn"
+            :class="{ listening: voice.listening }"
+            :disabled="sending"
+            @click="voice.listening ? voice.stop() : voice.start()"
+          >
+            <LineIcon name="mic" :size="16" />
+          </button>
+        </el-tooltip>
         <el-button type="primary" :loading="sending" @click="send()">发送</el-button>
       </div>
+      <div v-if="voice.listening" class="listening-hint">正在聆听，请说话…（说完自动发送）</div>
     </div>
   </div>
 </template>
@@ -225,5 +245,47 @@ defineExpose({ loadHistory })
 }
 .send-row .el-textarea {
   flex: 1;
+}
+.mic-btn {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+  background: var(--el-bg-color);
+  color: var(--el-text-color-primary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mic-btn:hover {
+  border-color: var(--theme-color);
+  color: var(--theme-color);
+}
+.mic-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.mic-btn.listening {
+  border-color: var(--theme-color);
+  color: var(--theme-color);
+  animation: mic-pulse 1.1s ease-in-out infinite;
+}
+.listening-hint {
+  margin-top: 6px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--theme-color);
+}
+@keyframes mic-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(232, 89, 12, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(232, 89, 12, 0);
+  }
 }
 </style>

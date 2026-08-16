@@ -1,10 +1,11 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox, ElNotification } from 'element-plus'
 import { resourceApi } from '@/api/resources'
 import { studyApi } from '@/api/study'
 import { LEARNING_STATUS, LEARNING_TAG, STEP_STATUS, formatDate } from '@/utils/format'
+import { useTts } from '@/composables/useSpeech'
 import LineIcon from '@/components/LineIcon.vue'
 import PageBreadcrumb from '@/components/PageBreadcrumb.vue'
 
@@ -17,6 +18,19 @@ const loading = ref(true)
 const busy = ref(false)
 const sliderProgress = ref(0)
 const currentStep = ref(1)
+
+// ---------- 语音朗读（Web Speech API，无需后端） ----------
+const tts = useTts()
+// 切换步骤时停止朗读，避免读到旧内容
+watch(currentStep, () => tts.stop())
+
+function readAloud(step) {
+  if (!step?.stepContent) {
+    ElMessage.info('本章内容正在编写中，暂无正文可朗读')
+    return
+  }
+  tts.speak(step.stepContent)
+}
 
 // ---------- 学习计时与激励 ----------
 const study = ref(null) // StudyStatsDto
@@ -189,7 +203,10 @@ async function complete() {
 const stepIcon = (s) => STEP_STATUS[s] || s
 
 onMounted(load)
-onBeforeUnmount(stopTimer)
+onBeforeUnmount(() => {
+  stopTimer()
+  tts.stop()
+})
 </script>
 
 <template>
@@ -277,6 +294,26 @@ onBeforeUnmount(stopTimer)
                 <span class="reader-no">步骤 {{ current.stepNumber }}</span>
                 <h2 class="reader-title">{{ current.stepTitle }}</h2>
                 <el-tag size="small" effect="plain">{{ STEP_STATUS[current.status] || current.status }}</el-tag>
+
+                <!-- 语音朗读：支持播放/暂停/继续/停止 -->
+                <div v-if="tts.supported" class="speak-ctrl">
+                  <template v-if="!tts.speaking">
+                    <el-button size="small" plain @click="readAloud(current)">
+                      <LineIcon name="volume" :size="14" /> 朗读本步骤
+                    </el-button>
+                  </template>
+                  <template v-else>
+                    <el-button size="small" plain @click="tts.paused ? tts.resume() : tts.pause()">
+                      <LineIcon :name="tts.paused ? 'play' : 'pause'" :size="13" /> {{ tts.paused ? '继续' : '暂停' }}
+                    </el-button>
+                    <el-button size="small" plain @click="tts.stop()">
+                      <LineIcon name="stop" :size="13" /> 停止
+                    </el-button>
+                  </template>
+                  <span v-if="tts.speaking" class="speak-indicator" :class="{ paused: tts.paused }">
+                    {{ tts.paused ? '· 已暂停' : '· 正在朗读' }}
+                  </span>
+                </div>
               </div>
               <div class="reader-meta text-muted">
                 <span v-if="current.completedTime">完成于 {{ formatDate(current.completedTime) }}</span>
@@ -472,6 +509,36 @@ onBeforeUnmount(stopTimer)
   flex-wrap: wrap;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--line-soft);
+}
+.speak-ctrl {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.speak-ctrl .el-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.speak-indicator {
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--theme-color);
+  animation: speak-pulse 1.2s ease-in-out infinite;
+}
+.speak-indicator.paused {
+  animation: none;
+  color: var(--el-text-color-secondary);
+}
+@keyframes speak-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
 }
 .reader-no {
   font-size: 12px;

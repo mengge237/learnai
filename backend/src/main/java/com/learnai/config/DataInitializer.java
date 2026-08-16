@@ -3,7 +3,7 @@ package com.learnai.config;
 import com.learnai.entity.*;
 import com.learnai.entity.enums.*;
 import com.learnai.repository.*;
-import com.learnai.service.factory.StepTemplateFactory;
+import com.learnai.service.factory.StepContentLibrary;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,9 +63,6 @@ public class DataInitializer implements CommandLineRunner {
     private String uploadDir;
 
     private static final DateTimeFormatter MONTH = DateTimeFormatter.ofPattern("yyyyMM");
-    /** 默认步骤标题（与 LearningProgressService 共用的正文模板见该服务） */
-    private static final List<String> STEP_TITLES = StepTemplateFactory.all().stream()
-            .map(StepTemplateFactory.StepTemplate::title).toList();
 
     private Path root;
     private Long adminId;
@@ -77,6 +74,8 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
+        // 教程内容库更新后，把新内容同步到存量学习步骤（每次启动都执行）
+        refreshTutorialContent();
         if (userRepository.count() > 0) {
             log.info("[DataInitializer] 已有用户数据，跳过种子数据初始化");
             return;
@@ -97,6 +96,34 @@ public class DataInitializer implements CommandLineRunner {
         seedAiHistory();
         seedOrders();
         log.info("[DataInitializer] 演示数据初始化完成：admin/admin123、auditor/audit123、demo/demo123");
+    }
+
+    /**
+     * 教程内容同步：把 StepContentLibrary 的最新正文/标题写入存量学习步骤。
+     * 与用户是否已有数据无关，每次启动都执行，保证内容库更新即时生效。
+     */
+    private void refreshTutorialContent() {
+        int updated = 0;
+        for (LearningResource r : learningResourceRepository.findAll()) {
+            StepContentLibrary.LessonStep[] lessons = StepContentLibrary.of(r.getResourceCode());
+            if (lessons == null) {
+                continue;
+            }
+            for (LearningStep s : learningStepRepository.findByResourceId(r.getResourceId())) {
+                StepContentLibrary.LessonStep lesson = lessons[s.getStepNumber() - 1];
+                if (lesson == null) {
+                    continue;
+                }
+                if (!lesson.title().equals(s.getStepTitle()) || !lesson.content().equals(s.getStepContent())) {
+                    s.setStepTitle(lesson.title());
+                    s.setStepContent(lesson.content());
+                    updated++;
+                }
+            }
+        }
+        if (updated > 0) {
+            log.info("[DataInitializer] 已同步 {} 个学习步骤的教程内容", updated);
+        }
     }
 
     // ---------- 角色 ----------
@@ -454,11 +481,13 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private LearningStep step(LearningRecord record, LearningResource resource, int number, StepStatus status) {
+        StepContentLibrary.LessonStep lesson =
+                StepContentLibrary.lesson(resource.getResourceCode(), number, resource.getResourceTitle());
         LearningStep s = new LearningStep();
         s.setRecordId(record.getRecordId());
         s.setStepNumber(number);
-        s.setStepTitle(STEP_TITLES.get(number - 1));
-        s.setStepContent(StepTemplateFactory.templateOf(number).render(resource.getResourceTitle()));
+        s.setStepTitle(lesson.title());
+        s.setStepContent(lesson.content());
         s.setStatus(status);
         if (status == StepStatus.Completed) {
             s.setCompletedTime(record.getStartTime().plusMinutes(45L * number));

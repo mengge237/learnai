@@ -27,6 +27,13 @@ const open = ref(false)
 </template>
 
 <style scoped>
+/* 抽屉整体做成毛玻璃：悬浮在页面上方，背后内容透过模糊可见 */
+.ai-drawer {
+  background: var(--el-bg-color);
+  background: color-mix(in srgb, var(--el-bg-color) 84%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+}
 .ai-drawer :deep(.el-drawer__body) {
   padding: 0;
   display: flex;
@@ -39,6 +46,10 @@ const open = ref(false)
   gap: 10px;
   padding: 14px 16px;
   border-bottom: 1px solid var(--border-color);
+  /* 玻璃头：消息列表滚动时从下方透过模糊 */
+  background: color-mix(in srgb, var(--el-bg-color) 55%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 .drawer-title {
   font-size: 16px;

@@ -392,6 +392,10 @@ function onPortalLeave(e) {
 /* ================= HERO：深色对撞 ================= */
 .hero {
   background: var(--el-color-primary);
+  /* 淡工程网格铺底：让毛玻璃面板有内容可模糊 */
+  background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
   color: var(--el-bg-color);
   border-bottom: 1px solid var(--line-color);
 }
@@ -404,8 +408,13 @@ function onPortalLeave(e) {
   display: flex;
   justify-content: space-between;
   gap: 16px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(128, 128, 128, 0.35);
+  /* 玻璃徽标条：悬浮在工程网格之上 */
+  padding: 10px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset;
 }
 .hero-en {
   font-family: 'Consolas', 'Courier New', monospace;
@@ -441,6 +450,12 @@ function onPortalLeave(e) {
 .hero-search {
   max-width: 480px;
   margin-bottom: 22px;
+  /* 玻璃搜索面板 */
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  -webkit-backdrop-filter: blur(12px) saturate(1.3);
+  backdrop-filter: blur(12px) saturate(1.3);
 }
 .hero-search :deep(.el-input__wrapper) {
   border-radius: 2px;
@@ -643,8 +658,12 @@ function onPortalLeave(e) {
   display: flex;
   justify-content: center;
   gap: 48px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(128, 128, 128, 0.35);
+  /* 玻璃数据条 */
+  padding: 16px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   flex-wrap: wrap;
 }
 .hstat {

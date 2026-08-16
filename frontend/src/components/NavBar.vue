@@ -215,8 +215,13 @@ async function handleCommand(cmd) {
   position: sticky;
   top: 0;
   z-index: 100;
+  /* 毛玻璃导航：半透明 + 背景模糊，页面滚动时内容从下方透过 */
   background: var(--el-bg-color);
+  background: color-mix(in srgb, var(--el-bg-color) 72%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  backdrop-filter: blur(14px) saturate(1.4);
   border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 4px 16px rgba(23, 24, 28, 0.05);
 }
 .navbar-inner {
   max-width: 1200px;
@@ -249,6 +254,9 @@ async function handleCommand(cmd) {
   flex: 1;
   border-bottom: none;
   min-width: 0;
+  /* 菜单自身透明，避免盖住导航条的毛玻璃效果 */
+  background: transparent;
+  --el-menu-bg-color: transparent;
 }
 .navbar-right {
   display: flex;
