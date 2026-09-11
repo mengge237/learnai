@@ -1,4 +1,6 @@
-﻿# AI智学 · 校园学习平台
+# AI智学 · 校园学习平台
+
+![lang](https://img.shields.io/badge/lang-Java-informational) ![status](https://img.shields.io/badge/status-maintained-brightgreen)
 
 一个面向 3D 建模学习者的前后端分离教育类网站（类似菜鸟教程），包含学习资源、学习路径、学习进度、AI 智能答疑、模型资源库（含模拟支付）等完整功能。
 
